@@ -28,7 +28,7 @@ function fetchEmailsForClient(client) {
           if (err) return reject(err);
           if (!results || results.length === 0) { imap.end(); return resolve([]); }
 
-          const toFetch = results.slice(0, 10); // max 10 per run
+          const toFetch = results.slice(0, 10);
           const fetch = imap.fetch(toFetch, { bodies: '', markSeen: true });
 
           fetch.on('message', (msg) => {
@@ -62,11 +62,7 @@ function buildSystemPrompt(client) {
   const name = client.companyName || 'naše firma';
   const signature = client.signature || `Tým zákaznické podpory, ${name}`;
   const tone = client.tone || 'přátelský a profesionální';
-  const salutationMap = {
-    vykani: 'Vyká zákazníkům',
-    tykani: 'Tyká zákazníkům',
-    jmeno: 'Oslovuje zákazníky jménem pokud je zná'
-  };
+  const salutationMap = { vykani: 'Vyká zákazníkům', tykani: 'Tyká zákazníkům' };
   const lengthMap = { kratka: 'krátká', dlouha: 'podrobná' };
   const plural = client.usePlural !== false;
   const useSignature = client.useSignature !== false;
@@ -127,10 +123,10 @@ module.exports = async function handler(req, res) {
       const client = await redis.get(`client:${clientId}`);
       if (!client || !client.active) continue;
 
-      // Per-client daily limit
       const countKey = `daily_count:${clientId}:${today}`;
       const count = (await redis.get(countKey)) || 0;
       const limit = client.dailyLimit || 25;
+
       if (count >= limit) {
         results.push({ clientId, message: 'Denní limit vyčerpán' });
         continue;
@@ -160,13 +156,11 @@ module.exports = async function handler(req, res) {
 
           await redis.set(`email:${id}`, record);
 
-          // Global index
           const globalIndex = (await redis.get('email_index')) || [];
           globalIndex.unshift(id);
           if (globalIndex.length > 1000) globalIndex.pop();
           await redis.set('email_index', globalIndex);
 
-          // Per-client index
           const clientIndex = (await redis.get(`email_index:${clientId}`)) || [];
           clientIndex.unshift(id);
           if (clientIndex.length > 200) clientIndex.pop();

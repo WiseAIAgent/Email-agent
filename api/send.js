@@ -6,21 +6,37 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
+async function getClientId(req) {
+  const adminSecret = req.headers['x-admin-secret'];
+  const clientPassword = req.headers['x-client-password'];
+
+  if (adminSecret === process.env.ADMIN_SECRET) return 'admin';
+
+  if (clientPassword) {
+    const ids = (await redis.get('client_index')) || [];
+    for (const id of ids) {
+      const client = await redis.get(`client:${id}`);
+      if (client && client.clientPassword === clientPassword) return client.id;
+    }
+  }
+  return null;
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const auth = req.headers['x-admin-secret'];
-  if (auth !== process.env.ADMIN_SECRET) return res.status(401).json({ error: 'Unauthorized' });
-
-  const { emailId, replyText } = req.body;
-  if (!emailId || !replyText) return res.status(400).json({ error: 'Chybí emailId nebo replyText' });
-
   try {
+    const authId = await getClientId(req);
+    if (!authId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const { emailId, replyText } = req.body;
+    if (!emailId || !replyText) return res.status(400).json({ error: 'Chybí emailId nebo replyText' });
+
     const record = await redis.get(`email:${emailId}`);
     if (!record) return res.status(404).json({ error: 'E-mail nenalezen' });
     if (record.status === 'sent') return res.status(400).json({ error: 'Už odesláno' });
+    if (authId !== 'admin' && record.clientId !== authId) return res.status(403).json({ error: 'Forbidden' });
 
-    // Load client config for SMTP credentials
     const client = await redis.get(`client:${record.clientId}`);
     if (!client) return res.status(404).json({ error: 'Klient nenalezen' });
 
