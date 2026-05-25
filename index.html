@@ -498,7 +498,6 @@ textarea { resize: vertical; line-height: 1.6; }
       </div>
       <h1>Email Agent <span>demo</span></h1>
     </div>
-<<<<<<< HEAD
     <div class="topbar-right">
       <button class="login-btn" onclick="toggleLoginMenu(event)" title="Přihlásit se">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -541,24 +540,6 @@ textarea { resize: vertical; line-height: 1.6; }
         </svg>
       </button>
     </div>
-=======
-    <button class="theme-btn" onclick="toggleTheme()" title="Přepnout režim">
-      <svg id="theme-icon-light" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-        <circle cx="8" cy="8" r="3"/>
-        <line x1="8" y1="1" x2="8" y2="2.5"/>
-        <line x1="8" y1="13.5" x2="8" y2="15"/>
-        <line x1="1" y1="8" x2="2.5" y2="8"/>
-        <line x1="13.5" y1="8" x2="15" y2="8"/>
-        <line x1="3" y1="3" x2="4.1" y2="4.1"/>
-        <line x1="11.9" y1="11.9" x2="13" y2="13"/>
-        <line x1="13" y1="3" x2="11.9" y2="4.1"/>
-        <line x1="4.1" y1="11.9" x2="3" y2="13"/>
-      </svg>
-      <svg id="theme-icon-dark" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="display:none">
-        <path d="M13.5 10.5A6 6 0 015.5 2.5a6 6 0 108 8z"/>
-      </svg>
-    </button>
->>>>>>> 0840131893a10983e54020d4520e9067870c87fd
   </div>
 
   <div class="card">
@@ -830,7 +811,6 @@ document.querySelectorAll('.tone-btn').forEach(btn => {
   });
 });
 
-<<<<<<< HEAD
 function toggleLoginMenu(e) {
   e.stopPropagation();
   document.getElementById('login-dropdown').classList.toggle('open');
@@ -840,8 +820,6 @@ document.addEventListener('click', function() {
   document.getElementById('login-dropdown').classList.remove('open');
 });
 
-=======
->>>>>>> 0840131893a10983e54020d4520e9067870c87fd
 function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.getAttribute('data-theme') === 'dark';
