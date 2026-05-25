@@ -3,364 +3,171 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Email Agent — Admin</title>
+<title>Email Agent — Správa</title>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-[data-theme="light"] {
-  --bg: #f2f1ed; --surface: #fff; --surface2: #f7f6f3; --surface3: #eeecea;
-  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.15);
-  --text: #141413; --text2: #5c5b56; --text3: #9a9891;
-  --accent: #1a56a4; --accent-light: #e8f0fb; --accent-text: #1a56a4;
-  --green: #186636; --green-bg: #e8f5ee;
-  --warn-bg: #fef7e8; --warn-text: #7a5800;
-  --danger: #b02c2c; --danger-bg: #fdeeed;
-  --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.05);
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-}
-[data-theme="dark"] {
-  --bg: #111110; --surface: #1c1c1a; --surface2: #242422; --surface3: #2c2c29;
-  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.14);
-  --text: #f0efe9; --text2: #9a9891; --text3: #5c5b56;
-  --accent: #4d8de8; --accent-light: #1a2a42; --accent-text: #7aaff0;
-  --green: #5cc98a; --green-bg: #0f2a1a;
-  --warn-bg: #261e08; --warn-text: #f0bc4a;
-  --danger: #f08080; --danger-bg: #2a1010;
-  --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-}
-
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; transition: background 0.2s, color 0.2s; }
-
-/* Layout */
-.layout { display: flex; min-height: 100vh; }
-
-.sidebar {
-  width: 220px; flex-shrink: 0;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  padding: 1.25rem 0;
-  position: sticky; top: 0; height: 100vh;
-}
-
-.sidebar-logo {
-  display: flex; align-items: center; gap: 9px;
-  padding: 0 1rem 1.25rem;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 0.75rem;
-}
-
-.logo-icon { width: 28px; height: 28px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.logo-icon svg { width: 14px; height: 14px; }
-.logo-name { font-size: 15px; font-weight: 500; letter-spacing: -0.02em; }
-.logo-sub { font-size: 11px; color: var(--text3); }
-
-.nav-item {
-  display: flex; align-items: center; gap: 9px;
-  padding: 8px 1rem; font-size: 13px; color: var(--text2);
-  cursor: pointer; border-radius: 0; transition: all 0.15s;
-  border: none; background: none; font-family: inherit;
-  width: 100%; text-align: left;
-}
-.nav-item:hover { background: var(--surface2); color: var(--text); }
-.nav-item.active { background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
-.nav-item svg { width: 15px; height: 15px; flex-shrink: 0; }
-
-.nav-section { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); padding: 0.75rem 1rem 0.25rem; }
-
-.sidebar-bottom { margin-top: auto; padding: 0.75rem 1rem 0; border-top: 1px solid var(--border); }
-
-.theme-toggle-row { display: flex; align-items: center; justify-content: space-between; }
-.theme-toggle-label { font-size: 12px; color: var(--text3); }
-.theme-btn { width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--border2); background: none; color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.theme-btn svg { width: 14px; height: 14px; }
-
-.main { flex: 1; padding: 2rem; min-width: 0; }
-
-.page-header { margin-bottom: 1.5rem; }
-.page-title { font-size: 20px; font-weight: 500; letter-spacing: -0.02em; }
-.page-sub { font-size: 13px; color: var(--text3); margin-top: 3px; }
-
-/* Cards */
-.card { background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
-.card-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.card-title { font-size: 13px; font-weight: 500; color: var(--text2); }
-.card-body { padding: 18px; }
-
-/* Buttons */
-.btn {
-  font-family: inherit; font-size: 13px; font-weight: 500;
-  padding: 8px 16px; border-radius: 8px; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 6px;
-  transition: all 0.15s; border: none;
-}
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { opacity: 0.88; }
-.btn-secondary { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
-.btn-secondary:hover { background: var(--surface3); }
-.btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-bg); }
-.btn-danger:hover { opacity: 0.85; }
-.btn-sm { padding: 5px 11px; font-size: 12px; }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.btn svg { width: 13px; height: 13px; }
-
-/* Forms */
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-.field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 12px; font-weight: 500; color: var(--text2); }
-.field-hint { font-size: 11px; color: var(--text3); margin-top: 3px; }
-
-input[type=text], input[type=password], input[type=number], textarea, select {
-  font-family: inherit; font-size: 14px;
-  background: var(--surface2); border: 1px solid var(--border2);
-  border-radius: 8px; color: var(--text);
-  padding: 8px 11px; width: 100%; outline: none;
-  transition: border-color 0.15s, background 0.15s;
-  -webkit-appearance: none;
-}
-input:focus, textarea:focus, select:focus { border-color: var(--accent); background: var(--surface); }
-select { cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
-textarea { resize: vertical; line-height: 1.6; }
-
-.section-divider { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); padding: 4px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
-
-/* Client cards */
-.client-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-
-.client-card {
-  background: var(--surface); border-radius: 12px;
-  box-shadow: var(--shadow); padding: 16px;
-  display: flex; flex-direction: column; gap: 10px;
-  cursor: pointer; transition: box-shadow 0.15s;
-  border: 2px solid transparent;
-}
-.client-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.07); }
-.client-card.selected { border-color: var(--accent); }
-
-.client-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.client-avatar { width: 38px; height: 38px; border-radius: 10px; background: var(--accent-light); color: var(--accent-text); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
-.client-info { flex: 1; min-width: 0; }
-.client-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.client-industry { font-size: 12px; color: var(--text3); margin-top: 2px; }
-
-.client-meta { display: flex; gap: 6px; flex-wrap: wrap; }
-.client-tag { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--surface3); color: var(--text2); }
-.client-tag.active { background: var(--green-bg); color: var(--green); }
-.client-tag.inactive { background: var(--danger-bg); color: var(--danger); }
-
-.client-actions { display: flex; gap: 6px; }
-
-/* Stats row */
-.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.25rem; }
-.stat { background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); padding: 14px 16px; }
-.stat-val { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; }
-.stat-label { font-size: 12px; color: var(--text3); margin-top: 3px; }
-.stat-val.pending { color: var(--warn-text); }
-.stat-val.sent { color: var(--green); }
-
-/* Email list */
-.email-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
-.filter-btn { font-size: 12px; padding: 5px 13px; border-radius: 999px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text2); cursor: pointer; font-family: inherit; transition: all 0.15s; }
-.filter-btn.active { background: var(--accent-light); color: var(--accent-text); border-color: var(--accent); font-weight: 500; }
-.client-filter { font-size: 12px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); font-family: inherit; cursor: pointer; margin-left: auto; }
-
-.email-list { display: flex; flex-direction: column; gap: 8px; }
-.email-card { background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
-.email-card.sent { opacity: 0.55; }
-.email-card.ignored { opacity: 0.35; }
-
-.email-header { padding: 12px 16px; display: flex; align-items: flex-start; gap: 10px; border-bottom: 1px solid var(--border); cursor: pointer; }
-.email-header:hover { background: var(--surface2); }
-.email-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-light); color: var(--accent-text); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
-.email-meta { flex: 1; min-width: 0; }
-.email-from { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.email-subject { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
-.email-date { font-size: 11px; color: var(--text3); margin-top: 2px; }
-.email-client-tag { font-size: 10px; padding: 1px 7px; border-radius: 999px; background: var(--accent-light); color: var(--accent-text); white-space: nowrap; }
-
-.status-badge { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 999px; flex-shrink: 0; }
-.status-badge.pending { background: var(--warn-bg); color: var(--warn-text); }
-.status-badge.sent { background: var(--green-bg); color: var(--green); }
-.status-badge.ignored { background: var(--surface3); color: var(--text3); }
-
-.email-body { display: none; }
-.email-body.open { display: block; }
-.email-section { padding: 12px 16px; border-bottom: 1px solid var(--border); }
-.email-section-title { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 7px; }
-.email-text { font-size: 13px; line-height: 1.7; color: var(--text2); white-space: pre-wrap; max-height: 100px; overflow-y: auto; }
-.reply-editor { font-family: inherit; font-size: 14px; line-height: 1.7; color: var(--text); background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; padding: 9px 12px; width: 100%; resize: vertical; min-height: 100px; outline: none; transition: border-color 0.15s; }
-.reply-editor:focus { border-color: var(--accent); background: var(--surface); }
-.email-actions { padding: 10px 16px; display: flex; gap: 8px; align-items: center; }
-.send-status { font-size: 12px; color: var(--text3); margin-left: auto; }
-
-/* Modal */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
-.modal-overlay.open { display: flex; }
-.modal { background: var(--surface); border-radius: 16px; box-shadow: 0 8px 40px rgba(0,0,0,0.2); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
-.modal-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface); }
-.modal-title { font-size: 16px; font-weight: 500; }
-.modal-close { width: 28px; height: 28px; border-radius: 6px; border: none; background: var(--surface3); color: var(--text2); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-.modal-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-.modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; position: sticky; bottom: 0; background: var(--surface); }
-
-.faq-list { display: flex; flex-direction: column; gap: 8px; }
-.faq-item { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: start; }
-.faq-item input { font-size: 13px; padding: 7px 10px; }
-.faq-remove { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2); background: none; color: var(--text3); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-.faq-remove:hover { background: var(--danger-bg); color: var(--danger); }
-.add-btn { font-size: 12px; padding: 5px 12px; border-radius: 7px; border: 1px dashed var(--border2); background: none; color: var(--text2); cursor: pointer; font-family: inherit; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px; }
-.add-btn:hover { border-color: var(--accent); color: var(--accent-text); background: var(--accent-light); }
-
-.tone-grid { display: flex; gap: 6px; flex-wrap: wrap; }
-.tone-btn { font-family: inherit; font-size: 12px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text2); cursor: pointer; transition: all 0.15s; }
-.tone-btn:hover { color: var(--text); }
-.tone-btn.active { background: var(--accent-light); color: var(--accent-text); border-color: var(--accent); font-weight: 500; }
-
-.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; }
-.toggle-label { font-size: 13px; color: var(--text2); }
-.toggle-switch { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
-.toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
-.toggle-track { position: absolute; inset: 0; background: var(--surface3); border-radius: 999px; border: 1px solid var(--border2); cursor: pointer; transition: background 0.2s; }
-.toggle-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--text3); transition: transform 0.2s, background 0.2s; }
-.toggle-switch input:checked + .toggle-track { background: var(--accent); border-color: var(--accent); }
-.toggle-switch input:checked + .toggle-track::after { transform: translateX(16px); background: #fff; }
-
-.empty-state { text-align: center; padding: 3rem; color: var(--text3); font-size: 14px; }
-.empty-state svg { width: 36px; height: 36px; margin-bottom: 10px; opacity: 0.4; display: block; margin: 0 auto 10px; }
-.loading { text-align: center; padding: 2rem; color: var(--text3); font-size: 13px; }
-
-.login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-.login-box { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 2rem; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 16px; }
-.login-title { font-size: 18px; font-weight: 500; letter-spacing: -0.02em; }
-.login-error { font-size: 13px; color: var(--danger); }
-
-@media (max-width: 700px) {
-  .sidebar { display: none; }
-  .stats-row { grid-template-columns: 1fr 1fr; }
-  .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
-  .main { padding: 1.25rem; }
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[data-theme="light"]{--bg:#f2f1ed;--surface:#fff;--surface2:#f7f6f3;--surface3:#eeecea;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);--text:#141413;--text2:#5c5b56;--text3:#9a9891;--accent:#1a56a4;--accent-light:#e8f0fb;--accent-text:#1a56a4;--green:#186636;--green-bg:#e8f5ee;--warn-bg:#fef7e8;--warn-text:#7a5800;--danger:#b02c2c;--danger-bg:#fdeeed;--shadow:0 1px 3px rgba(0,0,0,0.07),0 0 0 1px rgba(0,0,0,0.05)}
+[data-theme="dark"]{--bg:#111110;--surface:#1c1c1a;--surface2:#242422;--surface3:#2c2c29;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);--text:#f0efe9;--text2:#9a9891;--text3:#5c5b56;--accent:#4d8de8;--accent-light:#1a2a42;--accent-text:#7aaff0;--green:#5cc98a;--green-bg:#0f2a1a;--warn-bg:#261e08;--warn-text:#f0bc4a;--danger:#f08080;--danger-bg:#2a1010;--shadow:0 1px 3px rgba(0,0,0,0.4),0 0 0 1px rgba(255,255,255,0.04)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.25rem 0;position:sticky;top:0;height:100vh}
+.sidebar-logo{display:flex;align-items:center;gap:9px;padding:0 1rem 1.25rem;border-bottom:1px solid var(--border);margin-bottom:.75rem}
+.logo-icon{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-icon svg{width:14px;height:14px}
+.logo-name{font-size:15px;font-weight:500;letter-spacing:-.02em}
+.logo-sub{font-size:11px;color:var(--text3)}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 1rem;font-size:13px;color:var(--text2);cursor:pointer;border:none;background:none;font-family:inherit;width:100%;text-align:left;transition:all .15s}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-light);color:var(--accent-text);font-weight:500}
+.nav-item svg{width:15px;height:15px;flex-shrink:0}
+.nav-section{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);padding:.75rem 1rem .25rem}
+.sidebar-bottom{margin-top:auto;padding:.75rem 1rem 0;border-top:1px solid var(--border)}
+.theme-row{display:flex;align-items:center;justify-content:space-between}
+.theme-label{font-size:12px;color:var(--text3)}
+.theme-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.theme-btn svg{width:14px;height:14px}
+.main{flex:1;padding:2rem;min-width:0}
+.page-header{margin-bottom:1.5rem;display:flex;align-items:flex-start;justify-content:space-between}
+.page-title{font-size:20px;font-weight:500;letter-spacing:-.02em}
+.page-sub{font-size:13px;color:var(--text3);margin-top:3px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.stat{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px}
+.stat-val{font-size:26px;font-weight:500;letter-spacing:-.02em}
+.stat-label{font-size:12px;color:var(--text3);margin-top:3px}
+.stat-val.green{color:var(--green)}
+.stat-val.warn{color:var(--warn-text)}
+.client-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.client-card{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column;gap:12px}
+.client-top{display:flex;align-items:flex-start;gap:12px}
+.client-avatar{width:40px;height:40px;border-radius:10px;background:var(--accent-light);color:var(--accent-text);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;flex-shrink:0}
+.client-info{flex:1;min-width:0}
+.client-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client-email{font-size:12px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.client-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.cstat{background:var(--surface2);border-radius:8px;padding:8px 10px;text-align:center}
+.cstat-val{font-size:16px;font-weight:500}
+.cstat-label{font-size:10px;color:var(--text3);margin-top:1px}
+.cstat-val.pending{color:var(--warn-text)}
+.cstat-val.sent{color:var(--green)}
+.client-footer{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.client-actions{display:flex;gap:6px}
+.badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:999px}
+.badge.active{background:var(--green-bg);color:var(--green)}
+.badge.inactive{background:var(--danger-bg);color:var(--danger)}
+.progress-bar{height:4px;background:var(--surface3);border-radius:999px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .3s}
+.progress-label{font-size:11px;color:var(--text3);margin-top:3px}
+.btn{font-family:inherit;font-size:13px;font-weight:500;padding:8px 16px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;border:none}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{opacity:.88}
+.btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
+.btn-secondary:hover{background:var(--surface3)}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-bg)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn svg{width:13px;height:13px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.2);width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
+.modal-header{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1}
+.modal-title{font-size:16px;font-weight:500}
+.modal-close{width:28px;height:28px;border-radius:6px;border:none;background:var(--surface3);color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:20px;display:flex;flex-direction:column;gap:16px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:var(--surface)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;font-weight:500;color:var(--text2)}
+.field-hint{font-size:11px;color:var(--text3);margin-top:3px}
+input[type=text],input[type=password],input[type=number],textarea,select{font-family:inherit;font-size:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 11px;width:100%;outline:none;transition:border-color .15s,background .15s;-webkit-appearance:none;appearance:none}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);background:var(--surface)}
+select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+textarea{resize:vertical;line-height:1.6}
+.section-div{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);padding:4px 0 10px;border-bottom:1px solid var(--border);margin-bottom:14px}
+.tone-grid{display:flex;gap:6px;flex-wrap:wrap}
+.tone-btn{font-family:inherit;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
+.tone-btn.active{background:var(--accent-light);color:var(--accent-text);border-color:var(--accent);font-weight:500}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0}
+.toggle-label{font-size:13px;color:var(--text2)}
+.toggle-switch{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:var(--surface3);border-radius:999px;border:1px solid var(--border2);cursor:pointer;transition:background .2s}
+.toggle-track::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--text3);transition:transform .2s,background .2s}
+.toggle-switch input:checked+.toggle-track{background:var(--accent);border-color:var(--accent)}
+.toggle-switch input:checked+.toggle-track::after{transform:translateX(16px);background:#fff}
+.faq-list{display:flex;flex-direction:column;gap:8px}
+.faq-item{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:start}
+.faq-item input{font-size:13px;padding:7px 10px}
+.faq-remove{width:28px;height:28px;border-radius:6px;border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.faq-remove:hover{background:var(--danger-bg);color:var(--danger)}
+.add-btn{font-size:12px;padding:5px 12px;border-radius:7px;border:1px dashed var(--border2);background:none;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.add-btn:hover{border-color:var(--accent);color:var(--accent-text);background:var(--accent-light)}
+.client-link-box{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:13px;color:var(--accent-text);word-break:break-all}
+.empty{text-align:center;padding:3rem;color:var(--text3);font-size:14px;grid-column:1/-1}
+.loading{text-align:center;padding:2rem;color:var(--text3);font-size:13px}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:2rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:16px}
+.login-title{font-size:18px;font-weight:500;letter-spacing:-.02em}
+.login-error{font-size:13px;color:var(--danger)}
+@media(max-width:700px){.sidebar{display:none}.stats-grid{grid-template-columns:1fr 1fr}.form-grid,.form-grid-3{grid-template-columns:1fr}.main{padding:1.25rem}}
 </style>
 </head>
 <body>
 
-<!-- Login screen -->
 <div class="login-wrap" id="login-screen">
   <div class="login-box">
-    <div>
-      <div class="login-title">Email Agent</div>
-      <div style="font-size:13px;color:var(--text3);margin-top:4px;">Přihlášení do administrace</div>
-    </div>
-    <div class="field">
-      <label>Admin heslo</label>
-      <input type="password" id="login-password" placeholder="Zadejte heslo..." onkeydown="if(event.key==='Enter')login()" />
-    </div>
-    <div class="login-error" id="login-error" style="display:none">Nesprávné heslo</div>
+    <div><div class="login-title">Email Agent</div><div style="font-size:13px;color:var(--text3);margin-top:4px;">Přihlášení provozovatele</div></div>
+    <div class="field"><label>Admin heslo</label><input type="password" id="login-pw" placeholder="Zadejte heslo..." onkeydown="if(event.key==='Enter')login()" /></div>
+    <div class="login-error" id="login-err" style="display:none">Nesprávné heslo</div>
     <button class="btn btn-primary" onclick="login()">Přihlásit se</button>
   </div>
 </div>
 
-<!-- Main app -->
 <div class="layout" id="app" style="display:none">
   <div class="sidebar">
     <div class="sidebar-logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="1" y="2" width="12" height="9" rx="2"/>
-          <path d="M1 5l6 4 6-4"/>
-        </svg>
-      </div>
-      <div>
-        <div class="logo-name">Email Agent</div>
-        <div class="logo-sub">administrace</div>
-      </div>
+      <div class="logo-icon"><svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="12" height="9" rx="2"/><path d="M1 5l6 4 6-4"/></svg></div>
+      <div><div class="logo-name">Email Agent</div><div class="logo-sub">provozovatel</div></div>
     </div>
-
     <div class="nav-section">Hlavní</div>
-    <button class="nav-item active" id="nav-emails" onclick="showPage('emails')">
-      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="1" y="2" width="13" height="11" rx="2"/>
-        <path d="M1 5l6.5 4L14 5"/>
-      </svg>
-      E-maily
+    <button class="nav-item active" id="nav-overview" onclick="showPage('overview')">
+      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="1" y="1" width="5" height="5" rx="1"/><rect x="9" y="1" width="5" height="5" rx="1"/><rect x="1" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+      Přehled
     </button>
     <button class="nav-item" id="nav-clients" onclick="showPage('clients')">
-      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="7.5" cy="5" r="3"/>
-        <path d="M1 14c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6"/>
-      </svg>
+      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7.5" cy="5" r="3"/><path d="M1 14c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6"/></svg>
       Klienti
     </button>
-
     <div class="sidebar-bottom">
-      <div class="theme-toggle-row">
-        <span class="theme-toggle-label" id="theme-label">světlý režim</span>
+      <div class="theme-row">
+        <span class="theme-label" id="theme-label">světlý</span>
         <button class="theme-btn" onclick="toggleTheme()">
-          <svg id="ti-light" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-            <circle cx="7" cy="7" r="2.5"/>
-            <line x1="7" y1="1" x2="7" y2="2.2"/><line x1="7" y1="11.8" x2="7" y2="13"/>
-            <line x1="1" y1="7" x2="2.2" y2="7"/><line x1="11.8" y1="7" x2="13" y2="7"/>
-            <line x1="2.6" y1="2.6" x2="3.5" y2="3.5"/><line x1="10.5" y1="10.5" x2="11.4" y2="11.4"/>
-            <line x1="11.4" y1="2.6" x2="10.5" y2="3.5"/><line x1="3.5" y1="10.5" x2="2.6" y2="11.4"/>
-          </svg>
-          <svg id="ti-dark" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="display:none">
-            <path d="M12 9A6 6 0 015 2a6 6 0 107 7z"/>
-          </svg>
+          <svg id="ti-l" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="2.5"/><line x1="7" y1="1" x2="7" y2="2.2"/><line x1="7" y1="11.8" x2="7" y2="13"/><line x1="1" y1="7" x2="2.2" y2="7"/><line x1="11.8" y1="7" x2="13" y2="7"/><line x1="2.6" y1="2.6" x2="3.5" y2="3.5"/><line x1="10.5" y1="10.5" x2="11.4" y2="11.4"/><line x1="11.4" y1="2.6" x2="10.5" y2="3.5"/><line x1="3.5" y1="10.5" x2="2.6" y2="11.4"/></svg>
+          <svg id="ti-d" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="display:none"><path d="M12 9A6 6 0 015 2a6 6 0 107 7z"/></svg>
         </button>
       </div>
       <button class="nav-item" style="margin-top:8px;color:var(--text3)" onclick="logout()">
-        <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 2H3a1 1 0 00-1 1v9a1 1 0 001 1h3M10 10l3-3-3-3M13 7H6"/>
-        </svg>
+        <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H3a1 1 0 00-1 1v9a1 1 0 001 1h3M10 10l3-3-3-3M13 7H6"/></svg>
         Odhlásit
       </button>
     </div>
   </div>
 
   <div class="main">
-    <!-- E-maily page -->
-    <div id="page-emails">
-      <div class="page-header">
-        <div class="page-title">E-maily</div>
-        <div class="page-sub">Schvalování navrhovaných odpovědí</div>
+    <div id="page-overview">
+      <div class="page-header"><div><div class="page-title">Přehled</div><div class="page-sub">Statistiky všech klientů</div></div><button class="btn btn-secondary" onclick="loadStats()"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6.5A5 5 0 009.5 10M12 6.5A5 5 0 003.5 3"/><path d="M8 10l1.5 0 0-1.5M5 3L3.5 3l0 1.5"/></svg>Obnovit</button></div>
+      <div class="stats-grid">
+        <div class="stat"><div class="stat-val" id="s-clients">—</div><div class="stat-label">Aktivní klienti</div></div>
+        <div class="stat"><div class="stat-val warn" id="s-pending">—</div><div class="stat-label">Čeká na schválení</div></div>
+        <div class="stat"><div class="stat-val green" id="s-sent">—</div><div class="stat-label">Odesláno celkem</div></div>
       </div>
-
-      <div class="stats-row">
-        <div class="stat"><div class="stat-val" id="s-total">—</div><div class="stat-label">Celkem</div></div>
-        <div class="stat"><div class="stat-val pending" id="s-pending">—</div><div class="stat-label">Čeká</div></div>
-        <div class="stat"><div class="stat-val sent" id="s-sent">—</div><div class="stat-label">Odesláno</div></div>
-        <div class="stat"><div class="stat-val" id="s-ignored" style="color:var(--text3)">—</div><div class="stat-label">Ignorováno</div></div>
-      </div>
-
-      <div class="email-filters">
-        <button class="filter-btn active" onclick="setFilter('all',this)">Vše</button>
-        <button class="filter-btn" onclick="setFilter('pending',this)">Čeká</button>
-        <button class="filter-btn" onclick="setFilter('sent',this)">Odesláno</button>
-        <button class="filter-btn" onclick="setFilter('ignored',this)">Ignorováno</button>
-        <select class="client-filter" id="client-filter" onchange="loadEmails()">
-          <option value="">Všichni klienti</option>
-        </select>
-        <button class="btn btn-secondary btn-sm" onclick="loadEmails()">
-          <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 6.5A5 5 0 009.5 10M12 6.5A5 5 0 003.5 3"/><path d="M8 10l1.5 0 0-1.5M5 3L3.5 3l0 1.5"/>
-          </svg>
-          Obnovit
-        </button>
-      </div>
-
-      <div id="email-list" class="email-list"><div class="loading">Načítám...</div></div>
+      <div id="overview-list" class="client-grid"><div class="loading">Načítám...</div></div>
     </div>
 
-    <!-- Klienti page -->
     <div id="page-clients" style="display:none">
-      <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between">
-        <div>
-          <div class="page-title">Klienti</div>
-          <div class="page-sub">Správa připojených firem</div>
-        </div>
-        <button class="btn btn-primary" onclick="openClientModal()">
+      <div class="page-header">
+        <div><div class="page-title">Klienti</div><div class="page-sub">Správa připojených firem</div></div>
+        <button class="btn btn-primary" onclick="openModal()">
           <svg viewBox="0 0 13 13" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><line x1="6.5" y1="1" x2="6.5" y2="12"/><line x1="1" y1="6.5" x2="12" y2="6.5"/></svg>
           Přidat klienta
         </button>
@@ -370,45 +177,49 @@ textarea { resize: vertical; line-height: 1.6; }
   </div>
 </div>
 
-<!-- Client modal -->
-<div class="modal-overlay" id="client-modal">
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="modal-title">Nový klient</div>
-      <button class="modal-close" onclick="closeClientModal()">×</button>
-    </div>
+    <div class="modal-header"><div class="modal-title" id="modal-title">Nový klient</div><button class="modal-close" onclick="closeModal()">×</button></div>
     <div class="modal-body">
-      <div class="section-divider">Základní informace</div>
+      <div class="section-div">Základní informace</div>
       <div class="form-grid">
         <div class="field"><label>Název firmy *</label><input type="text" id="f-name" placeholder="Elektro Novák" /></div>
         <div class="field"><label>Obor</label>
           <select id="f-industry">
-            <optgroup label="E-commerce"><option>E-shop s elektronikou</option><option>Módní e-shop</option><option>E-shop s nábytkem</option><option>E-shop se sportem</option><option>E-shop s kosmetikou</option><option>E-shop s potravinami</option></optgroup>
-            <optgroup label="Služby"><option>Realitní kancelář</option><option>Účetní kancelář</option><option>Právní kancelář</option><option>Cestovní kancelář</option><option>Marketingová agentura</option><option>IT firma</option></optgroup>
-            <optgroup label="Zdraví"><option>Lékařská praxe</option><option>Zubní ordinace</option><option>Veterinární klinika</option><option>Fitness centrum</option><option>Kosmetický salon</option></optgroup>
-            <optgroup label="Ostatní"><option>Restaurace</option><option>Hotel / penzion</option><option>Autoservis</option><option>Stavební firma</option><option>Jiné</option></optgroup>
+            <optgroup label="E-commerce"><option>E-shop s elektronikou</option><option>Módní e-shop</option><option>E-shop s nábytkem</option><option>E-shop se sportem</option><option>E-shop s kosmetikou</option></optgroup>
+            <optgroup label="Služby"><option>Realitní kancelář</option><option>Účetní kancelář</option><option>Právní kancelář</option><option>Cestovní kancelář</option><option>IT firma</option></optgroup>
+            <optgroup label="Zdraví"><option>Lékařská praxe</option><option>Zubní ordinace</option><option>Fitness centrum</option><option>Kosmetický salon</option></optgroup>
+            <optgroup label="Ostatní"><option>Restaurace</option><option>Hotel / penzion</option><option>Autoservis</option><option>Jiné</option></optgroup>
           </select>
         </div>
       </div>
       <div class="field"><label>Popis firmy</label><textarea id="f-desc" rows="2" placeholder="Co firma dělá, pro koho, kde působí..."></textarea></div>
 
-      <div class="section-divider">E-mail připojení (IMAP / SMTP)</div>
+      <div class="section-div">Přístup klienta do panelu</div>
+      <div class="field">
+        <label>Heslo klienta *</label>
+        <input type="text" id="f-client-pw" placeholder="Zvolte heslo pro klienta (min. 8 znaků)" />
+        <div class="field-hint">Klient tímto heslem přistupuje na /klient a vidí pouze své e-maily. Nikdo jiný ho neuvidí.</div>
+      </div>
+
+      <div class="section-div">E-mail připojení (IMAP / SMTP)</div>
       <div class="form-grid">
         <div class="field"><label>E-mailová adresa *</label><input type="text" id="f-email" placeholder="podpora@firma.cz" /></div>
         <div class="field"><label>Heslo / App Password *</label><input type="password" id="f-password" placeholder="••••••••••••" /></div>
       </div>
       <div class="form-grid-3">
         <div class="field"><label>IMAP server</label><input type="text" id="f-imap-host" placeholder="imap.gmail.com" /></div>
-        <div class="field"><label>IMAP port</label><input type="number" id="f-imap-port" placeholder="993" value="993" /></div>
-        <div class="field"><label>Denní limit e-mailů</label><input type="number" id="f-limit" placeholder="25" value="25" /></div>
+        <div class="field"><label>IMAP port</label><input type="number" id="f-imap-port" value="993" /></div>
+        <div class="field"><label>Denní limit</label><input type="number" id="f-limit" value="25" /></div>
       </div>
       <div class="form-grid">
         <div class="field"><label>SMTP server</label><input type="text" id="f-smtp-host" placeholder="smtp.gmail.com" /></div>
-        <div class="field"><label>SMTP port</label><input type="number" id="f-smtp-port" placeholder="465" value="465" /></div>
+        <div class="field"><label>SMTP port</label><input type="number" id="f-smtp-port" value="465" /></div>
       </div>
-      <div class="field-hint">Gmail: imap.gmail.com / smtp.gmail.com · Seznam: imap.seznam.cz / smtp.seznam.cz · Outlook: outlook.office365.com / smtp.office365.com (port 587)</div>
+      <div class="field-hint">Gmail: imap.gmail.com / smtp.gmail.com · Seznam: imap.seznam.cz / smtp.seznam.cz · Outlook: outlook.office365.com (port 587)</div>
 
-      <div class="section-divider">Nastavení agenta</div>
+      <div class="section-div">Nastavení agenta</div>
       <div class="field"><label>Tón komunikace</label>
         <div class="tone-grid" id="f-tone-grid">
           <button class="tone-btn active" data-tone="přátelský a profesionální" onclick="selectTone(this)">přátelský</button>
@@ -419,422 +230,144 @@ textarea { resize: vertical; line-height: 1.6; }
         </div>
       </div>
       <div class="form-grid">
-        <div class="field"><label>Oslovení zákazníků</label>
-          <select id="f-salutation">
-            <option value="vykani">Vykání (Dobrý den, děkujeme Vám...)</option>
-            <option value="tykani">Tykání (Ahoj, díky...)</option>
-            <option value="jmeno">Jménem pokud známo</option>
-          </select>
-        </div>
-        <div class="field"><label>Délka odpovědi</label>
-          <select id="f-length">
-            <option value="stredni">Střední — výstižná</option>
-            <option value="kratka">Krátká — jen nejdůležitější</option>
-            <option value="dlouha">Podrobná — s vysvětlením</option>
-          </select>
-        </div>
+        <div class="field"><label>Oslovení</label><select id="f-salutation"><option value="vykani">Vykání</option><option value="tykani">Tykání</option></select></div>
+        <div class="field"><label>Délka odpovědi</label><select id="f-length"><option value="stredni">Střední</option><option value="kratka">Krátká</option><option value="dlouha">Podrobná</option></select></div>
       </div>
       <div class="field"><label>Podpis</label><input type="text" id="f-signature" placeholder="Tým zákaznické podpory, Firma s.r.o." /></div>
-      <div class="toggle-row">
-        <div class="toggle-label">Automatický podpis</div>
-        <label class="toggle-switch"><input type="checkbox" id="f-use-signature" checked /><span class="toggle-track"></span></label>
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-label">Množné číslo (Děkujeme místo Děkuji)</div>
-        <label class="toggle-switch"><input type="checkbox" id="f-plural" checked /><span class="toggle-track"></span></label>
-      </div>
+      <div class="toggle-row"><div class="toggle-label">Automatický podpis</div><label class="toggle-switch"><input type="checkbox" id="f-use-sig" checked /><span class="toggle-track"></span></label></div>
+      <div class="toggle-row"><div class="toggle-label">Množné číslo (Děkujeme místo Děkuji)</div><label class="toggle-switch"><input type="checkbox" id="f-plural" checked /><span class="toggle-track"></span></label></div>
 
-      <div class="section-divider">FAQ — časté dotazy</div>
+      <div class="section-div">FAQ — časté dotazy</div>
       <div class="faq-list" id="f-faq-list"></div>
       <button class="add-btn" onclick="addFaq()">+ Přidat dotaz</button>
 
-      <div class="section-divider">Eskalace a omezení</div>
+      <div class="section-div">Eskalace a omezení</div>
       <div class="form-grid">
-        <div class="field"><label>Eskalační kontakt</label><input type="text" id="f-escalation-contact" placeholder="manager@firma.cz" /></div>
-        <div class="field"><label>Kdy eskalovat</label><input type="text" id="f-escalation-when" placeholder="Reklamace nad 10 000 Kč, právní hrozby..." /></div>
+        <div class="field"><label>Eskalační kontakt</label><input type="text" id="f-esc-contact" placeholder="manager@firma.cz" /></div>
+        <div class="field"><label>Kdy eskalovat</label><input type="text" id="f-esc-when" placeholder="Reklamace nad 10 000 Kč..." /></div>
       </div>
       <div class="field"><label>Zakázaná témata</label><input type="text" id="f-forbidden" placeholder="Ceny konkurence, interní procesy..." /></div>
-
-      <div class="toggle-row">
-        <div class="toggle-label">Klient aktivní</div>
-        <label class="toggle-switch"><input type="checkbox" id="f-active" checked /><span class="toggle-track"></span></label>
-      </div>
+      <div class="toggle-row"><div class="toggle-label">Klient aktivní</div><label class="toggle-switch"><input type="checkbox" id="f-active" checked /><span class="toggle-track"></span></label></div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeClientModal()">Zrušit</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Zrušit</button>
       <button class="btn btn-primary" id="modal-save-btn" onclick="saveClient()">Uložit klienta</button>
     </div>
   </div>
 </div>
 
 <script>
-let adminSecret = '';
-let allEmails = [];
-let allClients = [];
-let currentFilter = 'all';
-let editingClientId = null;
-let selectedToneValue = 'přátelský a profesionální';
+let adminSecret='', allStats=[], allClients=[], editingId=null, selectedTone='přátelský a profesionální';
 
-// Theme
-(function() {
-  const saved = localStorage.getItem('ea_theme');
-  if (saved === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
-    document.getElementById('ti-light').style.display = 'none';
-    document.getElementById('ti-dark').style.display = 'block';
-    document.getElementById('theme-label').textContent = 'tmavý režim';
-  }
-  const secret = sessionStorage.getItem('ea_admin_secret');
-  if (secret) { adminSecret = secret; showApp(); }
+(function(){
+  const t=localStorage.getItem('ea_theme');
+  if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');document.getElementById('ti-l').style.display='none';document.getElementById('ti-d').style.display='block';document.getElementById('theme-label').textContent='tmavý';}
+  const s=sessionStorage.getItem('ea_admin');
+  if(s){adminSecret=s;showApp();}
 })();
 
-function toggleTheme() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  document.getElementById('ti-light').style.display = isDark ? 'block' : 'none';
-  document.getElementById('ti-dark').style.display = isDark ? 'none' : 'block';
-  document.getElementById('theme-label').textContent = isDark ? 'světlý režim' : 'tmavý režim';
-  localStorage.setItem('ea_theme', isDark ? 'light' : 'dark');
-}
+function toggleTheme(){const d=document.documentElement.getAttribute('data-theme')==='dark';document.documentElement.setAttribute('data-theme',d?'light':'dark');document.getElementById('ti-l').style.display=d?'block':'none';document.getElementById('ti-d').style.display=d?'none':'block';document.getElementById('theme-label').textContent=d?'světlý':'tmavý';localStorage.setItem('ea_theme',d?'light':'dark');}
+function login(){const pw=document.getElementById('login-pw').value;if(!pw)return;adminSecret=pw;sessionStorage.setItem('ea_admin',pw);document.getElementById('login-err').style.display='none';showApp();}
+function logout(){sessionStorage.removeItem('ea_admin');adminSecret='';document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('login-pw').value='';}
+function showApp(){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';loadStats();loadClients();}
+function showPage(p){['overview','clients'].forEach(x=>{document.getElementById('page-'+x).style.display=p===x?'block':'none';document.getElementById('nav-'+x).classList.toggle('active',p===x);});}
 
-function login() {
-  const pw = document.getElementById('login-password').value;
-  if (!pw) return;
-  adminSecret = pw;
-  sessionStorage.setItem('ea_admin_secret', pw);
-  showApp();
-}
-
-function logout() {
-  sessionStorage.removeItem('ea_admin_secret');
-  adminSecret = '';
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-password').value = '';
-}
-
-function showApp() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  loadEmails();
-  loadClients();
-}
-
-function showPage(page) {
-  document.getElementById('page-emails').style.display = page === 'emails' ? 'block' : 'none';
-  document.getElementById('page-clients').style.display = page === 'clients' ? 'block' : 'none';
-  document.getElementById('nav-emails').classList.toggle('active', page === 'emails');
-  document.getElementById('nav-clients').classList.toggle('active', page === 'clients');
-}
-
-// ── Emails ──
-async function loadEmails() {
-  const clientId = document.getElementById('client-filter').value;
-  const url = '/api/emails' + (clientId ? `?clientId=${clientId}` : '');
-  try {
-    const res = await fetch(url, { headers: { 'x-admin-secret': adminSecret } });
-    if (res.status === 401) { document.getElementById('login-error').style.display = 'block'; logout(); return; }
-    allEmails = await res.json();
-    updateStats();
-    renderEmails();
-  } catch (e) {
-    document.getElementById('email-list').innerHTML = `<div class="loading">Chyba: ${e.message}</div>`;
-  }
-}
-
-function updateStats() {
-  document.getElementById('s-total').textContent = allEmails.length;
-  document.getElementById('s-pending').textContent = allEmails.filter(e => e.status === 'pending').length;
-  document.getElementById('s-sent').textContent = allEmails.filter(e => e.status === 'sent').length;
-  document.getElementById('s-ignored').textContent = allEmails.filter(e => e.status === 'ignored').length;
-}
-
-function setFilter(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderEmails();
-}
-
-function renderEmails() {
-  const list = document.getElementById('email-list');
-  const filtered = currentFilter === 'all' ? allEmails : allEmails.filter(e => e.status === currentFilter);
-  if (filtered.length === 0) {
-    list.innerHTML = `<div class="empty-state"><svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="30" height="24" rx="4"/><path d="M3 12l15 10 15-10"/></svg>Žádné e-maily</div>`;
-    return;
-  }
-  list.innerHTML = filtered.map(email => {
-    const client = allClients.find(c => c.id === email.clientId);
-    return `<div class="email-card ${email.status}" id="ecard-${email.id}">
-      <div class="email-header" onclick="toggleEmail('${email.id}')">
-        <div class="email-avatar">${initials(email.from)}</div>
-        <div class="email-meta">
-          <div class="email-from">${esc(email.from)}</div>
-          <div class="email-subject">${esc(email.subject)}</div>
-          <div class="email-date">${fmtDate(email.date)}${client ? ` · <span class="email-client-tag">${esc(client.companyName)}</span>` : ''}</div>
+async function loadStats(){
+  const list=document.getElementById('overview-list');
+  list.innerHTML='<div class="loading">Načítám...</div>';
+  try{
+    const res=await fetch('/api/stats',{headers:{'x-admin-secret':adminSecret}});
+    if(res.status===401){document.getElementById('login-err').style.display='block';logout();return;}
+    allStats=await res.json();
+    const active=allStats.filter(s=>s.active).length;
+    const pending=allStats.reduce((a,s)=>a+s.pending,0);
+    const sent=allStats.reduce((a,s)=>a+s.sent,0);
+    document.getElementById('s-clients').textContent=active;
+    document.getElementById('s-pending').textContent=pending;
+    document.getElementById('s-sent').textContent=sent;
+    if(allStats.length===0){list.innerHTML='<div class="empty">Zatím žádní klienti.</div>';return;}
+    list.innerHTML=allStats.map(s=>`
+      <div class="client-card">
+        <div class="client-top">
+          <div class="client-avatar">${(s.companyName||'?')[0].toUpperCase()}</div>
+          <div class="client-info">
+            <div class="client-name">${esc(s.companyName)}</div>
+            <div class="client-email">${esc(s.email||'—')}</div>
+          </div>
+          <span class="badge ${s.active?'active':'inactive'}">${s.active?'aktivní':'neaktivní'}</span>
         </div>
-        <span class="status-badge ${email.status}">${statusLabel(email.status)}</span>
-      </div>
-      <div class="email-body" id="ebody-${email.id}">
-        <div class="email-section"><div class="email-section-title">Příchozí zpráva</div><div class="email-text">${esc(email.body)}</div></div>
-        <div class="email-section"><div class="email-section-title">Navrhovaná odpověď</div><textarea class="reply-editor" id="reply-${email.id}">${esc(email.reply)}</textarea></div>
-        <div class="email-actions">
-          ${email.status !== 'sent' ? `
-            <button class="btn btn-primary btn-sm" onclick="sendEmail('${email.id}')">
-              <svg viewBox="0 0 13 13" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l11 5.5L1 12V8l7-1.5L1 5V1z"/></svg>
-              Odeslat
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="ignoreEmail('${email.id}')">Ignorovat</button>
-          ` : `<span style="font-size:12px;color:var(--green)">✓ Odesláno ${email.sentAt ? fmtDate(email.sentAt) : ''}</span>`}
-          <span class="send-status" id="ss-${email.id}"></span>
+        <div class="client-stats">
+          <div class="cstat"><div class="cstat-val">${s.total}</div><div class="cstat-label">celkem</div></div>
+          <div class="cstat"><div class="cstat-val pending">${s.pending}</div><div class="cstat-label">čeká</div></div>
+          <div class="cstat"><div class="cstat-val sent">${s.sent}</div><div class="cstat-label">odesláno</div></div>
+        </div>
+        <div>
+          <div class="progress-label">Dnes: ${s.dailyCount} / ${s.dailyLimit} e-mailů</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,Math.round(s.dailyCount/s.dailyLimit*100))}%"></div></div>
         </div>
       </div>
-    </div>`;
-  }).join('');
+    `).join('');
+  }catch(e){list.innerHTML=`<div class="loading">Chyba: ${e.message}</div>`;}
 }
 
-function toggleEmail(id) {
-  document.getElementById(`ebody-${id}`).classList.toggle('open');
-}
-
-async function sendEmail(id) {
-  const replyText = document.getElementById(`reply-${id}`).value;
-  const ss = document.getElementById(`ss-${id}`);
-  ss.textContent = 'Odesílám...';
-  try {
-    const res = await fetch('/api/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
-      body: JSON.stringify({ emailId: id, replyText })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error);
-    ss.textContent = 'Odesláno!';
-    const e = allEmails.find(e => e.id === id);
-    if (e) { e.status = 'sent'; e.sentAt = new Date().toISOString(); }
-    updateStats();
-    setTimeout(renderEmails, 1000);
-  } catch (e) {
-    ss.textContent = 'Chyba: ' + e.message;
-  }
-}
-
-async function ignoreEmail(id) {
-  await fetch('/api/emails', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
-    body: JSON.stringify({ emailId: id, status: 'ignored' })
-  });
-  const e = allEmails.find(e => e.id === id);
-  if (e) e.status = 'ignored';
-  updateStats(); renderEmails();
-}
-
-// ── Clients ──
-async function loadClients() {
-  try {
-    const res = await fetch('/api/clients', { headers: { 'x-admin-secret': adminSecret } });
-    allClients = await res.json();
-    renderClients();
-    updateClientFilter();
-  } catch (e) {
-    document.getElementById('client-list').innerHTML = `<div class="loading">Chyba: ${e.message}</div>`;
-  }
-}
-
-function updateClientFilter() {
-  const sel = document.getElementById('client-filter');
-  const current = sel.value;
-  sel.innerHTML = '<option value="">Všichni klienti</option>' +
-    allClients.map(c => `<option value="${c.id}"${c.id === current ? ' selected' : ''}>${esc(c.companyName)}</option>`).join('');
-}
-
-function renderClients() {
-  const list = document.getElementById('client-list');
-  if (allClients.length === 0) {
-    list.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="18" cy="12" r="7"/><path d="M3 34c0-8.3 6.7-15 15-15s15 6.7 15 15"/></svg>Zatím žádní klienti.<br>Přidejte prvního kliknutím na tlačítko výše.</div>`;
-    return;
-  }
-  list.innerHTML = allClients.map(c => `
-    <div class="client-card">
-      <div class="client-card-top">
-        <div class="client-avatar">${(c.companyName||'?')[0].toUpperCase()}</div>
-        <div class="client-info">
-          <div class="client-name">${esc(c.companyName)}</div>
-          <div class="client-industry">${esc(c.industry || '—')}</div>
+async function loadClients(){
+  const list=document.getElementById('client-list');
+  try{
+    const res=await fetch('/api/clients',{headers:{'x-admin-secret':adminSecret}});
+    allClients=await res.json();
+    if(allClients.length===0){list.innerHTML='<div class="empty">Zatím žádní klienti. Přidejte prvního.</div>';return;}
+    const base=window.location.origin;
+    list.innerHTML=allClients.map(c=>`
+      <div class="client-card">
+        <div class="client-top">
+          <div class="client-avatar">${(c.companyName||'?')[0].toUpperCase()}</div>
+          <div class="client-info">
+            <div class="client-name">${esc(c.companyName)}</div>
+            <div class="client-email">${esc(c.industry||'—')}</div>
+          </div>
+          <span class="badge ${c.active?'active':'inactive'}">${c.active?'aktivní':'neaktivní'}</span>
+        </div>
+        <div class="field"><label style="font-size:11px">Odkaz pro klienta</label><div class="client-link-box">${base}/klient</div></div>
+        <div class="client-footer">
+          <div class="client-actions">
+            <button class="btn btn-secondary btn-sm" onclick="editClient('${c.id}')">Upravit</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">Smazat</button>
+          </div>
         </div>
       </div>
-      <div class="client-meta">
-        <span class="client-tag ${c.active ? 'active' : 'inactive'}">${c.active ? 'aktivní' : 'neaktivní'}</span>
-        <span class="client-tag">${esc(c.email || '—')}</span>
-      </div>
-      <div class="client-actions">
-        <button class="btn btn-secondary btn-sm" onclick="editClient('${c.id}')">Upravit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">Smazat</button>
-      </div>
-    </div>
-  `).join('');
+    `).join('');
+  }catch(e){list.innerHTML=`<div class="loading">Chyba: ${e.message}</div>`;}
 }
 
-function openClientModal(clientId) {
-  editingClientId = null;
-  selectedToneValue = 'přátelský a profesionální';
-  document.getElementById('modal-title').textContent = 'Nový klient';
-  document.getElementById('modal-save-btn').textContent = 'Uložit klienta';
-  clearForm();
-  document.getElementById('client-modal').classList.add('open');
+function openModal(){editingId=null;selectedTone='přátelský a profesionální';document.getElementById('modal-title').textContent='Nový klient';document.getElementById('modal-save-btn').textContent='Uložit klienta';clearForm();document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+function selectTone(btn){document.querySelectorAll('#f-tone-grid .tone-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selectedTone=btn.dataset.tone;}
+function addFaq(){const l=document.getElementById('f-faq-list');const i=document.createElement('div');i.className='faq-item';i.innerHTML=`<input type="text" placeholder="Dotaz..." /><input type="text" placeholder="Odpověď..." /><button class="faq-remove" onclick="this.closest('.faq-item').remove()">×</button>`;l.appendChild(i);i.querySelector('input').focus();}
+
+function clearForm(){['f-name','f-desc','f-email','f-password','f-client-pw','f-imap-host','f-smtp-host','f-signature','f-esc-contact','f-esc-when','f-forbidden'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('f-imap-port').value='993';document.getElementById('f-smtp-port').value='465';document.getElementById('f-limit').value='25';document.getElementById('f-salutation').value='vykani';document.getElementById('f-length').value='stredni';document.getElementById('f-use-sig').checked=true;document.getElementById('f-plural').checked=true;document.getElementById('f-active').checked=true;document.getElementById('f-faq-list').innerHTML='';document.querySelectorAll('#f-tone-grid .tone-btn').forEach(b=>b.classList.toggle('active',b.dataset.tone==='přátelský a profesionální'));selectedTone='přátelský a profesionální';}
+
+function fillForm(c){document.getElementById('f-name').value=c.companyName||'';document.getElementById('f-desc').value=c.companyDesc||'';document.getElementById('f-email').value=c.email||'';document.getElementById('f-password').value='••••••••';document.getElementById('f-client-pw').value=c.clientPassword||'';document.getElementById('f-imap-host').value=c.imapHost||'';document.getElementById('f-imap-port').value=c.imapPort||'993';document.getElementById('f-smtp-host').value=c.smtpHost||'';document.getElementById('f-smtp-port').value=c.smtpPort||'465';document.getElementById('f-limit').value=c.dailyLimit||'25';document.getElementById('f-signature').value=c.signature||'';document.getElementById('f-salutation').value=c.salutation||'vykani';document.getElementById('f-length').value=c.replyLength||'stredni';document.getElementById('f-use-sig').checked=c.useSignature!==false;document.getElementById('f-plural').checked=c.usePlural!==false;document.getElementById('f-active').checked=c.active!==false;document.getElementById('f-esc-contact').value=c.escalationContact||'';document.getElementById('f-esc-when').value=c.escalationWhen||'';document.getElementById('f-forbidden').value=c.forbiddenTopics||'';selectedTone=c.tone||'přátelský a profesionální';document.querySelectorAll('#f-tone-grid .tone-btn').forEach(b=>b.classList.toggle('active',b.dataset.tone===selectedTone));document.getElementById('f-faq-list').innerHTML='';(c.faqs||[]).forEach(f=>{const l=document.getElementById('f-faq-list');const i=document.createElement('div');i.className='faq-item';i.innerHTML=`<input type="text" value="${esc(f.q)}" placeholder="Dotaz..." /><input type="text" value="${esc(f.a)}" placeholder="Odpověď..." /><button class="faq-remove" onclick="this.closest('.faq-item').remove()">×</button>`;l.appendChild(i);});}
+
+function editClient(id){const c=allClients.find(c=>c.id===id);if(!c)return;editingId=id;document.getElementById('modal-title').textContent='Upravit klienta';document.getElementById('modal-save-btn').textContent='Uložit změny';fillForm(c);document.getElementById('modal').classList.add('open');}
+
+async function saveClient(){
+  const name=document.getElementById('f-name').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const clientPw=document.getElementById('f-client-pw').value.trim();
+  if(!name||!email){alert('Vyplňte název firmy a e-mail.');return;}
+  if(!clientPw){alert('Zadejte heslo pro klienta.');return;}
+  const faqs=[];
+  document.querySelectorAll('#f-faq-list .faq-item').forEach(item=>{const inputs=item.querySelectorAll('input');const q=inputs[0]?.value.trim();const a=inputs[1]?.value.trim();if(q&&a)faqs.push({q,a});});
+  const data={companyName:name,companyDesc:document.getElementById('f-desc').value,email,emailPassword:document.getElementById('f-password').value,clientPassword:clientPw,imapHost:document.getElementById('f-imap-host').value||'imap.gmail.com',imapPort:document.getElementById('f-imap-port').value||'993',smtpHost:document.getElementById('f-smtp-host').value||'smtp.gmail.com',smtpPort:document.getElementById('f-smtp-port').value||'465',dailyLimit:parseInt(document.getElementById('f-limit').value)||25,industry:document.getElementById('f-industry').value,tone:selectedTone,salutation:document.getElementById('f-salutation').value,replyLength:document.getElementById('f-length').value,signature:document.getElementById('f-signature').value,useSignature:document.getElementById('f-use-sig').checked,usePlural:document.getElementById('f-plural').checked,active:document.getElementById('f-active').checked,escalationContact:document.getElementById('f-esc-contact').value,escalationWhen:document.getElementById('f-esc-when').value,forbiddenTopics:document.getElementById('f-forbidden').value,faqs};
+  const btn=document.getElementById('modal-save-btn');btn.disabled=true;btn.textContent='Ukládám...';
+  try{const res=await fetch('/api/clients',{method:editingId?'PATCH':'POST',headers:{'Content-Type':'application/json','x-admin-secret':adminSecret},body:JSON.stringify(editingId?{id:editingId,...data}:data)});const result=await res.json();if(!res.ok)throw new Error(result.error);closeModal();loadClients();loadStats();}catch(e){alert('Chyba: '+e.message);}
+  btn.disabled=false;btn.textContent=editingId?'Uložit změny':'Uložit klienta';
 }
 
-function editClient(id) {
-  const c = allClients.find(c => c.id === id);
-  if (!c) return;
-  editingClientId = id;
-  document.getElementById('modal-title').textContent = 'Upravit klienta';
-  document.getElementById('modal-save-btn').textContent = 'Uložit změny';
-  fillForm(c);
-  document.getElementById('client-modal').classList.add('open');
-}
+async function deleteClient(id){const c=allClients.find(c=>c.id===id);if(!confirm(`Smazat klienta "${c?.companyName}"?`))return;await fetch('/api/clients',{method:'DELETE',headers:{'Content-Type':'application/json','x-admin-secret':adminSecret},body:JSON.stringify({id})});loadClients();loadStats();}
 
-function closeClientModal() {
-  document.getElementById('client-modal').classList.remove('open');
-}
-
-function clearForm() {
-  ['f-name','f-desc','f-email','f-password','f-imap-host','f-smtp-host','f-signature','f-escalation-contact','f-escalation-when','f-forbidden'].forEach(id => { document.getElementById(id).value = ''; });
-  document.getElementById('f-imap-port').value = '993';
-  document.getElementById('f-smtp-port').value = '465';
-  document.getElementById('f-limit').value = '25';
-  document.getElementById('f-industry').value = 'E-shop s elektronikou';
-  document.getElementById('f-salutation').value = 'vykani';
-  document.getElementById('f-length').value = 'stredni';
-  document.getElementById('f-use-signature').checked = true;
-  document.getElementById('f-plural').checked = true;
-  document.getElementById('f-active').checked = true;
-  document.getElementById('f-faq-list').innerHTML = '';
-  document.querySelectorAll('#f-tone-grid .tone-btn').forEach(b => b.classList.toggle('active', b.dataset.tone === 'přátelský a profesionální'));
-  selectedToneValue = 'přátelský a profesionální';
-}
-
-function fillForm(c) {
-  document.getElementById('f-name').value = c.companyName || '';
-  document.getElementById('f-desc').value = c.companyDesc || '';
-  document.getElementById('f-email').value = c.email || '';
-  document.getElementById('f-password').value = '••••••••';
-  document.getElementById('f-imap-host').value = c.imapHost || '';
-  document.getElementById('f-imap-port').value = c.imapPort || '993';
-  document.getElementById('f-smtp-host').value = c.smtpHost || '';
-  document.getElementById('f-smtp-port').value = c.smtpPort || '465';
-  document.getElementById('f-limit').value = c.dailyLimit || '25';
-  document.getElementById('f-signature').value = c.signature || '';
-  document.getElementById('f-salutation').value = c.salutation || 'vykani';
-  document.getElementById('f-length').value = c.replyLength || 'stredni';
-  document.getElementById('f-use-signature').checked = c.useSignature !== false;
-  document.getElementById('f-plural').checked = c.usePlural !== false;
-  document.getElementById('f-active').checked = c.active !== false;
-  document.getElementById('f-escalation-contact').value = c.escalationContact || '';
-  document.getElementById('f-escalation-when').value = c.escalationWhen || '';
-  document.getElementById('f-forbidden').value = c.forbiddenTopics || '';
-  selectedToneValue = c.tone || 'přátelský a profesionální';
-  document.querySelectorAll('#f-tone-grid .tone-btn').forEach(b => b.classList.toggle('active', b.dataset.tone === selectedToneValue));
-  // FAQ
-  const faqList = document.getElementById('f-faq-list');
-  faqList.innerHTML = '';
-  (c.faqs || []).forEach(f => addFaqItem(f.q, f.a));
-  // Industry
-  const ind = document.getElementById('f-industry');
-  for (let opt of ind.options) { if (opt.value === c.industry) { ind.value = c.industry; break; } }
-}
-
-function selectTone(btn) {
-  document.querySelectorAll('#f-tone-grid .tone-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  selectedToneValue = btn.dataset.tone;
-}
-
-function addFaq() { addFaqItem('', ''); }
-function addFaqItem(q, a) {
-  const list = document.getElementById('f-faq-list');
-  const item = document.createElement('div');
-  item.className = 'faq-item';
-  item.innerHTML = `<input type="text" placeholder="Dotaz zákazníka..." value="${esc(q)}" /><input type="text" placeholder="Odpověď agenta..." value="${esc(a)}" /><button class="faq-remove" onclick="this.closest('.faq-item').remove()">×</button>`;
-  list.appendChild(item);
-}
-
-async function saveClient() {
-  const name = document.getElementById('f-name').value.trim();
-  const email = document.getElementById('f-email').value.trim();
-  if (!name || !email) { alert('Vyplňte alespoň název firmy a e-mail.'); return; }
-
-  const faqs = [];
-  document.querySelectorAll('#f-faq-list .faq-item').forEach(item => {
-    const inputs = item.querySelectorAll('input');
-    const q = inputs[0]?.value.trim(); const a = inputs[1]?.value.trim();
-    if (q && a) faqs.push({ q, a });
-  });
-
-  const data = {
-    companyName: name,
-    companyDesc: document.getElementById('f-desc').value,
-    email,
-    emailPassword: document.getElementById('f-password').value,
-    imapHost: document.getElementById('f-imap-host').value || 'imap.gmail.com',
-    imapPort: document.getElementById('f-imap-port').value || '993',
-    smtpHost: document.getElementById('f-smtp-host').value || 'smtp.gmail.com',
-    smtpPort: document.getElementById('f-smtp-port').value || '465',
-    dailyLimit: parseInt(document.getElementById('f-limit').value) || 25,
-    industry: document.getElementById('f-industry').value,
-    tone: selectedToneValue,
-    salutation: document.getElementById('f-salutation').value,
-    replyLength: document.getElementById('f-length').value,
-    signature: document.getElementById('f-signature').value,
-    useSignature: document.getElementById('f-use-signature').checked,
-    usePlural: document.getElementById('f-plural').checked,
-    active: document.getElementById('f-active').checked,
-    escalationContact: document.getElementById('f-escalation-contact').value,
-    escalationWhen: document.getElementById('f-escalation-when').value,
-    forbiddenTopics: document.getElementById('f-forbidden').value,
-    faqs,
-  };
-
-  const btn = document.getElementById('modal-save-btn');
-  btn.disabled = true; btn.textContent = 'Ukládám...';
-
-  try {
-    const method = editingClientId ? 'PATCH' : 'POST';
-    const body = editingClientId ? { id: editingClientId, ...data } : data;
-    const res = await fetch('/api/clients', {
-      method,
-      headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
-      body: JSON.stringify(body)
-    });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error);
-    closeClientModal();
-    loadClients();
-  } catch (e) {
-    alert('Chyba: ' + e.message);
-  }
-  btn.disabled = false; btn.textContent = editingClientId ? 'Uložit změny' : 'Uložit klienta';
-}
-
-async function deleteClient(id) {
-  const c = allClients.find(c => c.id === id);
-  if (!confirm(`Smazat klienta "${c?.companyName}"? Tato akce je nevratná.`)) return;
-  await fetch('/api/clients', {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
-    body: JSON.stringify({ id })
-  });
-  loadClients();
-}
-
-// Helpers
-function initials(from) { const n = from.split('<')[0].trim(); return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase() || '?'; }
-function fmtDate(iso) { const d = new Date(iso); const diff = Date.now()-d; if(diff<3600000) return `před ${Math.floor(diff/60000)} min`; if(diff<86400000) return `před ${Math.floor(diff/3600000)} hod`; return d.toLocaleDateString('cs',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
-function statusLabel(s) { return {pending:'čeká',sent:'odesláno',ignored:'ignorováno'}[s]||s; }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-setInterval(() => { if (adminSecret) loadEmails(); }, 60000);
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+setInterval(()=>{if(adminSecret)loadStats();},60000);
 </script>
 </body>
 </html>
