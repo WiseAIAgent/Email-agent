@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="cs" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Agent</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+[data-theme="light"] {
+  --bg: #f2f1ed;
+  --surface: #ffffff;
+  --surface2: #f7f6f3;
+  --surface3: #eeecea;
+  --border: rgba(0,0,0,0.08);
+  --border2: rgba(0,0,0,0.15);
+  --text: #141413;
+  --text2: #5c5b56;
+  --text3: #9a9891;
+  --accent: #1a56a4;
+  --accent-light: #e8f0fb;
+  --accent-text: #1a56a4;
+  --success-bg: #e8f5ee;
+  --success-text: #186636;
+  --warn-bg: #fef7e8;
+  --warn-text: #7a5800;
+  --danger-bg: #fdeeed;
+  --danger-text: #b02c2c;
+  --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.04);
+}
+
+[data-theme="dark"] {
+  --bg: #111110;
+  --surface: #1c1c1a;
+  --surface2: #242422;
+  --surface3: #2c2c29;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0efe9;
+  --text2: #9a9891;
+  --text3: #5c5b56;
+  --accent: #4d8de8;
+  --accent-light: #1a2a42;
+  --accent-text: #7aaff0;
+  --success-bg: #0f2a1a;
+  --success-text: #5cc98a;
+  --warn-bg: #261e08;
+  --warn-text: #f0bc4a;
+  --danger-bg: #2a1010;
+  --danger-text: #f08080;
+  --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.03);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 2rem 1rem 4rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.page { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+  margin-bottom: 0.5rem;
+}
+
+.logo { display: flex; align-items: center; gap: 10px; }
+
+.logo-icon {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.logo-icon svg { width: 16px; height: 16px; }
+
+.logo h1 { font-size: 17px; font-weight: 500; letter-spacing: -0.02em; }
+.logo span { font-size: 12px; color: var(--text3); margin-left: 4px; }
+
+.theme-btn {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.theme-btn:hover { background: var(--surface3); }
+.theme-btn svg { width: 16px; height: 16px; }
+
+.topbar-right { display: flex; align-items: center; gap: 8px; position: relative; }
+
+.login-btn {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text2);
+  cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+}
+.login-btn:hover { background: var(--surface3); color: var(--text); }
+.login-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+.login-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+  overflow: hidden;
+  min-width: 160px;
+  z-index: 100;
+}
+.login-dropdown.open { display: block; }
+
+.login-dropdown a {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  transition: background 0.12s;
+}
+.login-dropdown a:hover { background: var(--surface2); }
+.login-dropdown a svg { width: 14px; height: 14px; color: var(--text2); flex-shrink: 0; }
+.login-dropdown-sep { height: 1px; background: var(--border); }
+
+.card {
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-header-icon {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: var(--surface3);
+  display: flex; align-items: center; justify-content: center;
+}
+.card-header-icon svg { width: 12px; height: 12px; color: var(--text2); }
+
+.card-title { font-size: 12px; font-weight: 500; color: var(--text2); letter-spacing: 0.03em; }
+
+.card-body { padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+
+.field label { font-size: 12px; font-weight: 500; color: var(--text2); }
+
+input[type=text], textarea, select {
+  font-family: inherit;
+  font-size: 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 8px 11px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  -webkit-appearance: none;
+}
+
+input[type=text]:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+textarea { resize: vertical; line-height: 1.6; }
+
+.tone-grid { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.tone-btn {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-weight: 400;
+}
+
+.tone-btn:hover { border-color: var(--accent); color: var(--accent-text); }
+
+.tone-btn.active {
+  background: var(--accent-light);
+  color: var(--accent-text);
+  border-color: var(--accent);
+  font-weight: 500;
+}
+
+.examples { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+.ex-label { font-size: 11px; color: var(--text3); }
+
+.ex-btn {
+  font-size: 12px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.ex-btn:hover { background: var(--surface3); color: var(--text); }
+
+.run-wrap {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 2px;
+}
+
+.run-btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.run-btn:hover { opacity: 0.9; }
+.run-btn:active { transform: scale(0.98); }
+.run-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.run-btn.loading .spinner { display: block; }
+.run-btn.loading .arrow { display: none; }
+
+.response-card { display: none; }
+.response-card.visible { display: block; }
+
+.response-header {
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.response-header-left { display: flex; align-items: center; gap: 8px; }
+
+.badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+.badge.ok { background: var(--success-bg); color: var(--success-text); }
+.badge.loading { background: var(--warn-bg); color: var(--warn-text); }
+.badge.error { background: var(--danger-bg); color: var(--danger-text); }
+
+.copy-btn {
+  font-size: 12px;
+  padding: 5px 12px;
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  background: var(--surface2);
+  color: var(--text2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 5px;
+}
+.copy-btn:hover { background: var(--surface3); }
+.copy-btn.copied { color: var(--success-text); border-color: var(--success-text); }
+.copy-btn svg { width: 12px; height: 12px; }
+
+.reply-text {
+  padding: 18px 20px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-wrap;
+  min-height: 60px;
+}
+
+.counter {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.counter-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--success-text);
+  opacity: 0.7;
+}
+
+@media (max-width: 500px) {
+  .grid2 { grid-template-columns: 1fr; }
+  body { padding: 1.25rem 0.75rem 3rem; }
+}
+
+.advanced-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text2);
+  text-align: left;
+  transition: background 0.15s;
+}
+.advanced-toggle:hover { background: var(--surface2); }
+.advanced-toggle svg { transition: transform 0.2s; flex-shrink: 0; }
+.advanced-toggle.open svg { transform: rotate(180deg); }
+.advanced-toggle span { flex: 1; }
+.advanced-toggle .adv-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--surface3);
+  color: var(--text3);
+  font-weight: 400;
+}
+
+.advanced-body {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid var(--border);
+}
+.advanced-body.open { display: flex; }
+
+.adv-section {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.adv-section:last-child { border-bottom: none; }
+
+.adv-section-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.faq-list { display: flex; flex-direction: column; gap: 8px; }
+
+.faq-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.faq-item input { font-size: 13px; padding: 7px 10px; }
+
+.faq-remove {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  background: none;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.faq-remove:hover { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-text); }
+
+.add-faq-btn {
+  align-self: flex-start;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 7px;
+  border: 1px dashed var(--border2);
+  background: none;
+  color: var(--text2);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 5px;
+}
+.add-faq-btn:hover { border-color: var(--accent); color: var(--accent-text); background: var(--accent-light); }
+
+.adv-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.toggle-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0;
+}
+.toggle-label { font-size: 13px; color: var(--text2); }
+.toggle-label small { display: block; font-size: 11px; color: var(--text3); margin-top: 1px; }
+.toggle-switch {
+  position: relative; width: 36px; height: 20px; flex-shrink: 0;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-track {
+  position: absolute; inset: 0;
+  background: var(--surface3); border-radius: 999px;
+  border: 1px solid var(--border2);
+  cursor: pointer; transition: background 0.2s;
+}
+.toggle-track::after {
+  content: ''; position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--text3); transition: transform 0.2s, background 0.2s;
+}
+.toggle-switch input:checked + .toggle-track { background: var(--accent); border-color: var(--accent); }
+.toggle-switch input:checked + .toggle-track::after { transform: translateX(16px); background: #fff; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="3" width="14" height="10" rx="2"/>
+          <path d="M1 6l7 4 7-4"/>
+        </svg>
+      </div>
+      <h1>Email Agent <span>demo</span></h1>
+    </div>
+    <div class="topbar-right">
+      <button class="login-btn" onclick="toggleLoginMenu(event)" title="Přihlásit se">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8" cy="5.5" r="2.5"/>
+          <path d="M2.5 14c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/>
+        </svg>
+        Přihlásit se
+      </button>
+      <div class="login-dropdown" id="login-dropdown">
+        <a href="admin.html">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="1" width="12" height="12" rx="2.5"/>
+            <path d="M4 7h6M4 9.5h4"/>
+          </svg>
+          Admin
+        </a>
+        <div class="login-dropdown-sep"></div>
+        <a href="klient.html">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="7" cy="5" r="2.5"/>
+            <path d="M2 13c0-2.8 2.2-4.5 5-4.5s5 1.7 5 4.5"/>
+          </svg>
+          Klient
+        </a>
+      </div>
+      <button class="theme-btn" onclick="toggleTheme()" title="Přepnout režim">
+        <svg id="theme-icon-light" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <circle cx="8" cy="8" r="3"/>
+          <line x1="8" y1="1" x2="8" y2="2.5"/>
+          <line x1="8" y1="13.5" x2="8" y2="15"/>
+          <line x1="1" y1="8" x2="2.5" y2="8"/>
+          <line x1="13.5" y1="8" x2="15" y2="8"/>
+          <line x1="3" y1="3" x2="4.1" y2="4.1"/>
+          <line x1="11.9" y1="11.9" x2="13" y2="13"/>
+          <line x1="13" y1="3" x2="11.9" y2="4.1"/>
+          <line x1="4.1" y1="11.9" x2="3" y2="13"/>
+        </svg>
+        <svg id="theme-icon-dark" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="display:none">
+          <path d="M13.5 10.5A6 6 0 015.5 2.5a6 6 0 108 8z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <rect x="1" y="2" width="10" height="8" rx="1.5"/>
+          <path d="M1 4l5 3 5-3"/>
+        </svg>
+      </div>
+      <span class="card-title">Konfigurace firmy</span>
+    </div>
+    <div class="card-body">
+      <div class="grid2">
+        <div class="field">
+          <label>Název firmy</label>
+          <input type="text" id="company-name" value="Elektro Novák" />
+        </div>
+        <div class="field">
+          <label>Obor</label>
+          <select id="industry">
+            <optgroup label="E-commerce">
+              <option>E-shop s elektronikou</option>
+              <option>Módní e-shop</option>
+              <option>E-shop s nábytkem a interiéry</option>
+              <option>E-shop se sportovním vybavením</option>
+              <option>E-shop s kosmetikou</option>
+              <option>E-shop s potravinami</option>
+              <option>E-shop s hračkami</option>
+              <option>E-shop se stavebninami</option>
+            </optgroup>
+            <optgroup label="Služby">
+              <option>Realitní kancelář</option>
+              <option>Účetní kancelář</option>
+              <option>Právní kancelář</option>
+              <option>Pojišťovna / pojišťovací agent</option>
+              <option>Cestovní kancelář</option>
+              <option>Marketingová agentura</option>
+              <option>IT firma / webová agentura</option>
+              <option>Úklidová firma</option>
+              <option>Stěhovací firma</option>
+            </optgroup>
+            <optgroup label="Zdraví a péče">
+              <option>Soukromá lékařská praxe</option>
+              <option>Stomatologie / zubní ordinace</option>
+              <option>Veterinární klinika</option>
+              <option>Lékárna</option>
+              <option>Fitness centrum / posilovna</option>
+              <option>Kosmetický salon</option>
+              <option>Kadeřnictví</option>
+              <option>Masážní salon / wellness</option>
+            </optgroup>
+            <optgroup label="Gastronomie a ubytování">
+              <option>Restaurace / bistro</option>
+              <option>Hotel / penzion</option>
+              <option>Catering</option>
+              <option>Kavárna</option>
+            </optgroup>
+            <optgroup label="Řemesla a opravny">
+              <option>Autoservis</option>
+              <option>Elektrikář / instalatér</option>
+              <option>Stavební firma</option>
+              <option>Tesař / truhlář</option>
+              <option>Opravna spotřebičů</option>
+            </optgroup>
+            <optgroup label="Vzdělávání">
+              <option>Jazyková škola</option>
+              <option>Soukromá škola / školka</option>
+              <option>Online kurzy / e-learning</option>
+              <option>Doučování</option>
+            </optgroup>
+            <optgroup label="Jiné">
+              <option>Jiné</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Popis firmy</label>
+        <textarea id="company-desc" rows="2">Jsme rodinný e-shop s elektronikou. Prodáváme spotřebiče, mobily a příslušenství. Doručujeme do 2 pracovních dnů, vrácení zboží do 30 dnů.</textarea>
+      </div>
+      <div class="field">
+        <label>Tón komunikace</label>
+        <div class="tone-grid">
+          <button class="tone-btn active" data-tone="přátelský a profesionální">přátelský</button>
+          <button class="tone-btn" data-tone="formální a věcný">formální</button>
+          <button class="tone-btn" data-tone="neformální a lidský">neformální</button>
+          <button class="tone-btn" data-tone="stručný a přímočarý">stručný</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Podpis</label>
+        <input type="text" id="signature" value="Tým zákaznické podpory, Elektro Novák" />
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          Automatický podpis
+          <small>Agent přidá podpis na konec každé odpovědi</small>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="use-signature" checked />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-label">
+          Mluvit za firmu v množném čísle
+          <small>„Děkujeme" místo „Děkuji", „Pomůžeme" místo „Pomohu"</small>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="use-plural" checked />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+
+    <button class="advanced-toggle" id="adv-toggle" onclick="toggleAdvanced()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 4l4 4 4-4"/>
+      </svg>
+      <span>Rozšířené nastavení</span>
+      <span class="adv-badge">znalostní báze</span>
+    </button>
+
+    <div class="advanced-body" id="adv-body">
+
+      <div class="adv-section">
+        <div class="adv-section-title">Časté dotazy (FAQ)</div>
+        <p style="font-size:12px;color:var(--text3);margin-top:-4px;">Agent použije tyto odpovědi pokud zákazník položí podobnou otázku.</p>
+        <div class="faq-list" id="faq-list">
+          <div class="faq-item">
+            <input type="text" placeholder="Dotaz zákazníka..." value="Jak dlouho trvá doručení?" />
+            <input type="text" placeholder="Odpověď agenta..." value="Doručujeme do 2 pracovních dnů po ČR." />
+            <button class="faq-remove" onclick="removeFaq(this)" title="Odebrat">×</button>
+          </div>
+          <div class="faq-item">
+            <input type="text" placeholder="Dotaz zákazníka..." value="Jak reklamovat zboží?" />
+            <input type="text" placeholder="Odpověď agenta..." value="Reklamaci vyřídíte přes náš web nebo osobně na prodejně. Zákonná záruka je 24 měsíců." />
+            <button class="faq-remove" onclick="removeFaq(this)" title="Odebrat">×</button>
+          </div>
+        </div>
+        <button class="add-faq-btn" onclick="addFaq()">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="5.5" y1="1" x2="5.5" y2="10"/><line x1="1" y1="5.5" x2="10" y2="5.5"/></svg>
+          Přidat dotaz
+        </button>
+      </div>
+
+      <div class="adv-section">
+        <div class="adv-section-title">Eskalace</div>
+        <div class="adv-row">
+          <div class="field">
+            <label>Eskalační kontakt</label>
+            <input type="text" id="escalation-contact" placeholder="podpora@firma.cz nebo +420 xxx xxx xxx" />
+          </div>
+          <div class="field">
+            <label>Kdy eskalovat</label>
+            <input type="text" id="escalation-when" placeholder="Složité reklamace, právní hrozby..." />
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--text3);">Agent zákazníka přesměruje na tento kontakt v situacích, kde nestačí automatická odpověď.</p>
+      </div>
+
+      <div class="adv-section">
+        <div class="adv-section-title">Zakázaná témata</div>
+        <div class="field">
+          <label>Agent nikdy nekomentuje</label>
+          <input type="text" id="forbidden-topics" placeholder="Ceny konkurence, interní procesy, probíhající soudní spory..." />
+        </div>
+      </div>
+
+      <div class="adv-section">
+        <div class="adv-section-title">Styl oslovení</div>
+        <div class="adv-row">
+          <div class="field">
+            <label>Oslovení zákazníka</label>
+            <select id="salutation">
+              <option value="vykani">Vykání (Dobrý den, děkujeme Vám...)</option>
+              <option value="tykani">Tykání (Ahoj, díky...)</option>
+              <option value="jmeno">Jménem pokud známo</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Délka odpovědi</label>
+            <select id="reply-length">
+              <option value="stredni">Střední — výstižná a přehledná</option>
+              <option value="kratka">Krátká — jen to nejdůležitější</option>
+              <option value="dlouha">Podrobná — s vysvětlením a možnostmi</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <path d="M1 1h10v8H1z" rx="1"/>
+          <path d="M3 4h6M3 6h4"/>
+        </svg>
+      </div>
+      <span class="card-title">Příchozí e-mail</span>
+    </div>
+    <div class="card-body">
+      <div class="field">
+        <label>Předmět</label>
+        <input type="text" id="email-subject" value="Dotaz na objednávku #4821" />
+      </div>
+      <div class="field">
+        <label>Text e-mailu</label>
+        <textarea id="email-body" rows="4">Dobrý den, chtěl bych se zeptat, kde je moje objednávka č. 4821. Objednal jsem si mobil před 5 dny a stále nic. Můžete mi sdělit, co se děje?</textarea>
+      </div>
+      <div class="examples">
+        <span class="ex-label">Příklady:</span>
+        <button class="ex-btn" onclick="loadExample('reklamace')">reklamace</button>
+        <button class="ex-btn" onclick="loadExample('vraceni')">vrácení zboží</button>
+        <button class="ex-btn" onclick="loadExample('dotaz')">dotaz na produkt</button>
+        <button class="ex-btn" onclick="loadExample('negativni')">negativní zpětná vazba</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="run-wrap">
+    <button class="run-btn" id="run-btn" onclick="generateReply()">
+      <div class="spinner"></div>
+      <svg class="arrow" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 7h10M8 3l4 4-4 4"/>
+      </svg>
+      <span id="btn-text">Vygenerovat odpověď</span>
+    </button>
+  </div>
+
+  <div class="card response-card" id="response-card">
+    <div class="response-header">
+      <div class="response-header-left">
+        <span class="card-title">Navrhovaná odpověď</span>
+        <span class="badge loading" id="status-badge">generuji...</span>
+      </div>
+      <button class="copy-btn" id="copy-btn" onclick="copyReply()">
+        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <rect x="4" y="4" width="7" height="7" rx="1.5"/>
+          <path d="M8 4V2.5A1.5 1.5 0 006.5 1H2.5A1.5 1.5 0 001 2.5v4A1.5 1.5 0 002.5 8H4"/>
+        </svg>
+        kopírovat
+      </button>
+    </div>
+    <div class="reply-text" id="reply-text"></div>
+    <div class="counter" id="counter" style="display:none">
+      <div class="counter-dot"></div>
+      <span id="counter-text"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let selectedTone = 'přátelský a profesionální';
+let usageCount = parseInt(localStorage.getItem('ea_count') || '0');
+const DAILY_LIMIT = 25;
+
+document.querySelectorAll('.tone-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedTone = btn.dataset.tone;
+  });
+});
+
+function toggleLoginMenu(e) {
+  e.stopPropagation();
+  document.getElementById('login-dropdown').classList.toggle('open');
+}
+
+document.addEventListener('click', function() {
+  document.getElementById('login-dropdown').classList.remove('open');
+});
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-icon-light').style.display = isDark ? 'block' : 'none';
+  document.getElementById('theme-icon-dark').style.display = isDark ? 'none' : 'block';
+  localStorage.setItem('ea_theme', isDark ? 'light' : 'dark');
+}
+
+(function initTheme() {
+  const saved = localStorage.getItem('ea_theme');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('theme-icon-light').style.display = 'none';
+    document.getElementById('theme-icon-dark').style.display = 'block';
+  }
+})();
+
+const examples = {
+  reklamace: { subject: 'Reklamace televize LG 55"', body: 'Dobrý den, zakoupil jsem u vás televizi LG 55" před 3 měsíci a nyní se na obrazovce objevily černé pruhy. Chci uplatnit reklamaci. Jak mám postupovat? Máte pobočku v Praze?' },
+  vraceni: { subject: 'Vrácení zboží – objednávka #3304', body: 'Ahoj, koupila jsem si u vás robotický vysavač ale nesedí mi do bytu, je moc hlučný. Chtěla bych ho vrátit a dostat peníze zpět. Co k tomu potřebujete?' },
+  dotaz: { subject: 'Dotaz - kompatibilita příslušenství', body: 'Dobrý den, zajímá mě jestli kryt na iPhone 15 Pro který prodáváte sedí i na iPhone 15 Pro Max? Děkuji za odpověď.' },
+  negativni: { subject: 'Velmi nespokojený zákazník!!!', body: 'To je skandál! Objednal jsem si notebook před 10 dny, nikdo mi nic neřekl o zpoždění a na zákaznickou linku se nedovolám. Tohle je naprostý neprofesionalizmus. Budu psát recenzi na Heurece!' }
+};
+
+function loadExample(key) {
+  const ex = examples[key];
+  document.getElementById('email-subject').value = ex.subject;
+  document.getElementById('email-body').value = ex.body;
+}
+
+async function generateReply() {
+  const btn = document.getElementById('run-btn');
+  const btnText = document.getElementById('btn-text');
+  const card = document.getElementById('response-card');
+  const replyText = document.getElementById('reply-text');
+  const badge = document.getElementById('status-badge');
+  const copyBtn = document.getElementById('copy-btn');
+  const counter = document.getElementById('counter');
+  const counterText = document.getElementById('counter-text');
+
+  const companyName = document.getElementById('company-name').value;
+  const industry = document.getElementById('industry').value;
+  const companyDesc = document.getElementById('company-desc').value;
+  const signature = document.getElementById('signature').value;
+  const useSignature = document.getElementById('use-signature').checked;
+  const usePlural = document.getElementById('use-plural').checked;
+  const subject = document.getElementById('email-subject').value;
+  const body = document.getElementById('email-body').value;
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btnText.textContent = 'Generuji...';
+  card.classList.add('visible');
+  badge.textContent = 'generuji...';
+  badge.className = 'badge loading';
+  replyText.textContent = '';
+  copyBtn.textContent = 'kopírovat';
+  copyBtn.className = 'copy-btn';
+  counter.style.display = 'none';
+
+  // Collect FAQ
+  const faqItems = document.querySelectorAll('#faq-list .faq-item');
+  const faqs = [];
+  faqItems.forEach(item => {
+    const inputs = item.querySelectorAll('input');
+    const q = inputs[0]?.value.trim();
+    const a = inputs[1]?.value.trim();
+    if (q && a) faqs.push({ q, a });
+  });
+
+  const escalationContact = document.getElementById('escalation-contact').value.trim();
+  const escalationWhen = document.getElementById('escalation-when').value.trim();
+  const forbiddenTopics = document.getElementById('forbidden-topics').value.trim();
+  const salutation = document.getElementById('salutation').value;
+  const replyLength = document.getElementById('reply-length').value;
+
+  const salutationMap = { vykani: 'Vyká zákazníkům (Dobrý den, děkujeme Vám...)', tykani: 'Tyká zákazníkům (Ahoj, díky...)', jmeno: 'Oslovuje zákazníky jménem pokud je zná' };
+  const lengthMap = { stredni: 'střední délka — výstižná a přehledná', kratka: 'krátká — jen nejdůležitější informace', dlouha: 'podrobná — s vysvětlením a možnostmi' };
+
+  let faqSection = '';
+  if (faqs.length > 0) {
+    faqSection = '\n\nČASTO KLADENÉ DOTAZY (použij tyto odpovědi pokud zákazník klade podobnou otázku):\n' +
+      faqs.map((f, i) => `Q${i+1}: ${f.q}\nA${i+1}: ${f.a}`).join('\n');
+  }
+
+  let escalationSection = '';
+  if (escalationContact) {
+    escalationSection = `\n\nESKALACE: Pokud ${escalationWhen || 'zákazník má složitý problém který nedokážeš vyřešit'}, přesměruj ho na: ${escalationContact}`;
+  }
+
+  let forbiddenSection = '';
+  if (forbiddenTopics) {
+    forbiddenSection = `\n\nZAKÁZANÁ TÉMATA — nikdy nekomentuj: ${forbiddenTopics}`;
+  }
+
+  const systemPrompt = `Jsi AI asistent zákaznické podpory pro firmu "${companyName}" (${industry}).
+
+O firmě: ${companyDesc}
+
+Pravidla odpovídání:
+- Tón: ${selectedTone}
+- Oslovení: ${salutationMap[salutation]}
+- Délka odpovědi: ${lengthMap[replyLength]}
+- Vždy piš česky
+- Mluv za firmu v ${usePlural ? "množném čísle (Děkujeme, Pomůžeme, Rádi vám poradíme...)" : "jednotném čísle (Děkuji, Pomohu, Rád vám poradím...)"}
+- Buď konkrétní a nápomocný
+- Pokud nevíš přesnou informaci, nabídni prověření nebo kontakt
+- Ukončuj e-mail podpisem: "${signature}"
+- Piš pouze text odpovědi, bez předmětu a bez komentáře${faqSection}${escalationSection}${forbiddenSection}`;
+
+  const userPrompt = `Příchozí e-mail od zákazníka:\nPředmět: ${subject}\n\n${body}\n\nNapiš zdvořilou odpověď.`;
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || err.error || 'HTTP ' + response.status);
+    }
+
+    const data = await response.json();
+    const text = data.content?.map(b => b.text || '').join('') || 'Prázdná odpověď.';
+    replyText.textContent = text;
+    badge.textContent = 'hotovo';
+    badge.className = 'badge ok';
+
+    usageCount++;
+    const remaining = DAILY_LIMIT - usageCount;
+    counter.style.display = 'flex';
+    counterText.textContent = `Dnešní využití: ${usageCount} / ${DAILY_LIMIT} — zbývá ${remaining} vygenerování`;
+
+  } catch (e) {
+    replyText.textContent = 'Chyba: ' + e.message;
+    badge.textContent = 'chyba';
+    badge.className = 'badge error';
+  }
+
+  btn.disabled = false;
+  btn.classList.remove('loading');
+  btnText.textContent = 'Vygenerovat znovu';
+}
+
+function toggleAdvanced() {
+  const toggle = document.getElementById('adv-toggle');
+  const body = document.getElementById('adv-body');
+  toggle.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+function addFaq() {
+  const list = document.getElementById('faq-list');
+  const item = document.createElement('div');
+  item.className = 'faq-item';
+  item.innerHTML = `
+    <input type="text" placeholder="Dotaz zákazníka..." />
+    <input type="text" placeholder="Odpověď agenta..." />
+    <button class="faq-remove" onclick="removeFaq(this)" title="Odebrat">×</button>
+  `;
+  list.appendChild(item);
+  item.querySelector('input').focus();
+}
+
+function removeFaq(btn) {
+  btn.closest('.faq-item').remove();
+}
+
+function copyReply() {
+  const text = document.getElementById('reply-text').textContent;
+  const btn = document.getElementById('copy-btn');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px"><path d="M2 6l3 3 5-5"/></svg> zkopírováno`;
+    btn.className = 'copy-btn copied';
+    setTimeout(() => {
+      btn.innerHTML = `<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="width:12px;height:12px"><rect x="4" y="4" width="7" height="7" rx="1.5"/><path d="M8 4V2.5A1.5 1.5 0 006.5 1H2.5A1.5 1.5 0 001 2.5v4A1.5 1.5 0 002.5 8H4"/></svg> kopírovat`;
+      btn.className = 'copy-btn';
+    }, 2000);
+  }).catch(() => {});
+}
+</script>
+</body>
+</html>
