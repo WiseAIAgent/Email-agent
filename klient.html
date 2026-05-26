@@ -166,13 +166,18 @@ input[type=password]:focus,input[type=email]:focus{border-color:var(--accent);ba
   </div>
 </div>
 
-<!-- Clerk JS SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" crossorigin="anonymous"></script>
+<!-- Clerk JS SDK — loaded from Clerk's own CDN -->
+<script
+  async
+  crossorigin="anonymous"
+  data-clerk-publishable-key="pk_test_Zm9uZC13aGlwcGV0LTQ4LmNsZXJrLmFjY291bnRzLmRldiQ"
+  src="https://fond-whippet-48.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+  type="text/javascript"
+  onload="initClerk()"
+  onerror="clerkLoadError()"
+></script>
 
 <script>
-// ── Replace with your Clerk publishable key from https://dashboard.clerk.com ──
-const CLERK_PUBLISHABLE_KEY = 'pk_test_Zm9uZC13aGlwcGV0LTQ4LmNsZXJrLmFjY291bnRzLmRldiQ';
-
 let allEmails = [], currentFilter = 'all';
 
 // Apply saved theme immediately
@@ -185,26 +190,25 @@ let allEmails = [], currentFilter = 'all';
   }
 })();
 
-// Init Clerk and handle auth state
-window.addEventListener('DOMContentLoaded', async () => {
-  if (!window.Clerk) {
-    document.getElementById('login-screen').style.display = 'flex';
-    showLoginError('Nepodařilo se načíst přihlašovací systém. Obnovte stránku.');
-    return;
-  }
+function clerkLoadError() {
+  document.getElementById('login-screen').style.display = 'flex';
+  showLoginError('Nepodařilo se načíst přihlašovací systém. Obnovte stránku.');
+}
 
-  const clerk = new window.Clerk(CLERK_PUBLISHABLE_KEY);
-  await clerk.load();
-  window._clerk = clerk;
+async function initClerk() {
+  await Clerk.load();
+  window._clerk = Clerk;
 
-  if (clerk.session) {
+  document.getElementById('login-screen').style.display = 'flex';
+
+  if (Clerk.session) {
     await initApp();
   } else {
     showSignIn();
   }
 
   // React to auth state changes (sign-in / sign-out)
-  clerk.addListener(async ({ session }) => {
+  Clerk.addListener(async ({ session }) => {
     if (session && document.getElementById('app').style.display === 'none') {
       await initApp();
     } else if (!session && document.getElementById('app').style.display !== 'none') {
@@ -212,7 +216,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       showSignIn();
     }
   });
-});
+}
 
 function showSignIn() {
   document.getElementById('login-screen').style.display = 'flex';
