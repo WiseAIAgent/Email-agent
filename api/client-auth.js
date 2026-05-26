@@ -1,30 +1,21 @@
-const { Redis } = require('@upstash/redis');
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+const { getAuthContext, redis } = require('./_auth');
 
 module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { password } = req.body;
-  if (!password) return res.status(400).json({ error: 'Chybí heslo' });
+  const auth = await getAuthContext(req);
+  if (!auth || auth.type !== 'client') {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 
   try {
-    const ids = (await redis.get('client_index')) || [];
-    for (const id of ids) {
-      const client = await redis.get(`client:${id}`);
-      if (client && client.clientPassword === password) {
-        return res.status(200).json({
-          clientId: client.id,
-          companyName: client.companyName,
-          industry: client.industry || ''
-        });
-      }
-    }
-    return res.status(401).json({ error: 'Nesprávné heslo' });
+    const client = await redis.get(`client:${auth.clientId}`);
+    if (!client) return res.status(404).json({ error: 'Klient nenalezen' });
+    return res.status(200).json({
+      clientId: client.id,
+      companyName: client.companyName,
+    });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
-}
+};

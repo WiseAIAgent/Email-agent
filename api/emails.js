@@ -1,35 +1,11 @@
-const { Redis } = require('@upstash/redis');
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
-
-async function getClientIdFromAuth(req) {
-  const adminSecret = req.headers['x-admin-secret'];
-  const clientPassword = req.headers['x-client-password'];
-
-  if (adminSecret) {
-    if (adminSecret !== process.env.ADMIN_SECRET) return null;
-    return req.query.clientId || 'all';
-  }
-
-  if (clientPassword) {
-    const ids = (await redis.get('client_index')) || [];
-    for (const id of ids) {
-      const client = await redis.get(`client:${id}`);
-      if (client && client.clientPassword === clientPassword) return client.id;
-    }
-    return null;
-  }
-
-  return null;
-}
+const { getAuthContext, redis } = require('./_auth');
 
 module.exports = async function handler(req, res) {
   try {
-    const authId = await getClientIdFromAuth(req);
-    if (!authId) return res.status(401).json({ error: 'Unauthorized' });
+    const auth = await getAuthContext(req);
+    if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+
+    const authId = auth.clientId;
 
     if (req.method === 'GET') {
       let ids;
@@ -51,7 +27,9 @@ module.exports = async function handler(req, res) {
       const { emailId, status } = req.body;
       const record = await redis.get(`email:${emailId}`);
       if (!record) return res.status(404).json({ error: 'Nenalezeno' });
-      if (authId !== 'all' && record.clientId !== authId) return res.status(403).json({ error: 'Forbidden' });
+      if (authId !== 'all' && record.clientId !== authId) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
       record.status = status;
       await redis.set(`email:${emailId}`, record);
       return res.status(200).json({ success: true });
@@ -61,4 +39,4 @@ module.exports = async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
-}
+};
