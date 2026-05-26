@@ -208,6 +208,17 @@ textarea{resize:vertical;line-height:1.6}
         <div class="field"><label>E-mailová adresa *</label><input type="text" id="f-email" placeholder="podpora@firma.cz" /></div>
         <div class="field"><label>Heslo / App Password *</label><input type="password" id="f-password" placeholder="••••••••••••" /></div>
       </div>
+      <div class="field">
+        <label>Poskytovatel e-mailu</label>
+        <select id="f-provider" onchange="selectProvider(this.value)">
+          <option value="">— Vyberte poskytovatele —</option>
+          <option value="gmail">Gmail</option>
+          <option value="seznam">Seznam</option>
+          <option value="outlook">Outlook</option>
+          <option value="centrum">Centrum</option>
+          <option value="other">Ostatní (ruční nastavení)</option>
+        </select>
+      </div>
       <div class="form-grid-3">
         <div class="field"><label>IMAP server</label><input type="text" id="f-imap-host" placeholder="imap.gmail.com" /></div>
         <div class="field"><label>IMAP port</label><input type="number" id="f-imap-port" value="993" /></div>
@@ -217,7 +228,6 @@ textarea{resize:vertical;line-height:1.6}
         <div class="field"><label>SMTP server</label><input type="text" id="f-smtp-host" placeholder="smtp.gmail.com" /></div>
         <div class="field"><label>SMTP port</label><input type="number" id="f-smtp-port" value="465" /></div>
       </div>
-      <div class="field-hint">Gmail: imap.gmail.com / smtp.gmail.com · Seznam: imap.seznam.cz / smtp.seznam.cz · Outlook: outlook.office365.com (port 587)</div>
 
       <div class="section-div">Nastavení agenta</div>
       <div class="field"><label>Tón komunikace</label>
@@ -341,10 +351,12 @@ async function loadClients(){
 
 function openModal(){editingId=null;selectedTone='přátelský a profesionální';document.getElementById('modal-title').textContent='Nový klient';document.getElementById('modal-save-btn').textContent='Uložit klienta';clearForm();document.getElementById('modal').classList.add('open');}
 function closeModal(){document.getElementById('modal').classList.remove('open');}
+const EMAIL_PROVIDERS={gmail:{imapHost:'imap.gmail.com',imapPort:'993',smtpHost:'smtp.gmail.com',smtpPort:'465'},seznam:{imapHost:'imap.seznam.cz',imapPort:'993',smtpHost:'smtp.seznam.cz',smtpPort:'465'},outlook:{imapHost:'outlook.office365.com',imapPort:'993',smtpHost:'smtp.office365.com',smtpPort:'587'},centrum:{imapHost:'imap.centrum.cz',imapPort:'993',smtpHost:'smtp.centrum.cz',smtpPort:'465'},other:{imapHost:'',imapPort:'',smtpHost:'',smtpPort:''}};
+function selectProvider(val){if(!val)return;const p=EMAIL_PROVIDERS[val];if(!p)return;document.getElementById('f-imap-host').value=p.imapHost;document.getElementById('f-imap-port').value=p.imapPort;document.getElementById('f-smtp-host').value=p.smtpHost;document.getElementById('f-smtp-port').value=p.smtpPort;}
 function selectTone(btn){document.querySelectorAll('#f-tone-grid .tone-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selectedTone=btn.dataset.tone;}
 function addFaq(){const l=document.getElementById('f-faq-list');const i=document.createElement('div');i.className='faq-item';i.innerHTML=`<input type="text" placeholder="Dotaz..." /><input type="text" placeholder="Odpověď..." /><button class="faq-remove" onclick="this.closest('.faq-item').remove()">×</button>`;l.appendChild(i);i.querySelector('input').focus();}
 
-function clearForm(){['f-name','f-desc','f-email','f-password','f-client-pw','f-imap-host','f-smtp-host','f-signature','f-esc-contact','f-esc-when','f-forbidden'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('f-imap-port').value='993';document.getElementById('f-smtp-port').value='465';document.getElementById('f-limit').value='25';document.getElementById('f-salutation').value='vykani';document.getElementById('f-length').value='stredni';document.getElementById('f-use-sig').checked=true;document.getElementById('f-plural').checked=true;document.getElementById('f-active').checked=true;document.getElementById('f-faq-list').innerHTML='';document.querySelectorAll('#f-tone-grid .tone-btn').forEach(b=>b.classList.toggle('active',b.dataset.tone==='přátelský a profesionální'));selectedTone='přátelský a profesionální';}
+function clearForm(){['f-name','f-desc','f-email','f-password','f-client-pw','f-imap-host','f-smtp-host','f-signature','f-esc-contact','f-esc-when','f-forbidden'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('f-provider').value='';document.getElementById('f-imap-port').value='993';document.getElementById('f-smtp-port').value='465';document.getElementById('f-limit').value='25';document.getElementById('f-salutation').value='vykani';document.getElementById('f-length').value='stredni';document.getElementById('f-use-sig').checked=true;document.getElementById('f-plural').checked=true;document.getElementById('f-active').checked=true;document.getElementById('f-faq-list').innerHTML='';document.querySelectorAll('#f-tone-grid .tone-btn').forEach(b=>b.classList.toggle('active',b.dataset.tone==='přátelský a profesionální'));selectedTone='přátelský a profesionální';}
 
 function fillForm(c){document.getElementById('f-name').value=c.companyName||'';document.getElementById('f-desc').value=c.companyDesc||'';document.getElementById('f-email').value=c.email||'';document.getElementById('f-password').value='••••••••';document.getElementById('f-client-pw').value=c.clientPassword||'';document.getElementById('f-imap-host').value=c.imapHost||'';document.getElementById('f-imap-port').value=c.imapPort||'993';document.getElementById('f-smtp-host').value=c.smtpHost||'';document.getElementById('f-smtp-port').value=c.smtpPort||'465';document.getElementById('f-limit').value=c.dailyLimit||'25';document.getElementById('f-signature').value=c.signature||'';document.getElementById('f-salutation').value=c.salutation||'vykani';document.getElementById('f-length').value=c.replyLength||'stredni';document.getElementById('f-use-sig').checked=c.useSignature!==false;document.getElementById('f-plural').checked=c.usePlural!==false;document.getElementById('f-active').checked=c.active!==false;document.getElementById('f-esc-contact').value=c.escalationContact||'';document.getElementById('f-esc-when').value=c.escalationWhen||'';document.getElementById('f-forbidden').value=c.forbiddenTopics||'';selectedTone=c.tone||'přátelský a profesionální';document.querySelectorAll('#f-tone-grid .tone-btn').forEach(b=>b.classList.toggle('active',b.dataset.tone===selectedTone));document.getElementById('f-faq-list').innerHTML='';(c.faqs||[]).forEach(f=>{const l=document.getElementById('f-faq-list');const i=document.createElement('div');i.className='faq-item';i.innerHTML=`<input type="text" value="${esc(f.q)}" placeholder="Dotaz..." /><input type="text" value="${esc(f.a)}" placeholder="Odpověď..." /><button class="faq-remove" onclick="this.closest('.faq-item').remove()">×</button>`;l.appendChild(i);});}
 
