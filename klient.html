@@ -233,28 +233,25 @@ function showLoginError(msg) {
 
 async function initApp() {
   try {
-    const token = await window._clerk.session.getToken();
-    const res = await fetch('/api/client-auth', {
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
-    if (!res.ok) {
+    const user = window._clerk.user;
+    const meta = user?.publicMetadata || {};
+    const clientId = meta.clientId;
+
+    if (!clientId) {
       showSignIn();
-      showLoginError(
-        res.status === 401
-          ? 'Váš e-mail není přiřazen k žádnému klientskému účtu. Kontaktujte správce.'
-          : 'Chyba serveru. Zkuste to znovu.'
-      );
+      showLoginError('Váš účet není přiřazen k žádnému klientskému projektu. Kontaktujte správce.');
       await window._clerk.signOut();
       return;
     }
-    const data = await res.json();
-    document.getElementById('company-name').textContent = data.companyName;
+
+    const companyName = meta.companyName || user?.firstName || 'Email Agent';
+    document.getElementById('company-name').textContent = companyName;
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     loadEmails();
   } catch (e) {
     showSignIn();
-    showLoginError('Chyba připojení: ' + e.message);
+    showLoginError('Chyba: ' + e.message);
   }
 }
 

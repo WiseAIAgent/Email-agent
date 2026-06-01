@@ -24,21 +24,10 @@ async function getAuthContext(req) {
     const payload = await clerk.verifyToken(token);
     const clerkUser = await clerk.users.getUser(payload.sub);
 
-    const email =
-      clerkUser.emailAddresses.find(e => e.id === clerkUser.primaryEmailAddressId)
-        ?.emailAddress ||
-      clerkUser.emailAddresses[0]?.emailAddress;
+    const clientId = clerkUser.publicMetadata?.clientId;
+    if (!clientId) return null;
 
-    if (!email) return null;
-
-    const ids = (await redis.get('client_index')) || [];
-    for (const id of ids) {
-      const client = await redis.get(`client:${id}`);
-      if (client && client.email === email) {
-        return { type: 'client', clientId: client.id };
-      }
-    }
-    return null;
+    return { type: 'client', clientId: String(clientId) };
   } catch {
     return null;
   }
