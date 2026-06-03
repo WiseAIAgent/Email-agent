@@ -1,9 +1,12 @@
 const { Redis } = require('@upstash/redis');
+const { createClerkClient } = require('@clerk/backend');
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
+
+const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
 module.exports = async function handler(req, res) {
   // Simple admin auth
@@ -34,17 +37,33 @@ module.exports = async function handler(req, res) {
   // POST - create new client
   if (req.method === 'POST') {
     try {
+      const { inviteEmail, ...clientData } = req.body;
       const id = `client_${Date.now()}`;
       const client = {
         id,
         createdAt: new Date().toISOString(),
         active: true,
-        ...req.body
+        ...clientData
       };
       await redis.set(`client:${id}`, client);
       const ids = (await redis.get('client_index')) || [];
       ids.unshift(id);
       await redis.set('client_index', ids);
+
+      // Send Clerk invitation with clientId in metadata
+      if (inviteEmail) {
+        const protocol = req.headers['x-forwarded-proto'] || 'https';
+        const host = req.headers['x-forwarded-host'] || req.headers.host;
+        await clerk.invitations.createInvitation({
+          emailAddress: inviteEmail,
+          publicMetadata: {
+            clientId: id,
+            companyName: client.companyName,
+          },
+          redirectUrl: `${protocol}://${host}/klient`,
+        });
+      }
+
       return res.status(200).json({ success: true, id });
     } catch (e) {
       return res.status(500).json({ error: e.message });
