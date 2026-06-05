@@ -1,5 +1,6 @@
 const Imap = require('imap');
 const { simpleParser } = require('mailparser');
+const nodemailer = require('nodemailer');
 const { Redis } = require('@upstash/redis');
 
 const redis = new Redis({
@@ -88,6 +89,22 @@ ${useSignature ? `- Ukončuj podpisem: "${signature}"` : '- Nepřidávej podpis'
   return prompt;
 }
 
+async function sendNotification(client, processed) {
+  const transporter = nodemailer.createTransport({
+    host: client.smtpHost,
+    port: parseInt(client.smtpPort || '465'),
+    secure: parseInt(client.smtpPort) !== 587,
+    auth: { user: client.email, pass: client.emailPassword },
+  });
+
+  await transporter.sendMail({
+    from: client.email,
+    to: client.email,
+    subject: `Email Agent — ${processed} nových návrhů odpovědí čeká na schválení`,
+    text: `Dobrý den,\n\ndnes jsme zkontrolovali vaši emailovou schránku a připravili ${processed} návrhů odpovědí.\n\nPřihlaste se a schvalte je: https://email-agent-indol-seven.vercel.app/klient`,
+  });
+}
+
 async function generateReply(email, client) {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -169,6 +186,14 @@ module.exports = async function handler(req, res) {
           await redis.set(countKey, currentCount + 1);
           await redis.expire(countKey, 86400);
           processed++;
+        }
+
+        if (processed > 0) {
+          try {
+            await sendNotification(client, processed);
+          } catch (notifErr) {
+            console.error(`Notification failed for client ${clientId}:`, notifErr.message);
+          }
         }
 
         results.push({ clientId, name: client.companyName, processed });
