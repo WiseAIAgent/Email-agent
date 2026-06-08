@@ -1,16 +1,27 @@
-const { getAuthContext, redis } = require('./_auth');
+const { redis } = require('./_auth');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const auth = await getAuthContext(req);
-  if (!auth || auth.type !== 'client') {
-    return res.status(401).json({ error: 'Unauthorized' });
+  const clientPassword = req.headers['x-client-password'];
+  const clientEmail = req.headers['x-client-email'];
+  if (!clientPassword || !clientEmail) {
+    return res.status(401).json({ error: 'Nesprávný email nebo heslo' });
   }
 
   try {
-    const client = await redis.get(`client:${auth.clientId}`);
-    if (!client) return res.status(404).json({ error: 'Klient nenalezen' });
+    const ids = (await redis.get('client_index')) || [];
+    let client = null;
+    for (const id of ids) {
+      const c = await redis.get(`client:${id}`);
+      if (c && c.clientPassword === clientPassword && c.email === clientEmail) {
+        client = c;
+        break;
+      }
+    }
+    if (!client) {
+      return res.status(401).json({ error: 'Nesprávný email nebo heslo' });
+    }
     return res.status(200).json({
       clientId: client.id,
       companyName: client.companyName,

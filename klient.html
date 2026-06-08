@@ -103,6 +103,10 @@ input[type=password]:focus{border-color:var(--accent);background:var(--surface)}
       <div style="font-size:13px;color:var(--text3);margin-top:4px;">Přihlášení klienta</div>
     </div>
     <div class="field">
+      <label>E-mail</label>
+      <input type="text" id="login-email" placeholder="vas@email.cz" onkeydown="if(event.key==='Enter')login()" />
+    </div>
+    <div class="field">
       <label>Heslo</label>
       <input type="password" id="login-pw" placeholder="Zadejte heslo..." onkeydown="if(event.key==='Enter')login()" />
     </div>
@@ -219,12 +223,13 @@ let allEmails = [], currentFilter = 'all', clientPassword = '';
 })();
 
 async function login() {
+  const email = document.getElementById('login-email').value.trim();
   const pw = document.getElementById('login-pw').value;
-  if (!pw) return;
+  if (!email || !pw) return;
   const errEl = document.getElementById('login-err');
   errEl.style.display = 'none';
   try {
-    const res = await fetch('/api/client-auth', { headers: { 'x-client-password': pw } });
+    const res = await fetch('/api/client-auth', { headers: { 'x-client-password': pw, 'x-client-email': email } });
     if (!res.ok) { errEl.style.display = 'block'; return; }
     const data = await res.json();
     clientPassword = pw;
@@ -314,6 +319,8 @@ function logout() {
   clientPassword = '';
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
+  const emailEl = document.getElementById('login-email');
+  if (emailEl) { emailEl.value = ''; }
   const pw = document.getElementById('login-pw');
   if (pw) { pw.value = ''; }
   const err = document.getElementById('login-err');

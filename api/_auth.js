@@ -14,14 +14,15 @@ async function getAuthContext(req) {
       : null;
   }
 
-  // Client auth via password header
+  // Client auth via email + password headers
   const clientPassword = req.headers['x-client-password'];
-  if (clientPassword) {
+  const clientEmail = req.headers['x-client-email'];
+  if (clientPassword && clientEmail) {
     try {
       const ids = (await redis.get('client_index')) || [];
       for (const id of ids) {
         const client = await redis.get(`client:${id}`);
-        if (client && client.clientPassword === clientPassword) {
+        if (client && client.clientPassword === clientPassword && client.email === clientEmail) {
           return { type: 'client', clientId: client.id };
         }
       }
