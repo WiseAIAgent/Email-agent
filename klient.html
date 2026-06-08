@@ -73,8 +73,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .login-error{font-size:13px;color:var(--danger);display:none}
 .field{display:flex;flex-direction:column;gap:5px}
 .field label{font-size:12px;font-weight:500;color:var(--text2)}
-input[type=password]{font-family:inherit;font-size:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 11px;width:100%;outline:none;transition:border-color .15s}
-input[type=password]:focus{border-color:var(--accent);background:var(--surface)}
+input[type=password],input[type=email]{font-family:inherit;font-size:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 11px;width:100%;outline:none;transition:border-color .15s}
+input[type=password]:focus,input[type=email]:focus{border-color:var(--accent);background:var(--surface)}
 
 @media(max-width:500px){.stats-row{grid-template-columns:1fr 1fr}.main{padding:1rem .75rem 3rem}}
 .settings-panel{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);padding:20px;margin-bottom:1rem;display:none}
@@ -104,7 +104,7 @@ input[type=password]:focus{border-color:var(--accent);background:var(--surface)}
     </div>
     <div class="field">
       <label>E-mail</label>
-      <input type="text" id="login-email" placeholder="vas@email.cz" onkeydown="if(event.key==='Enter')login()" />
+      <input type="email" id="login-email" placeholder="vas@email.cz" onkeydown="if(event.key==='Enter')login()" />
     </div>
     <div class="field">
       <label>Heslo</label>
