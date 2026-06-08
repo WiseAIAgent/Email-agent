@@ -1,4 +1,3 @@
-const { createClerkClient } = require('@clerk/backend');
 const { Redis } = require('@upstash/redis');
 
 const redis = new Redis({
@@ -6,9 +5,8 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
-
 async function getAuthContext(req) {
+  // Admin auth via secret header
   const adminSecret = req.headers['x-admin-secret'];
   if (adminSecret) {
     return adminSecret === process.env.ADMIN_SECRET
@@ -16,21 +14,23 @@ async function getAuthContext(req) {
       : null;
   }
 
-  const authHeader = req.headers['authorization'];
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
-
-  try {
-    const token = authHeader.slice(7);
-    const payload = await clerk.verifyToken(token);
-    const clerkUser = await clerk.users.getUser(payload.sub);
-
-    const clientId = clerkUser.publicMetadata?.clientId;
-    if (!clientId) return null;
-
-    return { type: 'client', clientId: String(clientId) };
-  } catch {
-    return null;
+  // Client auth via password header
+  const clientPassword = req.headers['x-client-password'];
+  if (clientPassword) {
+    try {
+      const ids = (await redis.get('client_index')) || [];
+      for (const id of ids) {
+        const client = await redis.get(`client:${id}`);
+        if (client && client.clientPassword === clientPassword) {
+          return { type: 'client', clientId: client.id };
+        }
+      }
+    } catch {
+      return null;
+    }
   }
+
+  return null;
 }
 
-module.exports = { redis, clerk, getAuthContext };
+module.exports = { redis, getAuthContext };

@@ -67,35 +67,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .loading{text-align:center;padding:2rem;color:var(--text3);font-size:13px}
 
 /* Login screen */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
-.login-error-msg{font-size:13px;color:var(--danger);text-align:center;max-width:360px}
-/* Clerk component container */
-#clerk-sign-in{width:100%;max-width:400px}
-
-/* Change password modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:1rem}
-.modal-overlay.open{display:flex}
-.modal{background:var(--surface);border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.2);width:100%;max-width:380px}
-.modal-header{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.modal-title{font-size:16px;font-weight:500}
-.modal-close{width:28px;height:28px;border-radius:6px;border:none;background:var(--surface3);color:var(--text2);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1}
-.modal-body{padding:20px;display:flex;flex-direction:column;gap:14px}
-.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:2rem;width:100%;max-width:360px;display:flex;flex-direction:column;gap:16px}
+.login-title{font-size:18px;font-weight:500;letter-spacing:-.02em}
+.login-error{font-size:13px;color:var(--danger);display:none}
 .field{display:flex;flex-direction:column;gap:5px}
 .field label{font-size:12px;font-weight:500;color:var(--text2)}
-input[type=password],input[type=email]{font-family:inherit;font-size:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 11px;width:100%;outline:none;transition:border-color .15s}
-input[type=password]:focus,input[type=email]:focus{border-color:var(--accent);background:var(--surface)}
-.field-error{font-size:12px;color:var(--danger);display:none}
+input[type=password]{font-family:inherit;font-size:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 11px;width:100%;outline:none;transition:border-color .15s}
+input[type=password]:focus{border-color:var(--accent);background:var(--surface)}
 
 @media(max-width:500px){.stats-row{grid-template-columns:1fr 1fr}.main{padding:1rem .75rem 3rem}}
 </style>
 </head>
 <body>
 
-<!-- Login screen — Clerk mounts here -->
+<!-- Login screen -->
 <div class="login-wrap" id="login-screen" style="display:none">
-  <div id="clerk-sign-in"></div>
-  <div class="login-error-msg" id="login-err" style="display:none"></div>
+  <div class="login-box">
+    <div>
+      <div class="login-title">Email Agent</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:4px;">Přihlášení klienta</div>
+    </div>
+    <div class="field">
+      <label>Heslo</label>
+      <input type="password" id="login-pw" placeholder="Zadejte heslo..." onkeydown="if(event.key==='Enter')login()" />
+    </div>
+    <div class="login-error" id="login-err">Nesprávné heslo</div>
+    <button class="btn btn-primary" style="width:100%" onclick="login()">Přihlásit se</button>
+  </div>
 </div>
 
 <!-- Main app -->
@@ -106,7 +105,6 @@ input[type=password]:focus,input[type=email]:focus{border-color:var(--accent);ba
       <span class="company-name" id="company-name">Email Agent</span>
     </div>
     <div class="topbar-right">
-      <button class="btn-sm" onclick="openChangePassword()">Změnit heslo</button>
       <button class="theme-btn" onclick="toggleTheme()">
         <svg id="ti-l" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="2.5"/><line x1="7" y1="1" x2="7" y2="2.2"/><line x1="7" y1="11.8" x2="7" y2="13"/><line x1="1" y1="7" x2="2.2" y2="7"/><line x1="11.8" y1="7" x2="13" y2="7"/><line x1="2.6" y1="2.6" x2="3.5" y2="3.5"/><line x1="10.5" y1="10.5" x2="11.4" y2="11.4"/><line x1="11.4" y1="2.6" x2="10.5" y2="3.5"/><line x1="3.5" y1="10.5" x2="2.6" y2="11.4"/></svg>
         <svg id="ti-d" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="display:none"><path d="M12 9A6 6 0 015 2a6 6 0 107 7z"/></svg>
@@ -137,50 +135,11 @@ input[type=password]:focus,input[type=email]:focus{border-color:var(--accent);ba
   </div>
 </div>
 
-<!-- Change password modal -->
-<div class="modal-overlay" id="cp-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title">Změna hesla</span>
-      <button class="modal-close" onclick="closeChangePassword()">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="field">
-        <label>Současné heslo</label>
-        <input type="password" id="cp-current" placeholder="Zadejte současné heslo" />
-      </div>
-      <div class="field">
-        <label>Nové heslo</label>
-        <input type="password" id="cp-new" placeholder="Minimálně 8 znaků" />
-      </div>
-      <div class="field">
-        <label>Potvrzení nového hesla</label>
-        <input type="password" id="cp-confirm" placeholder="Zopakujte nové heslo" />
-      </div>
-      <div class="field-error" id="cp-error"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeChangePassword()">Zrušit</button>
-      <button class="btn btn-primary" id="cp-submit" onclick="submitChangePassword()">Změnit heslo</button>
-    </div>
-  </div>
-</div>
-
-<!-- Clerk JS SDK — loaded from Clerk's own CDN -->
-<script
-  async
-  crossorigin="anonymous"
-  data-clerk-publishable-key="pk_test_Zm9uZC13aGlwcGV0LTQ4LmNsZXJrLmFjY291bnRzLmRldiQ"
-  src="https://fond-whippet-48.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
-  type="text/javascript"
-  onload="initClerk()"
-  onerror="clerkLoadError()"
-></script>
 
 <script>
-let allEmails = [], currentFilter = 'all';
+let allEmails = [], currentFilter = 'all', clientPassword = '';
 
-// Apply saved theme immediately
+// Apply saved theme + restore session immediately
 (function () {
   const t = localStorage.getItem('ea_theme');
   if (t === 'dark') {
@@ -188,80 +147,65 @@ let allEmails = [], currentFilter = 'all';
     document.getElementById('ti-l').style.display = 'none';
     document.getElementById('ti-d').style.display = 'block';
   }
+
+  const saved = sessionStorage.getItem('ea_client_pw');
+  if (saved) {
+    clientPassword = saved;
+    initApp();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+  }
 })();
 
-function clerkLoadError() {
-  document.getElementById('login-screen').style.display = 'flex';
-  showLoginError('Nepodařilo se načíst přihlašovací systém. Obnovte stránku.');
-}
-
-async function initClerk() {
-  await Clerk.load();
-  window._clerk = Clerk;
-
-  document.getElementById('login-screen').style.display = 'flex';
-
-  if (Clerk.session) {
-    await initApp();
-  } else {
-    showSignIn();
+async function login() {
+  const pw = document.getElementById('login-pw').value;
+  if (!pw) return;
+  const errEl = document.getElementById('login-err');
+  errEl.style.display = 'none';
+  try {
+    const res = await fetch('/api/client-auth', { headers: { 'x-client-password': pw } });
+    if (!res.ok) { errEl.style.display = 'block'; return; }
+    const data = await res.json();
+    clientPassword = pw;
+    sessionStorage.setItem('ea_client_pw', pw);
+    showApp(data.companyName);
+  } catch (e) {
+    errEl.textContent = 'Chyba připojení: ' + e.message;
+    errEl.style.display = 'block';
   }
-
-  // React to auth state changes (sign-in / sign-out)
-  Clerk.addListener(async ({ session }) => {
-    if (session && document.getElementById('app').style.display === 'none') {
-      await initApp();
-    } else if (!session && document.getElementById('app').style.display !== 'none') {
-      document.getElementById('app').style.display = 'none';
-      showSignIn();
-    }
-  });
-}
-
-function showSignIn() {
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-err').style.display = 'none';
-  window._clerk.mountSignIn(document.getElementById('clerk-sign-in'));
-}
-
-function showLoginError(msg) {
-  const el = document.getElementById('login-err');
-  el.textContent = msg;
-  el.style.display = 'block';
 }
 
 async function initApp() {
   try {
-    const user = window._clerk.user;
-    const meta = user?.publicMetadata || {};
-    const clientId = meta.clientId;
-
-    if (!clientId) {
-      showSignIn();
-      showLoginError('Váš účet není přiřazen k žádnému klientskému projektu. Kontaktujte správce.');
-      await window._clerk.signOut();
-      return;
-    }
-
-    const companyName = meta.companyName || user?.firstName || 'Email Agent';
-    document.getElementById('company-name').textContent = companyName;
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    loadEmails();
-  } catch (e) {
-    showSignIn();
-    showLoginError('Chyba: ' + e.message);
+    const res = await fetch('/api/client-auth', { headers: { 'x-client-password': clientPassword } });
+    if (!res.ok) { logout(); return; }
+    const data = await res.json();
+    showApp(data.companyName);
+  } catch {
+    logout();
   }
 }
 
-async function getAuthHeaders() {
-  const token = await window._clerk.session.getToken();
-  return { 'Authorization': `Bearer ${token}` };
+function showApp(companyName) {
+  document.getElementById('company-name').textContent = companyName || 'Email Agent';
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadEmails();
 }
 
-async function logout() {
-  await window._clerk.signOut();
+function getAuthHeaders() {
+  return { 'x-client-password': clientPassword };
+}
+
+function logout() {
+  clientPassword = '';
+  sessionStorage.removeItem('ea_client_pw');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  const pw = document.getElementById('login-pw');
+  if (pw) { pw.value = ''; }
+  const err = document.getElementById('login-err');
+  if (err) { err.style.display = 'none'; err.textContent = 'Nesprávné heslo'; }
 }
 
 function toggleTheme() {
@@ -276,7 +220,7 @@ async function loadEmails() {
   const list = document.getElementById('email-list');
   list.innerHTML = '<div class="loading">Načítám...</div>';
   try {
-    const headers = await getAuthHeaders();
+    const headers = getAuthHeaders();
     const res = await fetch('/api/emails', { headers });
     if (res.status === 401) { await logout(); return; }
     const data = await res.json();
@@ -348,7 +292,7 @@ async function sendEmail(id) {
   const btn = document.querySelector(`#ecard-${id} .btn-primary`);
   btn.disabled = true; ss.textContent = 'Odesílám...';
   try {
-    const headers = { ...(await getAuthHeaders()), 'Content-Type': 'application/json' };
+    const headers = { ...getAuthHeaders(), 'Content-Type': 'application/json' };
     const res = await fetch('/api/send', { method: 'POST', headers, body: JSON.stringify({ emailId: id, replyText }) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
@@ -361,76 +305,19 @@ async function sendEmail(id) {
 }
 
 async function ignoreEmail(id) {
-  const headers = { ...(await getAuthHeaders()), 'Content-Type': 'application/json' };
+  const headers = { ...getAuthHeaders(), 'Content-Type': 'application/json' };
   await fetch('/api/emails', { method: 'PATCH', headers, body: JSON.stringify({ emailId: id, status: 'ignored' }) });
   const e = allEmails.find(e => e.id === id); if (e) e.status = 'ignored';
   updateStats(); renderEmails();
 }
 
-// Change password modal
-function openChangePassword() {
-  document.getElementById('cp-current').value = '';
-  document.getElementById('cp-new').value = '';
-  document.getElementById('cp-confirm').value = '';
-  document.getElementById('cp-error').style.display = 'none';
-  document.getElementById('cp-modal').classList.add('open');
-  document.getElementById('cp-current').focus();
-}
-
-function closeChangePassword() {
-  document.getElementById('cp-modal').classList.remove('open');
-}
-
-async function submitChangePassword() {
-  const current = document.getElementById('cp-current').value;
-  const newPw = document.getElementById('cp-new').value;
-  const confirm = document.getElementById('cp-confirm').value;
-  const errEl = document.getElementById('cp-error');
-  const btn = document.getElementById('cp-submit');
-
-  errEl.style.display = 'none';
-
-  if (!current || !newPw || !confirm) {
-    errEl.textContent = 'Vyplňte všechna pole.';
-    errEl.style.display = 'block';
-    return;
-  }
-  if (newPw !== confirm) {
-    errEl.textContent = 'Nová hesla se neshodují.';
-    errEl.style.display = 'block';
-    return;
-  }
-  if (newPw.length < 8) {
-    errEl.textContent = 'Nové heslo musí mít alespoň 8 znaků.';
-    errEl.style.display = 'block';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Měním...';
-  try {
-    await window._clerk.user.updatePassword({ currentPassword: current, newPassword: newPw, signOutOfOtherSessions: true });
-    closeChangePassword();
-  } catch (e) {
-    errEl.textContent = e.errors?.[0]?.longMessage || e.errors?.[0]?.message || e.message || 'Chyba při změně hesla.';
-    errEl.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Změnit heslo';
-  }
-}
-
-// Close modal on backdrop click
-document.getElementById('cp-modal').addEventListener('click', function (e) {
-  if (e.target === this) closeChangePassword();
-});
 
 function initials(f) { const n = String(f || '').split('<')[0].trim(); return n.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?'; }
 function fmtDate(iso) { const d = new Date(iso); const diff = Date.now() - d; if (diff < 3600000) return `před ${Math.floor(diff / 60000)} min`; if (diff < 86400000) return `před ${Math.floor(diff / 3600000)} hod`; return d.toLocaleDateString('cs', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
 function statusLabel(s) { return { pending: 'čeká', sent: 'odesláno', ignored: 'ignorováno' }[s] || s; }
 function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
-setInterval(() => { if (window._clerk?.session) loadEmails(); }, 60000);
+setInterval(() => { if (clientPassword) loadEmails(); }, 60000);
 </script>
 </body>
 </html>
