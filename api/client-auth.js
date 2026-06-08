@@ -14,6 +14,10 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       clientId: client.id,
       companyName: client.companyName,
+      tone: client.tone || 'přátelský a profesionální',
+      replyLength: client.replyLength || 'stredni',
+      usePlural: client.usePlural !== false,
+      useSignature: client.useSignature !== false,
     });
   } catch (e) {
     return res.status(500).json({ error: e.message });

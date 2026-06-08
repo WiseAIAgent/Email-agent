@@ -77,6 +77,20 @@ input[type=password]{font-family:inherit;font-size:14px;background:var(--surface
 input[type=password]:focus{border-color:var(--accent);background:var(--surface)}
 
 @media(max-width:500px){.stats-row{grid-template-columns:1fr 1fr}.main{padding:1rem .75rem 3rem}}
+.settings-panel{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);padding:20px;margin-bottom:1rem;display:none}
+.settings-panel.open{display:block}
+.settings-section-title{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
+.settings-row:last-child{border-bottom:none}
+.settings-label{font-size:13px;color:var(--text2)}
+.settings-label small{display:block;font-size:11px;color:var(--text3);margin-top:1px}
+.tone-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.s-tone-btn{font-family:inherit;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
+.s-tone-btn.active{background:var(--accent-light);color:var(--accent-text);border-color:var(--accent);font-weight:500}
+.s-length-btn{font-family:inherit;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
+.s-length-btn.active{background:var(--accent-light);color:var(--accent-text);border-color:var(--accent);font-weight:500}
+.settings-save-row{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:16px}
+.save-status{font-size:12px;color:var(--text3)}
 </style>
 </head>
 <body>
@@ -105,6 +119,7 @@ input[type=password]:focus{border-color:var(--accent);background:var(--surface)}
       <span class="company-name" id="company-name">Email Agent</span>
     </div>
     <div class="topbar-right">
+      <button class="btn-sm" onclick="toggleSettingsPanel()">Nastavení odpovědí</button>
       <button class="theme-btn" onclick="toggleTheme()">
         <svg id="ti-l" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="2.5"/><line x1="7" y1="1" x2="7" y2="2.2"/><line x1="7" y1="11.8" x2="7" y2="13"/><line x1="1" y1="7" x2="2.2" y2="7"/><line x1="11.8" y1="7" x2="13" y2="7"/><line x1="2.6" y1="2.6" x2="3.5" y2="3.5"/><line x1="10.5" y1="10.5" x2="11.4" y2="11.4"/><line x1="11.4" y1="2.6" x2="10.5" y2="3.5"/><line x1="3.5" y1="10.5" x2="2.6" y2="11.4"/></svg>
         <svg id="ti-d" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="display:none"><path d="M12 9A6 6 0 015 2a6 6 0 107 7z"/></svg>
@@ -129,6 +144,58 @@ input[type=password]:focus{border-color:var(--accent);background:var(--surface)}
         <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6.5A5 5 0 009.5 10M12 6.5A5 5 0 003.5 3"/><path d="M8 10l1.5 0 0-1.5M5 3L3.5 3l0 1.5"/></svg>
         Obnovit
       </button>
+    </div>
+
+    <!-- Settings panel -->
+    <div class="settings-panel" id="settings-panel">
+      <div class="settings-section-title">Nastavení odpovědí</div>
+
+      <div style="margin-bottom:12px">
+        <div class="settings-label" style="margin-bottom:8px">Tón komunikace</div>
+        <div class="tone-row">
+          <button class="s-tone-btn" data-tone="přátelský a profesionální" onclick="selectTone(this)">přátelský</button>
+          <button class="s-tone-btn" data-tone="formální a věcný" onclick="selectTone(this)">formální</button>
+          <button class="s-tone-btn" data-tone="neformální a lidský" onclick="selectTone(this)">neformální</button>
+          <button class="s-tone-btn" data-tone="stručný a přímočarý" onclick="selectTone(this)">stručný</button>
+          <button class="s-tone-btn" data-tone="empatický a trpělivý" onclick="selectTone(this)">empatický</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <div class="settings-label" style="margin-bottom:8px">Délka odpovědi</div>
+        <div class="tone-row">
+          <button class="s-length-btn" data-length="kratka" onclick="selectLength(this)">krátká</button>
+          <button class="s-length-btn" data-length="stredni" onclick="selectLength(this)">střední</button>
+          <button class="s-length-btn" data-length="dlouha" onclick="selectLength(this)">podrobná</button>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-label">
+          Množné číslo
+          <small>„Děkujeme" místo „Děkuji"</small>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="s-plural" />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-label">
+          Automatický podpis
+          <small>Agent přidá podpis na konec každé odpovědi</small>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="s-signature" />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="settings-save-row">
+        <span class="save-status" id="settings-status"></span>
+        <button class="btn btn-primary btn-sm" onclick="saveSettings()">Uložit nastavení</button>
+      </div>
     </div>
 
     <div id="email-list" class="email-list"><div class="loading">Načítám...</div></div>
@@ -168,7 +235,7 @@ async function login() {
     const data = await res.json();
     clientPassword = pw;
     sessionStorage.setItem('ea_client_pw', pw);
-    showApp(data.companyName);
+    showApp(data);
   } catch (e) {
     errEl.textContent = 'Chyba připojení: ' + e.message;
     errEl.style.display = 'block';
@@ -180,17 +247,70 @@ async function initApp() {
     const res = await fetch('/api/client-auth', { headers: { 'x-client-password': clientPassword } });
     if (!res.ok) { logout(); return; }
     const data = await res.json();
-    showApp(data.companyName);
+    showApp(data);
   } catch {
     logout();
   }
 }
 
-function showApp(companyName) {
-  document.getElementById('company-name').textContent = companyName || 'Email Agent';
+let clientSettings = {};
+
+function showApp(data) {
+  document.getElementById('company-name').textContent = data.companyName || 'Email Agent';
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  clientSettings = {
+    tone: data.tone || 'přátelský a profesionální',
+    replyLength: data.replyLength || 'stredni',
+    usePlural: data.usePlural !== false,
+    useSignature: data.useSignature !== false,
+  };
+  renderSettings();
   loadEmails();
+}
+
+function renderSettings() {
+  document.querySelectorAll('.s-tone-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.tone === clientSettings.tone));
+  document.querySelectorAll('.s-length-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.length === clientSettings.replyLength));
+  document.getElementById('s-plural').checked = clientSettings.usePlural;
+  document.getElementById('s-signature').checked = clientSettings.useSignature;
+}
+
+function selectTone(btn) {
+  document.querySelectorAll('.s-tone-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  clientSettings.tone = btn.dataset.tone;
+}
+
+function selectLength(btn) {
+  document.querySelectorAll('.s-length-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  clientSettings.replyLength = btn.dataset.length;
+}
+
+function toggleSettingsPanel() {
+  document.getElementById('settings-panel').classList.toggle('open');
+}
+
+async function saveSettings() {
+  clientSettings.usePlural = document.getElementById('s-plural').checked;
+  clientSettings.useSignature = document.getElementById('s-signature').checked;
+  const statusEl = document.getElementById('settings-status');
+  statusEl.textContent = 'Ukládám...';
+  try {
+    const res = await fetch('/api/clients', {
+      method: 'PATCH',
+      headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(clientSettings),
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    statusEl.textContent = 'Uloženo ✓';
+    setTimeout(() => { statusEl.textContent = ''; }, 2500);
+  } catch (e) {
+    statusEl.textContent = 'Chyba: ' + e.message;
+  }
 }
 
 function getAuthHeaders() {

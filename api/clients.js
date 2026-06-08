@@ -1,4 +1,5 @@
 const { Redis } = require('@upstash/redis');
+const { getAuthContext } = require('./_auth');
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL,
@@ -54,16 +55,35 @@ module.exports = async function handler(req, res) {
   // PATCH - update client
   if (req.method === 'PATCH') {
     try {
-      const { id, ...updates } = req.body;
-      const existing = await redis.get(`client:${id}`);
-      if (!existing) return res.status(404).json({ error: 'Klient nenalezen' });
-      // Keep existing password if not provided
-      if (!updates.emailPassword || updates.emailPassword === '••••••••') {
-        updates.emailPassword = existing.emailPassword;
+      // Admin: full update of any client
+      if (req.headers['x-admin-secret'] === process.env.ADMIN_SECRET) {
+        const { id, ...updates } = req.body;
+        const existing = await redis.get(`client:${id}`);
+        if (!existing) return res.status(404).json({ error: 'Klient nenalezen' });
+        if (!updates.emailPassword || updates.emailPassword === '••••••••') {
+          updates.emailPassword = existing.emailPassword;
+        }
+        const updated = { ...existing, ...updates, id };
+        await redis.set(`client:${id}`, updated);
+        return res.status(200).json({ success: true });
       }
-      const updated = { ...existing, ...updates, id };
-      await redis.set(`client:${id}`, updated);
-      return res.status(200).json({ success: true });
+
+      // Client: can update only their own agent settings
+      const auth = await getAuthContext(req);
+      if (auth?.type === 'client') {
+        const existing = await redis.get(`client:${auth.clientId}`);
+        if (!existing) return res.status(404).json({ error: 'Klient nenalezen' });
+        const { tone, replyLength, usePlural, useSignature } = req.body;
+        const updated = { ...existing };
+        if (tone !== undefined) updated.tone = tone;
+        if (replyLength !== undefined) updated.replyLength = replyLength;
+        if (usePlural !== undefined) updated.usePlural = usePlural;
+        if (useSignature !== undefined) updated.useSignature = useSignature;
+        await redis.set(`client:${auth.clientId}`, updated);
+        return res.status(200).json({ success: true });
+      }
+
+      return res.status(401).json({ error: 'Unauthorized' });
     } catch (e) {
       return res.status(500).json({ error: e.message });
     }
