@@ -560,7 +560,7 @@ textarea { resize: vertical; line-height: 1.6; }
         </div>
         <div class="field">
           <label>Obor</label>
-          <select id="industry">
+          <select id="industry" onchange="toggleCustomIndustry('industry','custom-industry')">
             <optgroup label="E-commerce">
               <option>E-shop s elektronikou</option>
               <option>Módní e-shop</option>
@@ -627,6 +627,7 @@ textarea { resize: vertical; line-height: 1.6; }
               <option>Jiné</option>
             </optgroup>
           </select>
+          <input type="text" id="custom-industry" placeholder="Název vašeho oboru..." style="display:none;margin-top:6px" />
         </div>
       </div>
       <div class="field">
@@ -823,6 +824,13 @@ document.querySelectorAll('.tone-btn').forEach(btn => {
   });
 });
 
+function toggleCustomIndustry(selectId, inputId) {
+  const input = document.getElementById(inputId);
+  const isOther = document.getElementById(selectId).value === 'Jiné';
+  input.style.display = isOther ? 'block' : 'none';
+  if (isOther) input.focus();
+}
+
 function toggleLoginMenu(e) {
   e.stopPropagation();
   document.getElementById('login-dropdown').classList.toggle('open');
@@ -874,7 +882,9 @@ async function generateReply() {
   const counterText = document.getElementById('counter-text');
 
   const companyName = document.getElementById('company-name').value;
-  const industry = document.getElementById('industry').value;
+  const industryRaw = document.getElementById('industry').value;
+  const industryCustom = document.getElementById('custom-industry').value.trim();
+  const industry = (industryRaw === 'Jiné' && industryCustom) ? industryCustom : industryRaw;
   const companyDesc = document.getElementById('company-desc').value;
   const signature = document.getElementById('signature').value;
   const useSignature = document.getElementById('use-signature').checked;
