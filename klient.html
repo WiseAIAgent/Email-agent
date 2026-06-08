@@ -215,13 +215,7 @@ let allEmails = [], currentFilter = 'all', clientPassword = '';
     document.getElementById('ti-d').style.display = 'block';
   }
 
-  const saved = sessionStorage.getItem('ea_client_pw');
-  if (saved) {
-    clientPassword = saved;
-    initApp();
-  } else {
-    document.getElementById('login-screen').style.display = 'flex';
-  }
+  document.getElementById('login-screen').style.display = 'flex';
 })();
 
 async function login() {
@@ -234,7 +228,6 @@ async function login() {
     if (!res.ok) { errEl.style.display = 'block'; return; }
     const data = await res.json();
     clientPassword = pw;
-    sessionStorage.setItem('ea_client_pw', pw);
     showApp(data);
   } catch (e) {
     errEl.textContent = 'Chyba připojení: ' + e.message;
@@ -319,7 +312,6 @@ function getAuthHeaders() {
 
 function logout() {
   clientPassword = '';
-  sessionStorage.removeItem('ea_client_pw');
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   const pw = document.getElementById('login-pw');

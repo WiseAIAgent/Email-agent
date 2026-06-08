@@ -273,14 +273,12 @@ let adminSecret='', allStats=[], allClients=[], editingId=null, selectedTone='p�
 (function(){
   const t=localStorage.getItem('ea_theme');
   if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');document.getElementById('ti-l').style.display='none';document.getElementById('ti-d').style.display='block';document.getElementById('theme-label').textContent='tmavý';}
-  const s=sessionStorage.getItem('ea_admin');
-  if(s){adminSecret=s;showApp();}
 })();
 
 function toggleCustomIndustry(selectId,inputId){const input=document.getElementById(inputId);const isOther=document.getElementById(selectId).value==='Jiné';input.style.display=isOther?'block':'none';if(isOther)input.focus();}
 function toggleTheme(){const d=document.documentElement.getAttribute('data-theme')==='dark';document.documentElement.setAttribute('data-theme',d?'light':'dark');document.getElementById('ti-l').style.display=d?'block':'none';document.getElementById('ti-d').style.display=d?'none':'block';document.getElementById('theme-label').textContent=d?'světlý':'tmavý';localStorage.setItem('ea_theme',d?'light':'dark');}
-function login(){const pw=document.getElementById('login-pw').value;if(!pw)return;adminSecret=pw;sessionStorage.setItem('ea_admin',pw);document.getElementById('login-err').style.display='none';showApp();}
-function logout(){sessionStorage.removeItem('ea_admin');adminSecret='';document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('login-pw').value='';}
+function login(){const pw=document.getElementById('login-pw').value;if(!pw)return;adminSecret=pw;document.getElementById('login-err').style.display='none';showApp();}
+function logout(){adminSecret='';document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('login-pw').value='';}
 function showApp(){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';loadStats();loadClients();}
 function showPage(p){['overview','clients'].forEach(x=>{document.getElementById('page-'+x).style.display=p===x?'block':'none';document.getElementById('nav-'+x).classList.toggle('active',p===x);});}
 
