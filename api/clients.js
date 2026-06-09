@@ -7,14 +7,11 @@ const redis = new Redis({
 });
 
 module.exports = async function handler(req, res) {
-  // Simple admin auth
-  const auth = req.headers['x-admin-secret'];
-  if (auth !== process.env.ADMIN_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  // GET - list all clients
+  // GET - list all clients (admin only)
   if (req.method === 'GET') {
+    if (req.headers['x-admin-secret'] !== process.env.ADMIN_SECRET) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     try {
       const ids = (await redis.get('client_index')) || [];
       const clients = [];
@@ -32,8 +29,11 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // POST - create new client
+  // POST - create new client (admin only)
   if (req.method === 'POST') {
+    if (req.headers['x-admin-secret'] !== process.env.ADMIN_SECRET) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     try {
       const id = `client_${Date.now()}`;
       const client = {
@@ -53,9 +53,11 @@ module.exports = async function handler(req, res) {
   }
 
   // PATCH - update client
+  // Admin: full update of any client
+  // Client: can update only their own agent settings (tone, replyLength, usePlural, useSignature)
   if (req.method === 'PATCH') {
     try {
-      // Admin: full update of any client
+      // Check admin first
       if (req.headers['x-admin-secret'] === process.env.ADMIN_SECRET) {
         const { id, ...updates } = req.body;
         const existing = await redis.get(`client:${id}`);
@@ -68,7 +70,7 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ success: true });
       }
 
-      // Client: can update only their own agent settings
+      // Check client auth
       const auth = await getAuthContext(req);
       if (auth?.type === 'client') {
         const existing = await redis.get(`client:${auth.clientId}`);
@@ -89,8 +91,11 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // DELETE - remove client
+  // DELETE - remove client (admin only)
   if (req.method === 'DELETE') {
+    if (req.headers['x-admin-secret'] !== process.env.ADMIN_SECRET) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
     try {
       const { id } = req.body;
       await redis.del(`client:${id}`);
@@ -103,4 +108,4 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
-}
+};
