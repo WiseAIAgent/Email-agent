@@ -75,12 +75,15 @@ module.exports = async function handler(req, res) {
       if (auth?.type === 'client') {
         const existing = await redis.get(`client:${auth.clientId}`);
         if (!existing) return res.status(404).json({ error: 'Klient nenalezen' });
-        const { tone, replyLength, usePlural, useSignature } = req.body;
+        const { tone, replyLength, usePlural, useSignature, ignoreKeywords, ignoreSenders, ignoreDomains } = req.body;
         const updated = { ...existing };
         if (tone !== undefined) updated.tone = tone;
         if (replyLength !== undefined) updated.replyLength = replyLength;
         if (usePlural !== undefined) updated.usePlural = usePlural;
         if (useSignature !== undefined) updated.useSignature = useSignature;
+        if (ignoreKeywords !== undefined) updated.ignoreKeywords = ignoreKeywords;
+        if (ignoreSenders !== undefined) updated.ignoreSenders = ignoreSenders;
+        if (ignoreDomains !== undefined) updated.ignoreDomains = ignoreDomains;
         await redis.set(`client:${auth.clientId}`, updated);
         return res.status(200).json({ success: true });
       }

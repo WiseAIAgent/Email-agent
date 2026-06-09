@@ -73,8 +73,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .login-error{font-size:13px;color:var(--danger);display:none}
 .field{display:flex;flex-direction:column;gap:5px}
 .field label{font-size:12px;font-weight:500;color:var(--text2)}
-input[type=password],input[type=email]{font-family:inherit;font-size:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 11px;width:100%;outline:none;transition:border-color .15s}
-input[type=password]:focus,input[type=email]:focus{border-color:var(--accent);background:var(--surface)}
+input[type=password],input[type=email],input[type=text]{font-family:inherit;font-size:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 11px;width:100%;outline:none;transition:border-color .15s}
+input[type=password]:focus,input[type=email]:focus,input[type=text]:focus{border-color:var(--accent);background:var(--surface)}
+.toggle-switch{position:relative;width:36px;height:20px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute}
+.toggle-track{position:absolute;inset:0;background:var(--surface3);border-radius:999px;border:1px solid var(--border2);cursor:pointer;transition:background .2s}
+.toggle-track::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--text3);transition:transform .2s,background .2s}
+.toggle-switch input:checked+.toggle-track{background:var(--accent);border-color:var(--accent)}
+.toggle-switch input:checked+.toggle-track::after{transform:translateX(16px);background:#fff}
+.field-hint{font-size:11px;color:var(--text3);margin-top:3px}
 
 @media(max-width:500px){.stats-row{grid-template-columns:1fr 1fr}.main{padding:1rem .75rem 3rem}}
 .settings-panel{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);padding:20px;margin-bottom:1rem;display:none}
@@ -196,6 +203,25 @@ input[type=password]:focus,input[type=email]:focus{border-color:var(--accent);ba
         </label>
       </div>
 
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <div class="settings-section-title">Ignorovat e-maily</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <div class="settings-label" style="margin-bottom:5px">Klíčová slova v předmětu</div>
+            <input type="text" id="s-ignore-keywords" placeholder="newsletter, noreply, automatická zpráva" />
+            <div class="field-hint">E-maily s tímto slovem v předmětu budou automaticky ignorovány</div>
+          </div>
+          <div>
+            <div class="settings-label" style="margin-bottom:5px">Ignorovat odesílatele</div>
+            <input type="text" id="s-ignore-senders" placeholder="noreply@firma.cz, automat@firma.cz" />
+          </div>
+          <div>
+            <div class="settings-label" style="margin-bottom:5px">Ignorovat domény</div>
+            <input type="text" id="s-ignore-domains" placeholder="mailchimp.com, sendgrid.net" />
+          </div>
+        </div>
+      </div>
+
       <div class="settings-save-row">
         <span class="save-status" id="settings-status"></span>
         <button class="btn btn-primary btn-sm" onclick="saveSettings()">Uložit nastavení</button>
@@ -273,6 +299,9 @@ function showApp(data) {
     replyLength: data.replyLength || 'stredni',
     usePlural: data.usePlural !== false,
     useSignature: data.useSignature !== false,
+    ignoreKeywords: data.ignoreKeywords || '',
+    ignoreSenders: data.ignoreSenders || '',
+    ignoreDomains: data.ignoreDomains || '',
   };
   renderSettings();
   loadEmails();
@@ -285,6 +314,9 @@ function renderSettings() {
     b.classList.toggle('active', b.dataset.length === clientSettings.replyLength));
   document.getElementById('s-plural').checked = clientSettings.usePlural;
   document.getElementById('s-signature').checked = clientSettings.useSignature;
+  document.getElementById('s-ignore-keywords').value = clientSettings.ignoreKeywords || '';
+  document.getElementById('s-ignore-senders').value = clientSettings.ignoreSenders || '';
+  document.getElementById('s-ignore-domains').value = clientSettings.ignoreDomains || '';
 }
 
 function selectTone(btn) {
@@ -306,6 +338,9 @@ function toggleSettingsPanel() {
 async function saveSettings() {
   clientSettings.usePlural = document.getElementById('s-plural').checked;
   clientSettings.useSignature = document.getElementById('s-signature').checked;
+  clientSettings.ignoreKeywords = document.getElementById('s-ignore-keywords').value.trim();
+  clientSettings.ignoreSenders = document.getElementById('s-ignore-senders').value.trim();
+  clientSettings.ignoreDomains = document.getElementById('s-ignore-domains').value.trim();
   const statusEl = document.getElementById('settings-status');
   statusEl.textContent = 'Ukládám...';
   try {

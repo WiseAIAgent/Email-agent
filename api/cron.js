@@ -105,6 +105,30 @@ async function sendNotification(client, processed) {
   });
 }
 
+function isIgnored(email, client) {
+  const subject = (email.subject || '').toLowerCase();
+  const from = (email.from || '').toLowerCase();
+
+  if (client.ignoreKeywords) {
+    const keywords = client.ignoreKeywords.split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
+    if (keywords.some(k => k && subject.includes(k))) return true;
+  }
+
+  if (client.ignoreSenders) {
+    const senders = client.ignoreSenders.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    if (senders.some(s => from.includes(s))) return true;
+  }
+
+  if (client.ignoreDomains) {
+    const domains = client.ignoreDomains.split(',').map(d => d.trim().toLowerCase()).filter(Boolean);
+    const domainMatch = from.match(/@([\w.-]+)/);
+    const emailDomain = domainMatch ? domainMatch[1] : '';
+    if (emailDomain && domains.some(d => emailDomain === d || emailDomain.endsWith('.' + d))) return true;
+  }
+
+  return false;
+}
+
 async function generateReply(email, client) {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -157,8 +181,32 @@ module.exports = async function handler(req, res) {
           const currentCount = (await redis.get(countKey)) || 0;
           if (currentCount >= limit) break;
 
-          const reply = await generateReply(email, client);
           const id = `email_${clientId}_${email.uid}_${Date.now()}`;
+
+          // Check ignore rules — save as ignored without generating reply
+          if (isIgnored(email, client)) {
+            const record = {
+              id, clientId,
+              uid: email.uid,
+              from: email.from,
+              subject: email.subject,
+              body: email.text,
+              date: email.date,
+              reply: '',
+              status: 'ignored',
+              createdAt: new Date().toISOString()
+            };
+            await redis.set(`email:${id}`, record);
+            const gi = (await redis.get('email_index')) || [];
+            gi.unshift(id); if (gi.length > 1000) gi.pop();
+            await redis.set('email_index', gi);
+            const ci = (await redis.get(`email_index:${clientId}`)) || [];
+            ci.unshift(id); if (ci.length > 200) ci.pop();
+            await redis.set(`email_index:${clientId}`, ci);
+            continue; // skip reply generation, don't count toward daily limit
+          }
+
+          const reply = await generateReply(email, client);
           const record = {
             id, clientId,
             uid: email.uid,

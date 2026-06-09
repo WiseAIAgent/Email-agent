@@ -29,6 +29,9 @@ module.exports = async function handler(req, res) {
       replyLength: client.replyLength || 'stredni',
       usePlural: client.usePlural !== false,
       useSignature: client.useSignature !== false,
+      ignoreKeywords: client.ignoreKeywords || '',
+      ignoreSenders: client.ignoreSenders || '',
+      ignoreDomains: client.ignoreDomains || '',
     });
   } catch (e) {
     return res.status(500).json({ error: e.message });
