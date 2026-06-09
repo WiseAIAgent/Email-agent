@@ -208,7 +208,7 @@ input[type=password]:focus,input[type=email]:focus{border-color:var(--accent);ba
 
 
 <script>
-let allEmails = [], currentFilter = 'all', clientPassword = '';
+let allEmails = [], currentFilter = 'all', clientPassword = '', clientEmail = '';
 
 // Apply saved theme + restore session immediately
 (function () {
@@ -219,7 +219,15 @@ let allEmails = [], currentFilter = 'all', clientPassword = '';
     document.getElementById('ti-d').style.display = 'block';
   }
 
-  document.getElementById('login-screen').style.display = 'flex';
+  const savedPw = sessionStorage.getItem('ea_client_pw');
+  const savedEmail = sessionStorage.getItem('ea_client_email');
+  if (savedPw && savedEmail) {
+    clientPassword = savedPw;
+    clientEmail = savedEmail;
+    initApp();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+  }
 })();
 
 async function login() {
@@ -233,6 +241,9 @@ async function login() {
     if (!res.ok) { errEl.style.display = 'block'; return; }
     const data = await res.json();
     clientPassword = pw;
+    clientEmail = email;
+    sessionStorage.setItem('ea_client_pw', pw);
+    sessionStorage.setItem('ea_client_email', email);
     showApp(data);
   } catch (e) {
     errEl.textContent = 'Chyba připojení: ' + e.message;
@@ -242,7 +253,7 @@ async function login() {
 
 async function initApp() {
   try {
-    const res = await fetch('/api/client-auth', { headers: { 'x-client-password': clientPassword } });
+    const res = await fetch('/api/client-auth', { headers: { 'x-client-password': clientPassword, 'x-client-email': clientEmail } });
     if (!res.ok) { logout(); return; }
     const data = await res.json();
     showApp(data);
@@ -312,11 +323,14 @@ async function saveSettings() {
 }
 
 function getAuthHeaders() {
-  return { 'x-client-password': clientPassword };
+  return { 'x-client-password': clientPassword, 'x-client-email': clientEmail };
 }
 
 function logout() {
   clientPassword = '';
+  clientEmail = '';
+  sessionStorage.removeItem('ea_client_pw');
+  sessionStorage.removeItem('ea_client_email');
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   const emailEl = document.getElementById('login-email');
