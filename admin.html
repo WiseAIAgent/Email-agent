@@ -117,7 +117,7 @@ textarea{resize:vertical;line-height:1.6}
 <div class="login-wrap" id="login-screen">
   <div class="login-box">
     <div><div class="login-title">Email Agent</div><div style="font-size:13px;color:var(--text3);margin-top:4px;">Přihlášení provozovatele</div></div>
-    <div class="field"><label>Admin heslo</label><input type="password" id="login-pw" placeholder="Zadejte heslo..." onkeydown="if(event.key==='Enter')login()" /></div>
+    <div class="field"><label>Admin heslo</label><input type="password" id="login-pw" placeholder="Zadejte heslo..." onkeydown="if(event.key==='Enter')login()" autofocus /></div>
     <div class="login-error" id="login-err" style="display:none">Nesprávné heslo</div>
     <button class="btn btn-primary" onclick="login()">Přihlásit se</button>
   </div>
