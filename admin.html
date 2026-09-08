@@ -197,12 +197,6 @@ textarea{resize:vertical;line-height:1.6}
       </div>
       <div class="toggle-row"><div class="toggle-label">Klient aktivní</div><label class="toggle-switch"><input type="checkbox" id="f-active" checked /><span class="toggle-track"></span></label></div>
 
-      <div class="section-div">Eskalace a omezení <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(volitelné)</span></div>
-      <div class="form-grid">
-        <div class="field"><label>Eskalační kontakt</label><input type="text" id="f-esc-contact" placeholder="manager@firma.cz" /></div>
-        <div class="field"><label>Kdy eskalovat</label><input type="text" id="f-esc-when" placeholder="Reklamace nad 10 000 Kč..." /></div>
-      </div>
-      <div class="field"><label>Zakázaná témata</label><input type="text" id="f-forbidden" placeholder="Ceny konkurence, interní procesy..." /></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">Zrušit</button>
@@ -298,7 +292,7 @@ function openModal(){editingId=null;document.getElementById('modal-title').textC
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 
 function clearForm(){
-  ['f-name','f-email','f-esc-contact','f-esc-when','f-forbidden'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-name','f-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f-limit').value='25';
   document.getElementById('f-active').checked=true;
 }
@@ -308,9 +302,6 @@ function fillForm(c){
   document.getElementById('f-email').value=c.email||'';
   document.getElementById('f-limit').value=c.dailyLimit||'25';
   document.getElementById('f-active').checked=c.active!==false;
-  document.getElementById('f-esc-contact').value=c.escalationContact||'';
-  document.getElementById('f-esc-when').value=c.escalationWhen||'';
-  document.getElementById('f-forbidden').value=c.forbiddenTopics||'';
 }
 
 function editClient(id){const c=allClients.find(c=>c.id===id);if(!c)return;editingId=id;document.getElementById('modal-title').textContent='Upravit klienta';document.getElementById('modal-save-btn').textContent='Uložit změny';fillForm(c);document.getElementById('modal').classList.add('open');}
@@ -324,9 +315,6 @@ async function saveClient(){
     email,
     dailyLimit:parseInt(document.getElementById('f-limit').value)||25,
     active:document.getElementById('f-active').checked,
-    escalationContact:document.getElementById('f-esc-contact').value.trim(),
-    escalationWhen:document.getElementById('f-esc-when').value.trim(),
-    forbiddenTopics:document.getElementById('f-forbidden').value.trim(),
   };
   const btn=document.getElementById('modal-save-btn');btn.disabled=true;btn.textContent='Ukládám...';
   try{const res=await fetch('/api/clients',{method:editingId?'PATCH':'POST',headers:{'Content-Type':'application/json','x-admin-secret':adminSecret},body:JSON.stringify(editingId?{id:editingId,...data}:data)});const result=await res.json();if(!res.ok)throw new Error(result.error);closeModal();loadClients();loadStats();}catch(e){alert('Chyba: '+e.message);}
