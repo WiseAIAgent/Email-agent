@@ -254,21 +254,33 @@ let clientSettings = {
 
 const clerkPublishableKey = 'pk_live_Y2xlcmsud2lzZWFnZW50LmN6JA';
 
+function loadScript(src, attrs) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    if (attrs) Object.assign(s, attrs);
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
 async function initClerk() {
   const loading = document.getElementById('loading-wrap');
   try {
-    await new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      // Load from Clerk's own verified CDN (clerk.wiseagent.cz); auto-creates window.Clerk as instance
-      s.src = 'https://clerk.wiseagent.cz/npm/@clerk/clerk-js@5/dist/clerk.browser.js';
-      s.dataset.clerkPublishableKey = clerkPublishableKey;
-      s.crossOrigin = 'anonymous';
-      s.onload = resolve;
-      s.onerror = reject;
-      document.head.appendChild(s);
-    });
-    clerk = window.Clerk; // instance, not constructor
-    await clerk.load();
+    await Promise.all([
+      loadScript('https://clerk.wiseagent.cz/npm/@clerk/clerk-js@5/dist/clerk.browser.js', {
+        dataset: { clerkPublishableKey: clerkPublishableKey },
+        crossOrigin: 'anonymous',
+      }),
+      loadScript('https://cdn.jsdelivr.net/npm/@clerk/localizations@latest/dist/index.umd.js')
+        .catch(() => {}), // non-fatal — falls back to English
+    ]);
+
+    clerk = window.Clerk;
+    const csCZ = window.ClerkLocalizations?.csCZ;
+    await clerk.load(csCZ ? { localization: csCZ } : {});
+
     clerk.addListener(({ user }) => {
       if (user && document.getElementById('clerk-signin').style.display !== 'none') {
         document.getElementById('clerk-signin').style.display = 'none';
