@@ -269,17 +269,17 @@ function loadScript(src, { dataset, ...rest } = {}) {
 async function initClerk() {
   const loading = document.getElementById('loading-wrap');
   try {
-    await Promise.all([
+    const [, localizationsModule] = await Promise.all([
       loadScript('https://clerk.wiseagent.cz/npm/@clerk/clerk-js@5/dist/clerk.browser.js', {
         dataset: { clerkPublishableKey },
         crossOrigin: 'anonymous',
       }),
-      loadScript('https://cdn.jsdelivr.net/npm/@clerk/localizations@latest/dist/index.umd.js')
-        .catch(() => {}), // non-fatal — falls back to English
+      import('https://cdn.jsdelivr.net/npm/@clerk/localizations@latest/dist/index.mjs')
+        .catch(() => null),
     ]);
 
     clerk = window.Clerk;
-    const csCZ = window.ClerkLocalizations?.csCZ;
+    const csCZ = localizationsModule?.csCZ;
     await clerk.load({
       ...(csCZ && { localization: csCZ }),
       afterSignInUrl: '/klient',
