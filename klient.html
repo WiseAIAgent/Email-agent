@@ -150,7 +150,11 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
 </div>
 
 <!-- Clerk sign-in screen -->
-<div class="login-wrap" id="clerk-signin" style="display:none">
+<div class="login-wrap" id="clerk-signin" style="display:none;position:relative">
+  <a href="/" style="position:absolute;top:20px;left:20px;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text3);text-decoration:none" onmouseover="this.style.color='var(--text1)'" onmouseout="this.style.color='var(--text3)'">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Zpět na hlavní stránku
+  </a>
   <div id="clerk-signin-mount"></div>
 </div>
 
