@@ -279,7 +279,11 @@ async function initClerk() {
 
     clerk = window.Clerk;
     const csCZ = window.ClerkLocalizations?.csCZ;
-    await clerk.load(csCZ ? { localization: csCZ } : {});
+    await clerk.load({
+      ...(csCZ && { localization: csCZ }),
+      afterSignInUrl: '/klient',
+      afterSignUpUrl: '/klient',
+    });
 
     clerk.addListener(({ user }) => {
       if (user && document.getElementById('clerk-signin').style.display !== 'none') {
