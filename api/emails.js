@@ -1,9 +1,10 @@
-const { getAuthContext, redis } = require('./_auth');
+const { getAuthContext, redis, FORBIDDEN } = require('./_auth');
 
 module.exports = async function handler(req, res) {
   try {
     const auth = await getAuthContext(req);
     if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+    if (auth === FORBIDDEN) return res.status(403).json({ error: 'Forbidden' });
 
     const authId = auth.clientId;
 

@@ -8,6 +8,9 @@ const redis = new Redis({
 
 const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
 
+// Returned when a valid Clerk token belongs to a user not registered as a client
+const FORBIDDEN = { type: 'forbidden' };
+
 async function getAuthContext(req) {
   // Admin auth via secret header
   const adminSecret = req.headers['x-admin-secret'];
@@ -31,7 +34,8 @@ async function getAuthContext(req) {
         const client = await redis.get(`client:${id}`);
         if (client?.email === email) return { type: 'client', clientId: client.id };
       }
-      return null;
+      // Valid Clerk user but no matching client in Redis → 403 (not 401)
+      return FORBIDDEN;
     } catch {
       return null;
     }
@@ -57,4 +61,4 @@ async function getAuthContext(req) {
   return null;
 }
 
-module.exports = { redis, getAuthContext };
+module.exports = { redis, getAuthContext, FORBIDDEN };

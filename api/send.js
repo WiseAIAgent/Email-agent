@@ -1,5 +1,5 @@
 const nodemailer = require('nodemailer');
-const { getAuthContext, redis } = require('./_auth');
+const { getAuthContext, redis, FORBIDDEN } = require('./_auth');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -7,6 +7,7 @@ module.exports = async function handler(req, res) {
   try {
     const auth = await getAuthContext(req);
     if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+    if (auth === FORBIDDEN) return res.status(403).json({ error: 'Forbidden' });
 
     const authId = auth.clientId;
     const { emailId, replyText } = req.body;

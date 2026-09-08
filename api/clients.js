@@ -1,4 +1,4 @@
-const { redis, getAuthContext } = require('./_auth');
+const { redis, getAuthContext, FORBIDDEN } = require('./_auth');
 
 module.exports = async function handler(req, res) {
   // GET - list all clients (admin only)
@@ -66,6 +66,7 @@ module.exports = async function handler(req, res) {
 
       // Check client auth
       const auth = await getAuthContext(req);
+      if (auth === FORBIDDEN) return res.status(403).json({ error: 'Forbidden' });
       if (auth?.type === 'client') {
         const existing = await redis.get(`client:${auth.clientId}`);
         if (!existing) return res.status(404).json({ error: 'Klient nenalezen' });
