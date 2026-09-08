@@ -91,6 +91,41 @@ input[type=password]:focus,input[type=email]:focus,input[type=text]:focus{border
 .pw-toggle svg{width:16px;height:16px}
 
 @media(max-width:500px){.stats-row{grid-template-columns:1fr 1fr}.main{padding:1rem .75rem 3rem}}
+
+/* Onboarding */
+.ob-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 4rem}
+.ob-header{width:100%;max-width:600px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem}
+.ob-stepper{width:100%;max-width:600px;display:flex;align-items:center;margin-bottom:1.5rem}
+.ob-step-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0}
+.ob-step-num{width:28px;height:28px;border-radius:50%;background:var(--surface3);color:var(--text3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border:2px solid var(--border2);transition:all .2s}
+.ob-step-item.active .ob-step-num{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ob-step-item.done .ob-step-num{background:var(--green-bg);color:var(--green);border-color:var(--green)}
+.ob-step-label{font-size:11px;color:var(--text3);white-space:nowrap}
+.ob-step-item.active .ob-step-label,.ob-step-item.done .ob-step-label{color:var(--text2)}
+.ob-step-line{flex:1;height:1px;background:var(--border2);margin:0 8px 18px}
+.ob-card{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:1.75rem;width:100%;max-width:600px}
+.ob-card h2{font-size:17px;font-weight:600;letter-spacing:-.02em;margin-bottom:4px}
+.ob-card .ob-subtitle{font-size:13px;color:var(--text2);margin-bottom:1.25rem}
+.ob-field{display:flex;flex-direction:column;gap:5px;margin-bottom:1rem}
+.ob-label{font-size:12px;font-weight:500;color:var(--text2)}
+.ob-hint{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.5}
+select{font-family:inherit;font-size:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 11px;width:100%;outline:none;transition:border-color .15s;cursor:pointer}
+select:focus{border-color:var(--accent)}
+textarea{font-family:inherit;font-size:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 11px;width:100%;resize:vertical;min-height:80px;outline:none;transition:border-color .15s}
+textarea:focus{border-color:var(--accent);background:var(--surface)}
+.ob-nav{display:flex;align-items:flex-start;justify-content:space-between;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+.ob-provider-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ob-provider-btn{font-family:inherit;font-size:13px;font-weight:500;padding:12px 6px;border-radius:10px;border:2px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;text-align:center;transition:all .15s}
+.ob-provider-btn:hover{border-color:var(--accent);background:var(--accent-light);color:var(--accent-text)}
+.ob-provider-btn.active{border-color:var(--accent);background:var(--accent-light);color:var(--accent-text)}
+.ob-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ob-faq-item{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:start}
+.ob-faq-item textarea{min-height:64px;font-size:13px}
+.ob-faq-remove{background:none;border:1px solid var(--border2);border-radius:7px;color:var(--text3);cursor:pointer;padding:5px 9px;font-size:18px;line-height:1;transition:all .15s}
+.ob-faq-remove:hover{color:var(--danger);border-color:var(--danger)}
+.ob-add-btn{font-family:inherit;font-size:13px;padding:7px 16px;border-radius:8px;border:1px dashed var(--border2);background:none;color:var(--text2);cursor:pointer;transition:all .15s;margin-top:4px}
+.ob-add-btn:hover{border-color:var(--accent);color:var(--accent-text)}
+.ob-error{font-size:12px;color:var(--danger);margin-top:6px;display:none}
 .settings-panel{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);padding:20px;margin-bottom:1rem;display:none}
 .settings-panel.open{display:block}
 .settings-section-title{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
@@ -117,6 +152,131 @@ input[type=password]:focus,input[type=email]:focus,input[type=text]:focus{border
 <!-- Clerk sign-in screen -->
 <div class="login-wrap" id="clerk-signin" style="display:none">
   <div id="clerk-signin-mount"></div>
+</div>
+
+<!-- Onboarding wizard -->
+<div id="onboarding" style="display:none">
+  <div class="ob-page">
+    <div class="ob-header">
+      <img src="/images/logo.svg" alt="Wise Agent" style="height:34px" />
+      <button class="btn-sm" onclick="logout()">Odhlásit</button>
+    </div>
+    <div class="ob-stepper">
+      <div class="ob-step-item active" id="ob-si-1"><div class="ob-step-num">1</div><div class="ob-step-label">Základní informace</div></div>
+      <div class="ob-step-line"></div>
+      <div class="ob-step-item" id="ob-si-2"><div class="ob-step-num">2</div><div class="ob-step-label">Připojení emailu</div></div>
+      <div class="ob-step-line"></div>
+      <div class="ob-step-item" id="ob-si-3"><div class="ob-step-num">3</div><div class="ob-step-label">Časté dotazy</div></div>
+    </div>
+
+    <!-- Krok 1 -->
+    <div class="ob-card" id="ob-panel-1">
+      <h2>Řekněte nám o vaší firmě</h2>
+      <p class="ob-subtitle">Tyto informace pomohou AI agentovi lépe porozumět kontextu vašich emailů.</p>
+      <div class="ob-field">
+        <label class="ob-label" for="ob-company">Název firmy *</label>
+        <input type="text" id="ob-company" placeholder="Vaše s.r.o." />
+      </div>
+      <div class="ob-field">
+        <label class="ob-label" for="ob-industry">Obor</label>
+        <select id="ob-industry">
+          <option value="">Vyberte obor…</option>
+          <option>E-shop / Maloobchod</option>
+          <option>Ubytování / Pohostinství</option>
+          <option>Zdravotnictví / Wellness</option>
+          <option>Vzdělávání</option>
+          <option>Finance / Pojišťovnictví</option>
+          <option>IT / Software</option>
+          <option>Stavebnictví / Řemesla</option>
+          <option>Doprava / Logistika</option>
+          <option>Marketing / Reklama</option>
+          <option>Právní / Poradenské služby</option>
+          <option>Jiné</option>
+        </select>
+      </div>
+      <div class="ob-field">
+        <label class="ob-label" for="ob-desc">Popis firmy</label>
+        <textarea id="ob-desc" placeholder="Stručně popište svou firmu, co děláte a pro koho…" style="min-height:90px"></textarea>
+        <div class="ob-hint">AI agent použije tento popis pro lepší pochopení vašich emailů.</div>
+      </div>
+      <div class="ob-field">
+        <div class="ob-label" style="margin-bottom:6px">Tón komunikace</div>
+        <div class="tone-row">
+          <button class="s-tone-btn" data-tone="přátelský a profesionální" onclick="obSelectTone(this)">přátelský</button>
+          <button class="s-tone-btn" data-tone="formální a věcný" onclick="obSelectTone(this)">formální</button>
+          <button class="s-tone-btn" data-tone="neformální a lidský" onclick="obSelectTone(this)">neformální</button>
+          <button class="s-tone-btn" data-tone="stručný a přímočarý" onclick="obSelectTone(this)">stručný</button>
+          <button class="s-tone-btn" data-tone="empatický a trpělivý" onclick="obSelectTone(this)">empatický</button>
+        </div>
+      </div>
+      <div class="ob-field">
+        <div class="settings-row" style="padding:6px 0 0">
+          <div class="settings-label">Automatický podpis<small>Agent přidá podpis na konec každé odpovědi</small></div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="ob-use-sig" onchange="document.getElementById('ob-sig-wrap').style.display=this.checked?'block':'none'" />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div id="ob-sig-wrap" style="display:none;margin-top:8px">
+          <textarea id="ob-sig" placeholder="S pozdravem,&#10;Jan Novák&#10;vaše-firma.cz" style="min-height:70px"></textarea>
+        </div>
+      </div>
+      <div class="ob-nav"><div></div><button class="btn btn-primary" onclick="obNext(1)">Pokračovat →</button></div>
+    </div>
+
+    <!-- Krok 2 -->
+    <div class="ob-card" id="ob-panel-2" style="display:none">
+      <h2>Připojení emailu</h2>
+      <p class="ob-subtitle">Propojte emailovou schránku, ze které zákazníkům odpovídáte.</p>
+      <div class="ob-field">
+        <div class="ob-label" style="margin-bottom:6px">Poskytovatel</div>
+        <div class="ob-provider-grid">
+          <button class="ob-provider-btn" data-provider="gmail" onclick="obSelectProvider(this)">Gmail</button>
+          <button class="ob-provider-btn" data-provider="seznam" onclick="obSelectProvider(this)">Seznam</button>
+          <button class="ob-provider-btn" data-provider="outlook" onclick="obSelectProvider(this)">Outlook</button>
+          <button class="ob-provider-btn" data-provider="other" onclick="obSelectProvider(this)">Jiné</button>
+        </div>
+      </div>
+      <div class="ob-field">
+        <label class="ob-label" for="ob-email">Emailová adresa *</label>
+        <input type="email" id="ob-email" placeholder="vas@email.cz" />
+      </div>
+      <div class="ob-field">
+        <label class="ob-label" for="ob-pass">App Password *</label>
+        <input type="password" id="ob-pass" placeholder="••••••••••••••••" />
+        <div class="ob-hint">Vaše heslo se ukládá šifrovaně a nikdo jiný k němu nemá přístup.<br>
+          <a id="ob-pass-link" href="#" target="_blank" rel="noopener" style="color:var(--accent-text);display:none">Jak vygenerovat App Password →</a>
+        </div>
+      </div>
+      <div id="ob-imap-manual" style="display:none;margin-bottom:1rem">
+        <div class="ob-grid2">
+          <div class="ob-field" style="margin-bottom:0"><label class="ob-label" for="ob-imap-host">IMAP host</label><input type="text" id="ob-imap-host" placeholder="imap.example.cz" /></div>
+          <div class="ob-field" style="margin-bottom:0"><label class="ob-label" for="ob-imap-port">IMAP port</label><input type="text" id="ob-imap-port" value="993" /></div>
+          <div class="ob-field" style="margin-bottom:0"><label class="ob-label" for="ob-smtp-host">SMTP host</label><input type="text" id="ob-smtp-host" placeholder="smtp.example.cz" /></div>
+          <div class="ob-field" style="margin-bottom:0"><label class="ob-label" for="ob-smtp-port">SMTP port</label><input type="text" id="ob-smtp-port" value="465" /></div>
+        </div>
+      </div>
+      <div class="ob-nav">
+        <button class="btn btn-secondary" onclick="obBack(2)">← Zpět</button>
+        <button class="btn btn-primary" onclick="obNext(2)">Pokračovat →</button>
+      </div>
+    </div>
+
+    <!-- Krok 3 -->
+    <div class="ob-card" id="ob-panel-3" style="display:none">
+      <h2>Časté dotazy zákazníků</h2>
+      <p class="ob-subtitle">Nepovinné — přidejte nejčastější dotazy a odpovědi. AI agent je použije při tvorbě reakcí.</p>
+      <div id="ob-faq-list"></div>
+      <button class="ob-add-btn" onclick="obAddFaq()">+ Přidat dotaz</button>
+      <div class="ob-nav">
+        <button class="btn btn-secondary" onclick="obBack(3)">← Zpět</button>
+        <div>
+          <button class="btn btn-primary" id="ob-finish-btn" onclick="finishOnboarding()">Dokončit nastavení ✓</button>
+          <div class="ob-error" id="ob-error"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Main app -->
@@ -232,6 +392,15 @@ input[type=password]:focus,input[type=email]:focus,input[type=text]:focus{border
 <script>
 let clerk;
 let allEmails = [], currentFilter = 'all';
+let obData = {}, obCurrentStep = 1;
+
+const PROVIDERS = {
+  gmail:   { imapHost:'imap.gmail.com',         imapPort:'993', smtpHost:'smtp.gmail.com',          smtpPort:'465', link:'https://myaccount.google.com/apppasswords' },
+  seznam:  { imapHost:'imap.seznam.cz',          imapPort:'993', smtpHost:'smtp.seznam.cz',           smtpPort:'465', link:'https://napoveda.seznam.cz/cz/emaily/heslo-do-aplikace-pro-email/' },
+  outlook: { imapHost:'imap-mail.outlook.com',   imapPort:'993', smtpHost:'smtp-mail.outlook.com',   smtpPort:'587', link:'https://support.microsoft.com/cs-cz/account-billing/pou%C5%BEit%C3%AD-hesel-aplikac%C3%AD' },
+  other:   { imapHost:'', imapPort:'993', smtpHost:'', smtpPort:'465', link:'' },
+};
+
 let clientSettings = {
   tone: 'přátelský a profesionální',
   replyLength: 'stredni',
@@ -288,13 +457,12 @@ async function initClerk() {
 
     clerk.addListener(({ user }) => {
       if (user && document.getElementById('clerk-signin').style.display !== 'none') {
-        document.getElementById('clerk-signin').style.display = 'none';
-        showApp();
+        checkOnboarding();
       }
     });
     loading.style.display = 'none';
     if (clerk.user) {
-      showApp();
+      checkOnboarding();
     } else {
       document.getElementById('clerk-signin').style.display = 'flex';
       clerk.mountSignIn(document.getElementById('clerk-signin-mount'));
@@ -307,9 +475,169 @@ async function initClerk() {
 
 function showApp() {
   document.getElementById('clerk-signin').style.display = 'none';
+  document.getElementById('loading-wrap').style.display = 'none';
+  document.getElementById('onboarding').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   renderSettings();
   loadEmails();
+}
+
+async function fetchClientData() {
+  try {
+    const res = await fetch('/api/clients', { headers: await getToken() });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch { return null; }
+}
+
+async function checkOnboarding() {
+  document.getElementById('loading-wrap').style.display = 'flex';
+  const data = await fetchClientData();
+  document.getElementById('loading-wrap').style.display = 'none';
+  if (data) {
+    Object.assign(clientSettings, {
+      tone: data.tone || clientSettings.tone,
+      replyLength: data.replyLength || clientSettings.replyLength,
+      usePlural: data.usePlural ?? clientSettings.usePlural,
+      useSignature: data.useSignature ?? clientSettings.useSignature,
+      ignoreKeywords: data.ignoreKeywords || '',
+      ignoreSenders: data.ignoreSenders || '',
+      ignoreDomains: data.ignoreDomains || '',
+    });
+  }
+  if (!data?.imapHost) {
+    showOnboarding(data || {});
+  } else {
+    showApp();
+  }
+}
+
+function showOnboarding(data) {
+  obData = { ...data };
+  // Pre-fill step 1
+  document.getElementById('ob-company').value = data.companyName || '';
+  document.getElementById('ob-industry').value = data.industry || '';
+  document.getElementById('ob-desc').value = data.companyDescription || '';
+  const tone = data.tone || 'přátelský a profesionální';
+  document.querySelectorAll('#ob-panel-1 .s-tone-btn').forEach(b => b.classList.toggle('active', b.dataset.tone === tone));
+  obData.tone = tone;
+  const useSig = !!data.useSignature;
+  document.getElementById('ob-use-sig').checked = useSig;
+  document.getElementById('ob-sig-wrap').style.display = useSig ? 'block' : 'none';
+  document.getElementById('ob-sig').value = data.signature || '';
+  // Pre-fill step 2
+  document.getElementById('ob-email').value = data.email || '';
+  // FAQ
+  obData.faq = Array.isArray(data.faq) ? data.faq : [];
+  renderObFaq();
+  obGoToStep(1);
+  document.getElementById('onboarding').style.display = 'block';
+}
+
+function obGoToStep(step) {
+  obCurrentStep = step;
+  [1, 2, 3].forEach(i => {
+    document.getElementById(`ob-panel-${i}`).style.display = i === step ? 'block' : 'none';
+    const si = document.getElementById(`ob-si-${i}`);
+    si.className = 'ob-step-item' + (i === step ? ' active' : i < step ? ' done' : '');
+  });
+  window.scrollTo(0, 0);
+}
+
+function obNext(step) {
+  if (step === 1) {
+    const company = document.getElementById('ob-company').value.trim();
+    if (!company) { alert('Zadejte prosím název firmy.'); return; }
+    obData.companyName = company;
+    obData.industry = document.getElementById('ob-industry').value;
+    obData.companyDescription = document.getElementById('ob-desc').value.trim();
+    obData.useSignature = document.getElementById('ob-use-sig').checked;
+    obData.signature = document.getElementById('ob-sig').value.trim();
+    obGoToStep(2);
+  } else if (step === 2) {
+    const email = document.getElementById('ob-email').value.trim();
+    const pass = document.getElementById('ob-pass').value;
+    if (!email) { alert('Zadejte prosím emailovou adresu.'); return; }
+    if (!pass) { alert('Zadejte prosím App Password.'); return; }
+    const manual = document.getElementById('ob-imap-manual').style.display !== 'none';
+    if (manual) {
+      obData.imapHost = document.getElementById('ob-imap-host').value.trim();
+      obData.smtpHost = document.getElementById('ob-smtp-host').value.trim();
+      obData.imapPort = document.getElementById('ob-imap-port').value.trim();
+      obData.smtpPort = document.getElementById('ob-smtp-port').value.trim();
+    }
+    if (!obData.imapHost) { alert('Vyberte prosím poskytovatele emailu nebo zadejte IMAP host.'); return; }
+    obData.email = email;
+    obData.emailPassword = pass;
+    obGoToStep(3);
+  }
+}
+
+function obBack(step) { obGoToStep(step - 1); }
+
+function obSelectTone(btn) {
+  document.querySelectorAll('#ob-panel-1 .s-tone-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  obData.tone = btn.dataset.tone;
+}
+
+function obSelectProvider(btn) {
+  document.querySelectorAll('.ob-provider-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const p = PROVIDERS[btn.dataset.provider];
+  Object.assign(obData, { imapHost: p.imapHost, imapPort: p.imapPort, smtpHost: p.smtpHost, smtpPort: p.smtpPort });
+  const isOther = btn.dataset.provider === 'other';
+  document.getElementById('ob-imap-manual').style.display = isOther ? 'block' : 'none';
+  const lnk = document.getElementById('ob-pass-link');
+  lnk.href = p.link || '#';
+  lnk.style.display = p.link ? 'inline' : 'none';
+}
+
+function obAddFaq() {
+  obData.faq = obData.faq || [];
+  obData.faq.push({ q: '', a: '' });
+  renderObFaq();
+}
+
+function obRemoveFaq(i) {
+  obData.faq.splice(i, 1);
+  renderObFaq();
+}
+
+function renderObFaq() {
+  const list = document.getElementById('ob-faq-list');
+  if (!obData.faq || obData.faq.length === 0) {
+    list.innerHTML = '';
+    return;
+  }
+  list.innerHTML = obData.faq.map((f, i) => `
+    <div class="ob-faq-item">
+      <textarea placeholder="Dotaz zákazníka…" oninput="obData.faq[${i}].q=this.value">${esc(f.q)}</textarea>
+      <textarea placeholder="Vaše odpověď…" oninput="obData.faq[${i}].a=this.value">${esc(f.a)}</textarea>
+      <button class="ob-faq-remove" onclick="obRemoveFaq(${i})" title="Odstranit">×</button>
+    </div>
+  `).join('');
+}
+
+async function finishOnboarding() {
+  obData.faq = (obData.faq || []).filter(f => f.q.trim() || f.a.trim());
+  const btn = document.getElementById('ob-finish-btn');
+  const errEl = document.getElementById('ob-error');
+  btn.disabled = true; btn.textContent = 'Ukládám…'; errEl.style.display = 'none';
+  try {
+    const res = await fetch('/api/clients', {
+      method: 'PATCH',
+      headers: { ...(await getToken()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(obData),
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'Chyba ukládání');
+    document.getElementById('onboarding').style.display = 'none';
+    showApp();
+  } catch (e) {
+    errEl.textContent = 'Chyba: ' + e.message;
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Dokončit nastavení ✓';
+  }
 }
 
 async function getToken() {
