@@ -155,8 +155,14 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     Zpět na hlavní stránku
   </a>
-  <div id="clerk-signin-mount"></div>
-  <div id="clerk-signup-mount" style="display:none"></div>
+  <div style="display:flex;flex-direction:column;align-items:center;width:100%">
+    <div style="display:flex;background:var(--surface);border-radius:10px;padding:4px;gap:2px;margin-bottom:16px;border:1px solid var(--border)">
+      <button id="tab-signin" onclick="showSignIn()" style="padding:7px 20px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:500;background:var(--accent);color:#fff;transition:.15s">Přihlásit se</button>
+      <button id="tab-signup" onclick="showSignUp()" style="padding:7px 20px;border-radius:7px;border:none;cursor:pointer;font-size:13px;font-weight:500;background:none;color:var(--text2);transition:.15s">Registrovat se</button>
+    </div>
+    <div id="clerk-signin-mount"></div>
+    <div id="clerk-signup-mount" style="display:none"></div>
+  </div>
 </div>
 
 <!-- Onboarding wizard -->
@@ -509,17 +515,8 @@ async function initClerk() {
       checkOnboarding();
     } else {
       document.getElementById('clerk-signin').style.display = 'flex';
-      const signinMount = document.getElementById('clerk-signin-mount');
-      const signupMount = document.getElementById('clerk-signup-mount');
-      clerk.mountSignIn(signinMount, { signUpUrl: '/klient#signup' });
-      clerk.mountSignUp(signupMount, { signInUrl: '/klient' });
-      function handleClerkHash() {
-        const isSignup = location.hash === '#signup';
-        signinMount.style.display = isSignup ? 'none' : 'block';
-        signupMount.style.display = isSignup ? 'block' : 'none';
-      }
-      window.addEventListener('hashchange', handleClerkHash);
-      handleClerkHash();
+      clerk.mountSignIn(document.getElementById('clerk-signin-mount'));
+      clerk.mountSignUp(document.getElementById('clerk-signup-mount'));
     }
   } catch (e) {
     console.error('Clerk init failed:', e);
@@ -775,6 +772,19 @@ function selectLength(btn) {
   document.querySelectorAll('.s-length-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   clientSettings.replyLength = btn.dataset.length;
+}
+
+function showSignIn() {
+  document.getElementById('clerk-signin-mount').style.display = 'block';
+  document.getElementById('clerk-signup-mount').style.display = 'none';
+  document.getElementById('tab-signin').style.cssText += ';background:var(--accent);color:#fff';
+  document.getElementById('tab-signup').style.cssText += ';background:none;color:var(--text2)';
+}
+function showSignUp() {
+  document.getElementById('clerk-signin-mount').style.display = 'none';
+  document.getElementById('clerk-signup-mount').style.display = 'block';
+  document.getElementById('tab-signup').style.cssText += ';background:var(--accent);color:#fff';
+  document.getElementById('tab-signin').style.cssText += ';background:none;color:var(--text2)';
 }
 
 function toggleSettingsPanel() {
