@@ -494,6 +494,8 @@ async function initClerk() {
     const csCZ = localizationsModule?.csCZ;
     await clerk.load({
       ...(csCZ && { localization: csCZ }),
+      signInUrl: '/klient',
+      signUpUrl: '/klient',
       afterSignInUrl: '/klient',
       afterSignUpUrl: '/klient',
     });
@@ -508,7 +510,7 @@ async function initClerk() {
       checkOnboarding();
     } else {
       document.getElementById('clerk-signin').style.display = 'flex';
-      clerk.mountSignIn(document.getElementById('clerk-signin-mount'));
+      clerk.mountSignIn(document.getElementById('clerk-signin-mount'), { routing: 'hash' });
     }
   } catch (e) {
     console.error('Clerk init failed:', e);
