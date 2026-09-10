@@ -156,6 +156,7 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
     Zpět na hlavní stránku
   </a>
   <div id="clerk-signin-mount"></div>
+  <div id="clerk-signup-mount" style="display:none"></div>
 </div>
 
 <!-- Onboarding wizard -->
@@ -508,7 +509,17 @@ async function initClerk() {
       checkOnboarding();
     } else {
       document.getElementById('clerk-signin').style.display = 'flex';
-      clerk.mountSignIn(document.getElementById('clerk-signin-mount'), { routing: 'hash' });
+      const signinMount = document.getElementById('clerk-signin-mount');
+      const signupMount = document.getElementById('clerk-signup-mount');
+      clerk.mountSignIn(signinMount, { signUpUrl: '/klient#signup' });
+      clerk.mountSignUp(signupMount, { signInUrl: '/klient' });
+      function handleClerkHash() {
+        const isSignup = location.hash === '#signup';
+        signinMount.style.display = isSignup ? 'none' : 'block';
+        signupMount.style.display = isSignup ? 'block' : 'none';
+      }
+      window.addEventListener('hashchange', handleClerkHash);
+      handleClerkHash();
     }
   } catch (e) {
     console.error('Clerk init failed:', e);
