@@ -63,6 +63,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border2)}
 .btn-secondary:hover{background:var(--surface3)}
 .btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-bg)}
+.period-btn{font-family:inherit;font-size:12px;padding:5px 14px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
+.period-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500}
 .btn-sm{padding:5px 11px;font-size:12px}
 .btn svg{width:13px;height:13px}
 .pw-wrap{position:relative}
@@ -159,10 +161,17 @@ textarea{resize:vertical;line-height:1.6}
   <div class="main">
     <div id="page-overview">
       <div class="page-header"><div><div class="page-title">Přehled</div><div class="page-sub">Statistiky všech klientů</div></div><button class="btn btn-secondary" onclick="loadStats()"><svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6.5A5 5 0 009.5 10M12 6.5A5 5 0 003.5 3"/><path d="M8 10l1.5 0 0-1.5M5 3L3.5 3l0 1.5"/></svg>Obnovit</button></div>
+      <div style="display:flex;gap:6px;margin-bottom:16px">
+        <button class="period-btn active" data-period="today" onclick="setPeriod(this)">Dnes</button>
+        <button class="period-btn" data-period="week" onclick="setPeriod(this)">Týden</button>
+        <button class="period-btn" data-period="month" onclick="setPeriod(this)">Měsíc</button>
+        <button class="period-btn" data-period="year" onclick="setPeriod(this)">Rok</button>
+        <button class="period-btn" data-period="all" onclick="setPeriod(this)">Vše</button>
+      </div>
       <div class="stats-grid">
         <div class="stat"><div class="stat-val" id="s-clients">—</div><div class="stat-label">Aktivní klienti</div></div>
         <div class="stat"><div class="stat-val warn" id="s-pending">—</div><div class="stat-label">Čeká na schválení</div></div>
-        <div class="stat"><div class="stat-val green" id="s-sent">—</div><div class="stat-label">Odesláno celkem</div></div>
+        <div class="stat"><div class="stat-val green" id="s-sent">—</div><div class="stat-label" id="s-sent-label">Odesláno dnes</div></div>
       </div>
       <div id="overview-list" class="client-grid"><div class="loading">Načítám...</div></div>
     </div>
@@ -206,7 +215,7 @@ textarea{resize:vertical;line-height:1.6}
 </div>
 
 <script>
-let adminSecret='', allStats=[], allClients=[], editingId=null, selectedTone='přátelský a profesionální';
+let adminSecret='', allStats=[], allClients=[], editingId=null, selectedTone='přátelský a profesionální', currentPeriod='today';
 
 (function(){
   const t=localStorage.getItem('ea_theme');
@@ -221,19 +230,28 @@ function logout(){adminSecret='';document.getElementById('app').style.display='n
 function showApp(){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';loadStats();loadClients();}
 function showPage(p){['overview','clients'].forEach(x=>{document.getElementById('page-'+x).style.display=p===x?'block':'none';document.getElementById('nav-'+x).classList.toggle('active',p===x);});}
 
+function setPeriod(btn){
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPeriod=btn.dataset.period;
+  loadStats();
+}
+
 async function loadStats(){
   const list=document.getElementById('overview-list');
   list.innerHTML='<div class="loading">Načítám...</div>';
   try{
-    const res=await fetch('/api/stats',{headers:{'x-admin-secret':adminSecret}});
+    const res=await fetch(`/api/stats?period=${currentPeriod}`,{headers:{'x-admin-secret':adminSecret}});
     if(res.status===401){document.getElementById('login-err').style.display='block';logout();return;}
     allStats=await res.json();
     const active=allStats.filter(s=>s.active).length;
     const pending=allStats.reduce((a,s)=>a+s.pending,0);
     const sent=allStats.reduce((a,s)=>a+s.sent,0);
+    const periodLabels={today:'dnes',week:'tento týden',month:'tento měsíc',year:'letos',all:'celkem'};
     document.getElementById('s-clients').textContent=active;
     document.getElementById('s-pending').textContent=pending;
     document.getElementById('s-sent').textContent=sent;
+    document.getElementById('s-sent-label').textContent='Odesláno '+( periodLabels[currentPeriod]||'celkem');
     if(allStats.length===0){list.innerHTML='<div class="empty">Zatím žádní klienti.</div>';return;}
     list.innerHTML=allStats.map(s=>`
       <div class="client-card">

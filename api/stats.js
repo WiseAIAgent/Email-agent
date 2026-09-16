@@ -5,6 +5,16 @@ module.exports = async function handler(req, res) {
   if (req.headers['x-admin-secret'] !== process.env.ADMIN_SECRET) return res.status(401).json({ error: 'Unauthorized' });
 
   try {
+    const period = req.query?.period || 'all';
+    const now = new Date();
+    const cutoffs = {
+      today: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+      week:  new Date(now - 7 * 24 * 60 * 60 * 1000),
+      month: new Date(now.getFullYear(), now.getMonth(), 1),
+      year:  new Date(now.getFullYear(), 0, 1),
+    };
+    const cutoff = cutoffs[period] || null;
+
     const clientIds = (await redis.get('client_index')) || [];
     const stats = [];
 
@@ -13,11 +23,13 @@ module.exports = async function handler(req, res) {
       if (!client) continue;
 
       const emailIds = (await redis.get(`email_index:${id}`)) || [];
-      let pending = 0, sent = 0, ignored = 0;
+      let pending = 0, sent = 0, ignored = 0, total = 0;
 
       for (const eid of emailIds) {
         const email = await redis.get(`email:${eid}`);
         if (!email) continue;
+        if (cutoff && new Date(email.date || email.createdAt) < cutoff) continue;
+        total++;
         if (email.status === 'pending') pending++;
         else if (email.status === 'sent') sent++;
         else if (email.status === 'ignored') ignored++;
@@ -32,7 +44,7 @@ module.exports = async function handler(req, res) {
         industry: client.industry,
         active: client.active,
         email: client.email,
-        total: emailIds.length,
+        total,
         pending,
         sent,
         ignored,
