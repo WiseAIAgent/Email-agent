@@ -280,6 +280,7 @@ async function loadClients(){
         <div class="client-footer">
           <div class="client-actions">
             <button class="btn btn-secondary btn-sm" onclick="editClient('${c.id}')">Upravit</button>
+            <button class="btn btn-sm" style="background:${c.active?'var(--danger-bg)':'var(--success-bg,#e6f9f0)'};color:${c.active?'var(--danger)':'var(--success,#1a7f4b)'};border:1px solid ${c.active?'var(--danger-bg)':'var(--success-bg,#e6f9f0)'}" onclick="toggleActive('${c.id}',${c.active})">${c.active?'Deaktivovat':'Aktivovat'}</button>
             <button class="btn btn-danger btn-sm" onclick="deleteClient('${c.id}')">Smazat</button>
           </div>
         </div>
@@ -321,6 +322,10 @@ async function saveClient(){
   btn.disabled=false;btn.textContent=editingId?'Uložit změny':'Uložit klienta';
 }
 
+async function toggleActive(id, currentlyActive) {
+  await fetch('/api/clients', { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret }, body: JSON.stringify({ id, active: !currentlyActive }) });
+  loadClients(); loadStats();
+}
 async function deleteClient(id){const c=allClients.find(c=>c.id===id);if(!confirm(`Smazat klienta "${c?.companyName}"?`))return;await fetch('/api/clients',{method:'DELETE',headers:{'Content-Type':'application/json','x-admin-secret':adminSecret},body:JSON.stringify({id})});loadClients();loadStats();}
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}

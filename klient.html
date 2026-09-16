@@ -825,6 +825,19 @@ async function loadEmails() {
   try {
     const res = await fetch('/api/emails', { headers: await getToken() });
     if (res.status === 401) { logout(); return; }
+    if (res.status === 403) {
+      const { error } = await res.json();
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('loading-wrap').innerHTML = `
+        <div style="text-align:center;max-width:360px;padding:32px">
+          <div style="font-size:32px;margin-bottom:16px">🔒</div>
+          <div style="font-size:16px;font-weight:600;color:var(--text1);margin-bottom:8px">Přístup deaktivován</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.6">${error || 'Váš přístup byl deaktivován. Kontaktujte info@wiseagent.cz'}</div>
+          <a href="mailto:info@wiseagent.cz" style="display:inline-block;margin-top:20px;padding:9px 20px;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:500">Kontaktovat podporu</a>
+        </div>`;
+      document.getElementById('loading-wrap').style.display = 'flex';
+      return;
+    }
     const data = await res.json();
     allEmails = Array.isArray(data) ? data : [];
     updateStats();

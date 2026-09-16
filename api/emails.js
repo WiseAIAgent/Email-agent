@@ -8,6 +8,13 @@ module.exports = async function handler(req, res) {
 
     const authId = auth.clientId;
 
+    if (authId !== 'all') {
+      const client = await redis.get(`client:${authId}`);
+      if (client && client.active === false) {
+        return res.status(403).json({ error: 'Váš přístup byl deaktivován. Kontaktujte info@wiseagent.cz' });
+      }
+    }
+
     if (req.method === 'GET') {
       let ids;
       if (authId === 'all') {
