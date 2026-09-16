@@ -80,7 +80,7 @@ module.exports = async function handler(req, res) {
         const {
           tone, replyLength, usePlural, useSignature, ignoreKeywords, ignoreSenders, ignoreDomains,
           companyName, industry, companyDescription, imapHost, imapPort, smtpHost, smtpPort,
-          emailPassword, faq, signature, email,
+          emailPassword, faq, signature, email, escalationContact, escalationWhen, forbiddenTopics, websiteUrl,
         } = req.body;
         const updated = { ...existing };
         if (tone !== undefined) updated.tone = tone;
@@ -101,6 +101,10 @@ module.exports = async function handler(req, res) {
         if (faq !== undefined) updated.faq = faq;
         if (signature !== undefined) updated.signature = signature;
         if (email !== undefined) updated.email = email;
+        if (escalationContact !== undefined) updated.escalationContact = escalationContact;
+        if (escalationWhen !== undefined) updated.escalationWhen = escalationWhen;
+        if (forbiddenTopics !== undefined) updated.forbiddenTopics = forbiddenTopics;
+        if (websiteUrl !== undefined) updated.websiteUrl = websiteUrl;
         await redis.set(`client:${auth.clientId}`, updated);
         return res.status(200).json({ success: true });
       }

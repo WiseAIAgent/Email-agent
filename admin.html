@@ -206,6 +206,51 @@ textarea{resize:vertical;line-height:1.6}
       </div>
       <div class="toggle-row"><div class="toggle-label">Klient aktivní</div><label class="toggle-switch"><input type="checkbox" id="f-active" checked /><span class="toggle-track"></span></label></div>
 
+      <!-- Agent settings — visible only when editing existing client -->
+      <div id="f-agent-section" style="display:none">
+        <div class="section-div" style="margin-top:8px">Nastavení agenta</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Tón komunikace</label>
+            <select id="f-tone">
+              <option value="přátelský a profesionální">Přátelský a profesionální</option>
+              <option value="formální a věcný">Formální a věcný</option>
+              <option value="neformální a lidský">Neformální a lidský</option>
+              <option value="stručný a přímočarý">Stručný a přímočarý</option>
+              <option value="empatický a trpělivý">Empatický a trpělivý</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Délka odpovědi</label>
+            <select id="f-reply-length">
+              <option value="kratka">Krátká</option>
+              <option value="stredni">Střední</option>
+              <option value="dlouha">Podrobná</option>
+            </select>
+          </div>
+        </div>
+        <div class="toggle-row"><div class="toggle-label">Množné číslo <span style="color:var(--text3);font-size:12px">(Děkujeme místo Děkuji)</span></div><label class="toggle-switch"><input type="checkbox" id="f-plural" /><span class="toggle-track"></span></label></div>
+        <div class="toggle-row">
+          <div class="toggle-label">Automatický podpis</div>
+          <label class="toggle-switch"><input type="checkbox" id="f-use-sig" onchange="document.getElementById('f-sig-wrap').style.display=this.checked?'block':'none'" /><span class="toggle-track"></span></label>
+        </div>
+        <div id="f-sig-wrap" style="display:none">
+          <div class="field"><label>Text podpisu</label><textarea id="f-signature" style="min-height:70px"></textarea></div>
+        </div>
+
+        <div class="section-div" style="margin-top:8px">Eskalace a omezení</div>
+        <div class="form-grid">
+          <div class="field"><label>Eskalační e-mail</label><input type="text" id="f-esc-contact" placeholder="manager@firma.cz" /></div>
+          <div class="field"><label>Kdy eskalovat</label><input type="text" id="f-esc-when" placeholder="Reklamace nad 10 000 Kč…" /></div>
+        </div>
+        <div class="field"><label>Zakázaná témata</label><input type="text" id="f-forbidden" placeholder="Ceny konkurence, interní procesy…" /></div>
+        <div class="field"><label>URL webu klienta</label><input type="text" id="f-website" placeholder="https://firma.cz" /></div>
+
+        <div class="section-div" style="margin-top:8px">Časté dotazy</div>
+        <div id="f-faq-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+        <button type="button" onclick="aFaqAdd()" style="font-family:inherit;font-size:12px;padding:6px 12px;border-radius:8px;border:1px dashed var(--border2);background:none;color:var(--text3);cursor:pointer;width:100%;text-align:left">+ Přidat dotaz</button>
+      </div>
+
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">Zrušit</button>
@@ -310,10 +355,13 @@ async function loadClients(){
 function openModal(){editingId=null;document.getElementById('modal-title').textContent='Nový klient';document.getElementById('modal-save-btn').textContent='Uložit klienta';clearForm();document.getElementById('modal').classList.add('open');}
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 
+let adminFaq = [];
+
 function clearForm(){
-  ['f-name','f-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-name','f-email','f-esc-contact','f-esc-when','f-forbidden','f-website','f-signature'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f-limit').value='25';
   document.getElementById('f-active').checked=true;
+  document.getElementById('f-agent-section').style.display='none';
 }
 
 function fillForm(c){
@@ -321,7 +369,35 @@ function fillForm(c){
   document.getElementById('f-email').value=c.email||'';
   document.getElementById('f-limit').value=c.dailyLimit||'25';
   document.getElementById('f-active').checked=c.active!==false;
+  // Agent settings
+  document.getElementById('f-tone').value=c.tone||'přátelský a profesionální';
+  document.getElementById('f-reply-length').value=c.replyLength||'stredni';
+  document.getElementById('f-plural').checked=c.usePlural!==false;
+  const useSig=!!c.useSignature;
+  document.getElementById('f-use-sig').checked=useSig;
+  document.getElementById('f-sig-wrap').style.display=useSig?'block':'none';
+  document.getElementById('f-signature').value=c.signature||'';
+  document.getElementById('f-esc-contact').value=c.escalationContact||'';
+  document.getElementById('f-esc-when').value=c.escalationWhen||'';
+  document.getElementById('f-forbidden').value=c.forbiddenTopics||'';
+  document.getElementById('f-website').value=c.websiteUrl||'';
+  adminFaq=Array.isArray(c.faq)?c.faq.map(f=>({...f})):[];
+  renderAdminFaq();
+  document.getElementById('f-agent-section').style.display='block';
 }
+
+function renderAdminFaq(){
+  const list=document.getElementById('f-faq-list');
+  list.innerHTML='';
+  adminFaq.forEach((f,i)=>{
+    const item=document.createElement('div');
+    item.style.cssText='background:var(--surface2);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:6px';
+    item.innerHTML=`<input type="text" value="${esc(f.q)}" placeholder="Dotaz…" oninput="adminFaq[${i}].q=this.value" /><input type="text" value="${esc(f.a)}" placeholder="Odpověď…" oninput="adminFaq[${i}].a=this.value" /><button type="button" onclick="aFaqRemove(${i})" style="align-self:flex-end;background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;padding:0">Odebrat</button>`;
+    list.appendChild(item);
+  });
+}
+function aFaqAdd(){adminFaq.push({q:'',a:''});renderAdminFaq();const inputs=document.getElementById('f-faq-list').querySelectorAll('input');inputs[inputs.length-2]?.focus();}
+function aFaqRemove(i){adminFaq.splice(i,1);renderAdminFaq();}
 
 function editClient(id){const c=allClients.find(c=>c.id===id);if(!c)return;editingId=id;document.getElementById('modal-title').textContent='Upravit klienta';document.getElementById('modal-save-btn').textContent='Uložit změny';fillForm(c);document.getElementById('modal').classList.add('open');}
 
@@ -334,6 +410,18 @@ async function saveClient(){
     email,
     dailyLimit:parseInt(document.getElementById('f-limit').value)||25,
     active:document.getElementById('f-active').checked,
+    ...(editingId && {
+      tone:document.getElementById('f-tone').value,
+      replyLength:document.getElementById('f-reply-length').value,
+      usePlural:document.getElementById('f-plural').checked,
+      useSignature:document.getElementById('f-use-sig').checked,
+      signature:document.getElementById('f-signature').value.trim(),
+      escalationContact:document.getElementById('f-esc-contact').value.trim(),
+      escalationWhen:document.getElementById('f-esc-when').value.trim(),
+      forbiddenTopics:document.getElementById('f-forbidden').value.trim(),
+      websiteUrl:document.getElementById('f-website').value.trim(),
+      faq:adminFaq.filter(f=>f.q.trim()||f.a.trim()),
+    }),
   };
   const btn=document.getElementById('modal-save-btn');btn.disabled=true;btn.textContent='Ukládám...';
   try{const res=await fetch('/api/clients',{method:editingId?'PATCH':'POST',headers:{'Content-Type':'application/json','x-admin-secret':adminSecret},body:JSON.stringify(editingId?{id:editingId,...data}:data)});const result=await res.json();if(!res.ok)throw new Error(result.error);closeModal();loadClients();loadStats();}catch(e){alert('Chyba: '+e.message);}
