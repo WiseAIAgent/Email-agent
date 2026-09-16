@@ -65,6 +65,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-bg)}
 .period-btn{font-family:inherit;font-size:12px;padding:5px 14px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
 .period-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500}
+.pill-btn{font-family:inherit;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
+.pill-btn.active{background:var(--accent-light,#e8f0fe);color:var(--accent-text,var(--accent));border-color:var(--accent);font-weight:500}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.expand-btn{font-family:inherit;font-size:12px;padding:7px 14px;border-radius:8px;border:1px solid var(--border2);background:none;color:var(--text2);cursor:pointer;width:100%;text-align:left;display:flex;align-items:center;gap:6px;transition:background .15s}
+.expand-btn:hover{background:var(--surface2)}
 .btn-sm{padding:5px 11px;font-size:12px}
 .btn svg{width:13px;height:13px}
 .pw-wrap{position:relative}
@@ -206,39 +211,54 @@ textarea{resize:vertical;line-height:1.6}
       </div>
       <div class="toggle-row"><div class="toggle-label">Klient aktivní</div><label class="toggle-switch"><input type="checkbox" id="f-active" checked /><span class="toggle-track"></span></label></div>
 
-      <!-- Agent settings — visible only when editing existing client -->
+      <!-- Rozšířené nastavení toggle — only when editing -->
+      <button type="button" class="expand-btn" id="f-expand-btn" style="display:none" onclick="toggleAgentSection()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" id="f-expand-icon"><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Rozšířené nastavení agenta
+      </button>
+
+      <!-- Agent settings panel -->
       <div id="f-agent-section" style="display:none">
-        <div class="section-div" style="margin-top:8px">Nastavení agenta</div>
-        <div class="form-grid">
-          <div class="field">
-            <label>Tón komunikace</label>
-            <select id="f-tone">
-              <option value="přátelský a profesionální">Přátelský a profesionální</option>
-              <option value="formální a věcný">Formální a věcný</option>
-              <option value="neformální a lidský">Neformální a lidský</option>
-              <option value="stručný a přímočarý">Stručný a přímočarý</option>
-              <option value="empatický a trpělivý">Empatický a trpělivý</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Délka odpovědi</label>
-            <select id="f-reply-length">
-              <option value="kratka">Krátká</option>
-              <option value="stredni">Střední</option>
-              <option value="dlouha">Podrobná</option>
-            </select>
+        <div class="section-div">Styl odpovědi</div>
+
+        <div class="field" style="margin-bottom:12px">
+          <label>Tón komunikace</label>
+          <div class="pill-row">
+            <button type="button" class="pill-btn" data-tone="přátelský a profesionální" onclick="aSelTone(this)">přátelský</button>
+            <button type="button" class="pill-btn" data-tone="formální a věcný" onclick="aSelTone(this)">formální</button>
+            <button type="button" class="pill-btn" data-tone="neformální a lidský" onclick="aSelTone(this)">neformální</button>
+            <button type="button" class="pill-btn" data-tone="stručný a přímočarý" onclick="aSelTone(this)">stručný</button>
+            <button type="button" class="pill-btn" data-tone="empatický a trpělivý" onclick="aSelTone(this)">empatický</button>
           </div>
         </div>
+
+        <div class="field" style="margin-bottom:12px">
+          <label>Délka odpovědi</label>
+          <div class="pill-row">
+            <button type="button" class="pill-btn" data-length="kratka" onclick="aSelLength(this)">krátká</button>
+            <button type="button" class="pill-btn" data-length="stredni" onclick="aSelLength(this)">střední</button>
+            <button type="button" class="pill-btn" data-length="dlouha" onclick="aSelLength(this)">podrobná</button>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:12px">
+          <label>Oslovení zákazníka</label>
+          <div class="pill-row">
+            <button type="button" class="pill-btn" data-sal="vykani" onclick="aSelSal(this)">vykání</button>
+            <button type="button" class="pill-btn" data-sal="tykani" onclick="aSelSal(this)">tykání</button>
+          </div>
+        </div>
+
         <div class="toggle-row"><div class="toggle-label">Množné číslo <span style="color:var(--text3);font-size:12px">(Děkujeme místo Děkuji)</span></div><label class="toggle-switch"><input type="checkbox" id="f-plural" /><span class="toggle-track"></span></label></div>
         <div class="toggle-row">
           <div class="toggle-label">Automatický podpis</div>
           <label class="toggle-switch"><input type="checkbox" id="f-use-sig" onchange="document.getElementById('f-sig-wrap').style.display=this.checked?'block':'none'" /><span class="toggle-track"></span></label>
         </div>
-        <div id="f-sig-wrap" style="display:none">
+        <div id="f-sig-wrap" style="display:none;margin-top:6px">
           <div class="field"><label>Text podpisu</label><textarea id="f-signature" style="min-height:70px"></textarea></div>
         </div>
 
-        <div class="section-div" style="margin-top:8px">Eskalace a omezení</div>
+        <div class="section-div" style="margin-top:16px">Eskalace a omezení</div>
         <div class="form-grid">
           <div class="field"><label>Eskalační e-mail</label><input type="text" id="f-esc-contact" placeholder="manager@firma.cz" /></div>
           <div class="field"><label>Kdy eskalovat</label><input type="text" id="f-esc-when" placeholder="Reklamace nad 10 000 Kč…" /></div>
@@ -246,7 +266,7 @@ textarea{resize:vertical;line-height:1.6}
         <div class="field"><label>Zakázaná témata</label><input type="text" id="f-forbidden" placeholder="Ceny konkurence, interní procesy…" /></div>
         <div class="field"><label>URL webu klienta</label><input type="text" id="f-website" placeholder="https://firma.cz" /></div>
 
-        <div class="section-div" style="margin-top:8px">Časté dotazy</div>
+        <div class="section-div" style="margin-top:16px">Časté dotazy</div>
         <div id="f-faq-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
         <button type="button" onclick="aFaqAdd()" style="font-family:inherit;font-size:12px;padding:6px 12px;border-radius:8px;border:1px dashed var(--border2);background:none;color:var(--text3);cursor:pointer;width:100%;text-align:left">+ Přidat dotaz</button>
       </div>
@@ -357,11 +377,25 @@ function closeModal(){document.getElementById('modal').classList.remove('open');
 
 let adminFaq = [];
 
+function toggleAgentSection(){
+  const sec=document.getElementById('f-agent-section');
+  const icon=document.getElementById('f-expand-icon');
+  const open=sec.style.display==='none';
+  sec.style.display=open?'block':'none';
+  icon.style.transform=open?'rotate(180deg)':'';
+}
+
+function aSelTone(btn){document.querySelectorAll('[data-tone]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function aSelLength(btn){document.querySelectorAll('[data-length]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function aSelSal(btn){document.querySelectorAll('[data-sal]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+
 function clearForm(){
   ['f-name','f-email','f-esc-contact','f-esc-when','f-forbidden','f-website','f-signature'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f-limit').value='25';
   document.getElementById('f-active').checked=true;
+  document.getElementById('f-expand-btn').style.display='none';
   document.getElementById('f-agent-section').style.display='none';
+  document.getElementById('f-expand-icon').style.transform='';
 }
 
 function fillForm(c){
@@ -369,21 +403,30 @@ function fillForm(c){
   document.getElementById('f-email').value=c.email||'';
   document.getElementById('f-limit').value=c.dailyLimit||'25';
   document.getElementById('f-active').checked=c.active!==false;
-  // Agent settings
-  document.getElementById('f-tone').value=c.tone||'přátelský a profesionální';
-  document.getElementById('f-reply-length').value=c.replyLength||'stredni';
+  // Pill buttons
+  const tone=c.tone||'přátelský a profesionální';
+  document.querySelectorAll('[data-tone]').forEach(b=>b.classList.toggle('active',b.dataset.tone===tone));
+  const len=c.replyLength||'stredni';
+  document.querySelectorAll('[data-length]').forEach(b=>b.classList.toggle('active',b.dataset.length===len));
+  const sal=c.salutation||'vykani';
+  document.querySelectorAll('[data-sal]').forEach(b=>b.classList.toggle('active',b.dataset.sal===sal));
+  // Toggles + textarea
   document.getElementById('f-plural').checked=c.usePlural!==false;
   const useSig=!!c.useSignature;
   document.getElementById('f-use-sig').checked=useSig;
   document.getElementById('f-sig-wrap').style.display=useSig?'block':'none';
   document.getElementById('f-signature').value=c.signature||'';
+  // Other fields
   document.getElementById('f-esc-contact').value=c.escalationContact||'';
   document.getElementById('f-esc-when').value=c.escalationWhen||'';
   document.getElementById('f-forbidden').value=c.forbiddenTopics||'';
   document.getElementById('f-website').value=c.websiteUrl||'';
   adminFaq=Array.isArray(c.faq)?c.faq.map(f=>({...f})):[];
   renderAdminFaq();
-  document.getElementById('f-agent-section').style.display='block';
+  // Show toggle button, keep section collapsed
+  document.getElementById('f-expand-btn').style.display='flex';
+  document.getElementById('f-agent-section').style.display='none';
+  document.getElementById('f-expand-icon').style.transform='';
 }
 
 function renderAdminFaq(){
@@ -411,8 +454,9 @@ async function saveClient(){
     dailyLimit:parseInt(document.getElementById('f-limit').value)||25,
     active:document.getElementById('f-active').checked,
     ...(editingId && {
-      tone:document.getElementById('f-tone').value,
-      replyLength:document.getElementById('f-reply-length').value,
+      tone:document.querySelector('[data-tone].active')?.dataset.tone||'přátelský a profesionální',
+      replyLength:document.querySelector('[data-length].active')?.dataset.length||'stredni',
+      salutation:document.querySelector('[data-sal].active')?.dataset.sal||'vykani',
       usePlural:document.getElementById('f-plural').checked,
       useSignature:document.getElementById('f-use-sig').checked,
       signature:document.getElementById('f-signature').value.trim(),
