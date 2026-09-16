@@ -134,8 +134,8 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
 .settings-label{font-size:13px;color:var(--text2)}
 .settings-label small{display:block;font-size:11px;color:var(--text3);margin-top:1px}
 .tone-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.s-tone-btn{font-family:inherit;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
-.s-tone-btn.active{background:var(--accent-light);color:var(--accent-text);border-color:var(--accent);font-weight:500}
+.s-tone-btn,.s-sal-btn{font-family:inherit;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
+.s-tone-btn.active,.s-sal-btn.active{background:var(--accent-light);color:var(--accent-text);border-color:var(--accent);font-weight:500}
 .s-length-btn{font-family:inherit;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
 .s-length-btn.active{background:var(--accent-light);color:var(--accent-text);border-color:var(--accent);font-weight:500}
 .settings-save-row{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:16px}
@@ -350,12 +350,12 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
         </div>
       </div>
 
-      <div class="settings-row">
-        <div class="settings-label">Oslovení zákazníka<small>Jak agent oslovuje zákazníky</small></div>
-        <select id="s-salutation" style="font-size:13px;padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text1)">
-          <option value="vykani">Vykání</option>
-          <option value="tykani">Tykání</option>
-        </select>
+      <div style="margin-bottom:12px">
+        <div class="settings-label" style="margin-bottom:8px">Oslovení zákazníka<small style="display:block;font-size:11px;color:var(--text3);margin-top:1px">Jak agent oslovuje zákazníky</small></div>
+        <div class="tone-row">
+          <button class="s-sal-btn" data-sal="vykani" onclick="selectSalutation(this)">vykání</button>
+          <button class="s-sal-btn" data-sal="tykani" onclick="selectSalutation(this)">tykání</button>
+        </div>
       </div>
 
       <div class="settings-row">
@@ -689,6 +689,15 @@ async function finishOnboarding() {
       body: JSON.stringify(obData),
     });
     if (!res.ok) throw new Error((await res.json()).error || 'Chyba ukládání');
+    Object.assign(clientSettings, {
+      tone: obData.tone || clientSettings.tone,
+      replyLength: obData.replyLength || clientSettings.replyLength,
+      salutation: obData.salutation || clientSettings.salutation,
+      usePlural: obData.usePlural ?? clientSettings.usePlural,
+      useSignature: obData.useSignature ?? clientSettings.useSignature,
+      signature: obData.signature || '',
+      faq: Array.isArray(obData.faq) ? obData.faq : [],
+    });
     document.getElementById('onboarding').style.display = 'none';
     showApp();
   } catch (e) {
@@ -720,7 +729,8 @@ function renderSettings() {
     b.classList.toggle('active', b.dataset.tone === clientSettings.tone));
   document.querySelectorAll('.s-length-btn').forEach(b =>
     b.classList.toggle('active', b.dataset.length === clientSettings.replyLength));
-  document.getElementById('s-salutation').value = clientSettings.salutation || 'vykani';
+  document.querySelectorAll('.s-sal-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.sal === (clientSettings.salutation || 'vykani')));
   document.getElementById('s-plural').checked = clientSettings.usePlural;
   const useSig = clientSettings.useSignature;
   document.getElementById('s-use-sig').checked = useSig;
@@ -769,6 +779,12 @@ function selectTone(btn) {
   clientSettings.tone = btn.dataset.tone;
 }
 
+function selectSalutation(btn) {
+  document.querySelectorAll('.s-sal-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  clientSettings.salutation = btn.dataset.sal;
+}
+
 function selectLength(btn) {
   document.querySelectorAll('.s-length-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -793,7 +809,7 @@ function toggleSettingsPanel() {
 }
 
 async function saveSettings() {
-  clientSettings.salutation = document.getElementById('s-salutation').value;
+  clientSettings.salutation = document.querySelector('.s-sal-btn.active')?.dataset.sal || 'vykani';
   clientSettings.usePlural = document.getElementById('s-plural').checked;
   clientSettings.useSignature = document.getElementById('s-use-sig').checked;
   clientSettings.signature = document.getElementById('s-sig').value.trim();
