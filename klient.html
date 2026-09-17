@@ -816,8 +816,11 @@ function mountSignInWithObserver(appearance) {
   };
   new MutationObserver(() => {
     const pw = siMount.querySelector('input[type="password"]');
-    rememberWrap.style.display = (pw && pw.offsetHeight > 0) ? 'flex' : 'none';
-  }).observe(siMount, { childList: true, subtree: true });
+    const em = siMount.querySelector('input[type="email"]');
+    const pwVisible = pw && pw.getBoundingClientRect().height > 0;
+    const emVisible = em && em.getBoundingClientRect().height > 0;
+    rememberWrap.style.display = (pwVisible && !emVisible) ? 'flex' : 'none';
+  }).observe(siMount, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
 }
 
 function showSignIn() {
