@@ -781,15 +781,17 @@ async function sendFeedback() {
   btn.textContent = 'Odesílám…';
   try {
     const token = await getToken();
-    await fetch('/api/feedback', {
+    const res = await fetch('/api/feedback', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ message, type, userEmail }),
     });
+    if (!res.ok) throw new Error(await res.text());
     document.getElementById('fb-success').style.display = 'block';
     btn.style.display = 'none';
     setTimeout(closeFeedback, 2000);
   } catch (e) {
+    console.error('Feedback error:', e);
     btn.disabled = false;
     btn.textContent = 'Odeslat';
     alert('Nepodařilo se odeslat zpětnou vazbu. Zkuste to znovu.');

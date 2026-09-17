@@ -16,16 +16,21 @@ module.exports = async function handler(req, res) {
     },
   });
 
-  await transporter.sendMail({
-    from: process.env.CONTACT_EMAIL,
-    to: 'info@wiseagent.cz',
-    subject: `Feedback od klienta — ${userEmail || 'neznámý'}`,
-    text: [
-      `Od: ${userEmail || 'neznámý'}`,
-      type ? `Typ: ${type}` : null,
-      `\nZpráva:\n${message}`,
-    ].filter(Boolean).join('\n'),
-  });
+  try {
+    await transporter.sendMail({
+      from: process.env.CONTACT_EMAIL,
+      to: 'info@wiseagent.cz',
+      subject: `Feedback od klienta — ${userEmail || 'neznámý'}`,
+      text: [
+        `Od: ${userEmail || 'neznámý'}`,
+        type ? `Typ: ${type}` : null,
+        `\nZpráva:\n${message}`,
+      ].filter(Boolean).join('\n'),
+    });
+  } catch (e) {
+    console.error('Feedback email error:', e);
+    return res.status(500).json({ error: 'Nepodařilo se odeslat email' });
+  }
 
   res.status(200).json({ success: true });
 };
