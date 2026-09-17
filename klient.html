@@ -505,6 +505,8 @@ async function initClerk() {
     const csCZ = localizationsModule?.csCZ;
     await clerk.load({
       ...(csCZ && { localization: csCZ }),
+      afterSignInUrl: '/klient',
+      afterSignUpUrl: '/klient',
     });
 
     clerk.addListener(({ user }) => {
@@ -523,10 +525,8 @@ async function initClerk() {
       const activeThisSession = sessionStorage.getItem('ea_active');
       const remember = localStorage.getItem('ea_remember');
       if (!activeThisSession && !remember) {
-        await clerk.signOut();
-        document.getElementById('clerk-signin').style.display = 'flex';
-        const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
-        clerk.mountSignIn(document.getElementById('clerk-signin-mount'), { appearance: clerkAppearance, routing: 'virtual' });
+        await clerk.signOut({ redirectUrl: '/klient' });
+        return;
       } else {
         checkOnboarding();
       }
