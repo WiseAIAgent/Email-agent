@@ -512,11 +512,6 @@ async function initClerk() {
     clerk.addListener(({ user }) => {
       if (user && document.getElementById('clerk-signin').style.display !== 'none') {
         sessionStorage.setItem('ea_tab', '1');
-        if (document.getElementById('remember-me')?.checked) {
-          localStorage.setItem('ea_remember', '1');
-        } else {
-          localStorage.removeItem('ea_remember');
-        }
         checkOnboarding();
       }
     });
@@ -812,10 +807,16 @@ function selectLength(btn) {
 function mountSignInWithObserver(appearance) {
   const siMount = document.getElementById('clerk-signin-mount');
   const rememberWrap = document.getElementById('remember-wrap');
+  const rememberCheckbox = document.getElementById('remember-me');
   rememberWrap.style.display = 'none';
   clerk.mountSignIn(siMount, { appearance, routing: 'virtual' });
+  rememberCheckbox.onchange = function() {
+    if (this.checked) localStorage.setItem('ea_remember', '1');
+    else localStorage.removeItem('ea_remember');
+  };
   new MutationObserver(() => {
-    rememberWrap.style.display = siMount.querySelector('input[type="password"]') ? 'flex' : 'none';
+    const pw = siMount.querySelector('input[type="password"]');
+    rememberWrap.style.display = (pw && pw.offsetHeight > 0) ? 'flex' : 'none';
   }).observe(siMount, { childList: true, subtree: true });
 }
 
