@@ -4,7 +4,7 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { message, type, userEmail } = req.body || {};
-  if (!message?.trim()) return res.status(400).json({ error: 'Chybí zpráva' });
+  if (!message?.trim()) return res.status(400).json({ error: 'Missing message' });
 
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
