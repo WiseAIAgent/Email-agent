@@ -162,7 +162,7 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
     </div>
     <div id="clerk-signin-mount"></div>
     <div id="clerk-signup-mount" style="display:none"></div>
-    <label id="remember-wrap" style="display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;font-size:13px;color:var(--text2);user-select:none">
+    <label id="remember-wrap" style="display:none;align-items:center;gap:8px;margin-top:12px;cursor:pointer;font-size:13px;color:var(--text2);user-select:none">
       <input type="checkbox" id="remember-me" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer" />
       Zůstat přihlášen
     </label>
@@ -511,6 +511,7 @@ async function initClerk() {
 
     clerk.addListener(({ user }) => {
       if (user && document.getElementById('clerk-signin').style.display !== 'none') {
+        sessionStorage.setItem('ea_tab', '1');
         if (document.getElementById('remember-me')?.checked) {
           localStorage.setItem('ea_remember', '1');
         } else {
@@ -532,13 +533,7 @@ async function initClerk() {
     } else {
       document.getElementById('clerk-signin').style.display = 'flex';
       const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
-      const siMount = document.getElementById('clerk-signin-mount');
-      clerk.mountSignIn(siMount, { appearance: clerkAppearance, routing: 'virtual' });
-      const rememberWrap = document.getElementById('remember-wrap');
-      rememberWrap.style.display = 'none';
-      new MutationObserver(() => {
-        rememberWrap.style.display = siMount.querySelector('input[type="password"]') ? 'flex' : 'none';
-      }).observe(siMount, { childList: true, subtree: true });
+      mountSignInWithObserver(clerkAppearance);
     }
   } catch (e) {
     console.error('Clerk init failed:', e);
@@ -814,6 +809,16 @@ function selectLength(btn) {
   clientSettings.replyLength = btn.dataset.length;
 }
 
+function mountSignInWithObserver(appearance) {
+  const siMount = document.getElementById('clerk-signin-mount');
+  const rememberWrap = document.getElementById('remember-wrap');
+  rememberWrap.style.display = 'none';
+  clerk.mountSignIn(siMount, { appearance, routing: 'virtual' });
+  new MutationObserver(() => {
+    rememberWrap.style.display = siMount.querySelector('input[type="password"]') ? 'flex' : 'none';
+  }).observe(siMount, { childList: true, subtree: true });
+}
+
 function showSignIn() {
   const siMount = document.getElementById('clerk-signin-mount');
   const suMount = document.getElementById('clerk-signup-mount');
@@ -821,7 +826,7 @@ function showSignIn() {
   suMount.style.display = 'none';
   siMount.style.display = 'block';
   const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
-  clerk.mountSignIn(siMount, { appearance: clerkAppearance, routing: 'virtual' });
+  mountSignInWithObserver(clerkAppearance);
   document.getElementById('tab-signin').style.cssText += ';background:var(--accent);color:#fff';
   document.getElementById('tab-signup').style.cssText += ';background:none;color:var(--text2)';
 }
