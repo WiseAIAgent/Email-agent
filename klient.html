@@ -505,8 +505,6 @@ async function initClerk() {
     const csCZ = localizationsModule?.csCZ;
     await clerk.load({
       ...(csCZ && { localization: csCZ }),
-      afterSignInUrl: '/klient',
-      afterSignUpUrl: '/klient',
     });
 
     clerk.addListener(({ user }) => {
