@@ -162,6 +162,10 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
     </div>
     <div id="clerk-signin-mount"></div>
     <div id="clerk-signup-mount" style="display:none"></div>
+    <label id="remember-wrap" style="display:flex;align-items:center;gap:8px;margin-top:12px;cursor:pointer;font-size:13px;color:var(--text2);user-select:none">
+      <input type="checkbox" id="remember-me" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer" />
+      Zůstat přihlášen
+    </label>
   </div>
 </div>
 
@@ -507,12 +511,27 @@ async function initClerk() {
 
     clerk.addListener(({ user }) => {
       if (user && document.getElementById('clerk-signin').style.display !== 'none') {
+        sessionStorage.setItem('ea_active', '1');
+        if (document.getElementById('remember-me')?.checked) {
+          localStorage.setItem('ea_remember', '1');
+        } else {
+          localStorage.removeItem('ea_remember');
+        }
         checkOnboarding();
       }
     });
     loading.style.display = 'none';
     if (clerk.user) {
-      checkOnboarding();
+      const activeThisSession = sessionStorage.getItem('ea_active');
+      const remember = localStorage.getItem('ea_remember');
+      if (!activeThisSession && !remember) {
+        await clerk.signOut();
+        document.getElementById('clerk-signin').style.display = 'flex';
+        const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
+        clerk.mountSignIn(document.getElementById('clerk-signin-mount'), { appearance: clerkAppearance, routing: 'virtual' });
+      } else {
+        checkOnboarding();
+      }
     } else {
       document.getElementById('clerk-signin').style.display = 'flex';
       const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
@@ -712,6 +731,8 @@ async function getToken() {
 }
 
 async function logout() {
+  sessionStorage.removeItem('ea_active');
+  localStorage.removeItem('ea_remember');
   await clerk.signOut({ redirectUrl: '/klient' });
 }
 
