@@ -516,8 +516,8 @@ async function initClerk() {
     } else {
       document.getElementById('clerk-signin').style.display = 'flex';
       const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
-      clerk.mountSignIn(document.getElementById('clerk-signin-mount'), { appearance: clerkAppearance });
-      clerk.mountSignUp(document.getElementById('clerk-signup-mount'), { appearance: clerkAppearance });
+      clerk.mountSignIn(document.getElementById('clerk-signin-mount'), { appearance: clerkAppearance, routing: 'virtual' });
+      clerk.mountSignUp(document.getElementById('clerk-signup-mount'), { appearance: clerkAppearance, routing: 'virtual' });
     }
   } catch (e) {
     console.error('Clerk init failed:', e);
