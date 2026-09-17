@@ -794,7 +794,7 @@ async function sendFeedback() {
     console.error('Feedback error:', e);
     btn.disabled = false;
     btn.textContent = 'Odeslat';
-    alert('Nepodařilo se odeslat zpětnou vazbu. Zkuste to znovu.');
+    alert('Chyba: ' + e.message);
   }
 }
 
