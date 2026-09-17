@@ -29,7 +29,7 @@ module.exports = async function handler(req, res) {
     });
   } catch (e) {
     console.error('Feedback email error:', e);
-    return res.status(500).json({ error: 'Nepodařilo se odeslat email' });
+    return res.status(500).json({ error: e.message || 'Nepodařilo se odeslat email' });
   }
 
   res.status(200).json({ success: true });
