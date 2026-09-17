@@ -505,6 +505,8 @@ async function initClerk() {
     const csCZ = localizationsModule?.csCZ;
     await clerk.load({
       ...(csCZ && { localization: csCZ }),
+      afterSignInUrl: '/klient',
+      afterSignUpUrl: '/klient',
     });
 
     clerk.addListener(({ user }) => {
@@ -530,7 +532,13 @@ async function initClerk() {
     } else {
       document.getElementById('clerk-signin').style.display = 'flex';
       const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
-      clerk.mountSignIn(document.getElementById('clerk-signin-mount'), { appearance: clerkAppearance, routing: 'virtual' });
+      const siMount = document.getElementById('clerk-signin-mount');
+      clerk.mountSignIn(siMount, { appearance: clerkAppearance, routing: 'virtual' });
+      const rememberWrap = document.getElementById('remember-wrap');
+      rememberWrap.style.display = 'none';
+      new MutationObserver(() => {
+        rememberWrap.style.display = siMount.querySelector('input[type="password"]') ? 'flex' : 'none';
+      }).observe(siMount, { childList: true, subtree: true });
     }
   } catch (e) {
     console.error('Clerk init failed:', e);
