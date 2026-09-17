@@ -126,6 +126,17 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
 .ob-add-btn{font-family:inherit;font-size:13px;padding:7px 16px;border-radius:8px;border:1px dashed var(--border2);background:none;color:var(--text2);cursor:pointer;transition:all .15s;margin-top:4px}
 .ob-add-btn:hover{border-color:var(--accent);color:var(--accent-text)}
 .ob-error{font-size:12px;color:var(--danger);margin-top:6px;display:none}
+.fb-btn{position:fixed;bottom:20px;right:20px;z-index:100;background:var(--surface);border:1px solid var(--border2);border-radius:999px;padding:8px 14px;font-family:inherit;font-size:12px;color:var(--text2);cursor:pointer;box-shadow:var(--shadow);transition:all .15s;display:flex;align-items:center;gap:6px}
+.fb-btn:hover{background:var(--surface2);color:var(--text)}
+.fb-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;display:none;align-items:center;justify-content:center;padding:1rem}
+.fb-overlay.open{display:flex}
+.fb-modal{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);padding:1.5rem;width:100%;max-width:420px;display:flex;flex-direction:column;gap:12px}
+.fb-modal h3{margin:0;font-size:16px;font-weight:600}
+.fb-modal select,.fb-modal textarea{font-family:inherit;font-size:13px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 10px;width:100%;outline:none;transition:border-color .15s}
+.fb-modal select:focus,.fb-modal textarea:focus{border-color:var(--accent)}
+.fb-modal textarea{resize:vertical;min-height:100px}
+.fb-actions{display:flex;gap:8px;justify-content:flex-end}
+.fb-success{font-size:13px;color:var(--green);display:none;text-align:center;padding:8px 0}
 .settings-panel{background:var(--surface);border-radius:14px;box-shadow:var(--shadow);padding:20px;margin-bottom:1rem;display:none}
 .settings-panel.open{display:block}
 .settings-section-title{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
@@ -290,6 +301,32 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
           <div class="ob-error" id="ob-error"></div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback button -->
+<button class="fb-btn" onclick="openFeedback()">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M14 1H2a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4l2 3 2-3h4a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  Zpětná vazba
+</button>
+
+<!-- Feedback modal -->
+<div class="fb-overlay" id="fb-overlay" onclick="if(event.target===this)closeFeedback()">
+  <div class="fb-modal">
+    <h3>Zpětná vazba</h3>
+    <select id="fb-type">
+      <option value="">Typ zpětné vazby…</option>
+      <option value="Návrh na zlepšení">Návrh na zlepšení</option>
+      <option value="Nahlásit problém">Nahlásit problém</option>
+      <option value="Pochvala">Pochvala</option>
+      <option value="Jiné">Jiné</option>
+    </select>
+    <textarea id="fb-message" placeholder="Váš návrh nebo připomínka…"></textarea>
+    <div class="fb-success" id="fb-success">Děkujeme za zpětnou vazbu! 🙏</div>
+    <div class="fb-actions">
+      <button class="btn btn-secondary" onclick="closeFeedback()">Zrušit</button>
+      <button class="btn btn-primary" id="fb-send" onclick="sendFeedback()">Odeslat</button>
     </div>
   </div>
 </div>
@@ -721,6 +758,42 @@ async function finishOnboarding() {
 async function getToken() {
   const token = await clerk.session.getToken();
   return { 'Authorization': `Bearer ${token}` };
+}
+
+function openFeedback() {
+  document.getElementById('fb-overlay').classList.add('open');
+  document.getElementById('fb-message').focus();
+}
+function closeFeedback() {
+  document.getElementById('fb-overlay').classList.remove('open');
+  document.getElementById('fb-message').value = '';
+  document.getElementById('fb-type').value = '';
+  document.getElementById('fb-success').style.display = 'none';
+  document.getElementById('fb-send').style.display = '';
+}
+async function sendFeedback() {
+  const message = document.getElementById('fb-message').value.trim();
+  if (!message) { document.getElementById('fb-message').focus(); return; }
+  const type = document.getElementById('fb-type').value;
+  const userEmail = clerk?.user?.emailAddresses?.[0]?.emailAddress || '';
+  const btn = document.getElementById('fb-send');
+  btn.disabled = true;
+  btn.textContent = 'Odesílám…';
+  try {
+    const token = await getToken();
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ message, type, userEmail }),
+    });
+    document.getElementById('fb-success').style.display = 'block';
+    btn.style.display = 'none';
+    setTimeout(closeFeedback, 2000);
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = 'Odeslat';
+    alert('Nepodařilo se odeslat zpětnou vazbu. Zkuste to znovu.');
+  }
 }
 
 async function logout() {
