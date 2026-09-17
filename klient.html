@@ -505,13 +505,10 @@ async function initClerk() {
     const csCZ = localizationsModule?.csCZ;
     await clerk.load({
       ...(csCZ && { localization: csCZ }),
-      afterSignInUrl: '/klient',
-      afterSignUpUrl: '/klient',
     });
 
     clerk.addListener(({ user }) => {
       if (user && document.getElementById('clerk-signin').style.display !== 'none') {
-        sessionStorage.setItem('ea_active', '1');
         if (document.getElementById('remember-me')?.checked) {
           localStorage.setItem('ea_remember', '1');
         } else {
@@ -522,14 +519,14 @@ async function initClerk() {
     });
     loading.style.display = 'none';
     if (clerk.user) {
-      const activeThisSession = sessionStorage.getItem('ea_active');
       const remember = localStorage.getItem('ea_remember');
-      if (!activeThisSession && !remember) {
+      const freshTab = !sessionStorage.getItem('ea_tab');
+      sessionStorage.setItem('ea_tab', '1');
+      if (freshTab && !remember) {
         await clerk.signOut({ redirectUrl: '/klient' });
         return;
-      } else {
-        checkOnboarding();
       }
+      checkOnboarding();
     } else {
       document.getElementById('clerk-signin').style.display = 'flex';
       const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
@@ -729,7 +726,7 @@ async function getToken() {
 }
 
 async function logout() {
-  sessionStorage.removeItem('ea_active');
+  sessionStorage.removeItem('ea_tab');
   localStorage.removeItem('ea_remember');
   await clerk.signOut({ redirectUrl: '/klient' });
 }
