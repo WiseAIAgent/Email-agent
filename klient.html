@@ -517,7 +517,6 @@ async function initClerk() {
       document.getElementById('clerk-signin').style.display = 'flex';
       const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
       clerk.mountSignIn(document.getElementById('clerk-signin-mount'), { appearance: clerkAppearance, routing: 'virtual' });
-      clerk.mountSignUp(document.getElementById('clerk-signup-mount'), { appearance: clerkAppearance, routing: 'virtual' });
     }
   } catch (e) {
     console.error('Clerk init failed:', e);
@@ -792,14 +791,24 @@ function selectLength(btn) {
 }
 
 function showSignIn() {
-  document.getElementById('clerk-signin-mount').style.display = 'block';
-  document.getElementById('clerk-signup-mount').style.display = 'none';
+  const siMount = document.getElementById('clerk-signin-mount');
+  const suMount = document.getElementById('clerk-signup-mount');
+  clerk.unmountSignUp(suMount);
+  suMount.style.display = 'none';
+  siMount.style.display = 'block';
+  const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
+  clerk.mountSignIn(siMount, { appearance: clerkAppearance, routing: 'virtual' });
   document.getElementById('tab-signin').style.cssText += ';background:var(--accent);color:#fff';
   document.getElementById('tab-signup').style.cssText += ';background:none;color:var(--text2)';
 }
 function showSignUp() {
-  document.getElementById('clerk-signin-mount').style.display = 'none';
-  document.getElementById('clerk-signup-mount').style.display = 'block';
+  const siMount = document.getElementById('clerk-signin-mount');
+  const suMount = document.getElementById('clerk-signup-mount');
+  clerk.unmountSignIn(siMount);
+  siMount.style.display = 'none';
+  suMount.style.display = 'block';
+  const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
+  clerk.mountSignUp(suMount, { appearance: clerkAppearance, routing: 'virtual' });
   document.getElementById('tab-signup').style.cssText += ';background:var(--accent);color:#fff';
   document.getElementById('tab-signin').style.cssText += ';background:none;color:var(--text2)';
 }
