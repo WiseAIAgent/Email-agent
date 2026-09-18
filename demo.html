@@ -188,19 +188,37 @@ select {
 
 textarea { resize: vertical; line-height: 1.6; }
 
-.tone-grid { display: flex; gap: 6px; flex-wrap: wrap; }
-.tone-btn {
-  font-family: inherit; font-size: 13px;
-  padding: 5px 13px; border-radius: 999px;
+.ob-card {
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 1.75rem;
+}
+.ob-card h2 { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+.ob-subtitle { font-size: 13px; color: var(--text2); margin-bottom: 1.25rem; }
+.ob-field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 1rem; }
+.ob-field:last-child { margin-bottom: 0; }
+.ob-label { font-size: 12px; font-weight: 500; color: var(--text2); }
+.ob-hint { font-size: 11px; color: var(--text3); line-height: 1.5; }
+
+.tone-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.s-tone-btn {
+  font-family: inherit; font-size: 12px;
+  padding: 4px 12px; border-radius: 999px;
   border: 1px solid var(--border2);
   background: var(--surface2); color: var(--text2);
-  cursor: pointer; transition: all 0.15s; font-weight: 400;
+  cursor: pointer; transition: all 0.15s;
 }
-.tone-btn:hover { border-color: var(--accent); color: var(--accent-text); }
-.tone-btn.active {
+.s-tone-btn:hover { border-color: var(--accent); color: var(--accent-text); }
+.s-tone-btn.active {
   background: var(--accent-light); color: var(--accent-text);
   border-color: var(--accent); font-weight: 500;
 }
+
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: 13px; color: var(--text2); }
+.settings-label small { display: block; font-size: 11px; color: var(--text3); margin-top: 1px; }
 
 .examples { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
 .ex-label { font-size: 11px; color: var(--text3); }
@@ -275,60 +293,6 @@ textarea { resize: vertical; line-height: 1.6; }
   display: flex; align-items: center; gap: 6px;
 }
 .counter-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success-text); opacity: 0.7; }
-
-.advanced-toggle {
-  width: 100%; display: flex; align-items: center; gap: 10px;
-  padding: 12px 20px; background: none; border: none;
-  border-top: 1px solid var(--border);
-  cursor: pointer; font-family: inherit;
-  font-size: 12px; font-weight: 500; color: var(--text2);
-  text-align: left; transition: background 0.15s;
-}
-.advanced-toggle:hover { background: var(--surface2); }
-.advanced-toggle svg { transition: transform 0.2s; flex-shrink: 0; }
-.advanced-toggle.open svg { transform: rotate(180deg); }
-.advanced-toggle span { flex: 1; }
-.advanced-toggle .adv-badge {
-  font-size: 10px; padding: 2px 7px; border-radius: 999px;
-  background: var(--surface3); color: var(--text3); font-weight: 400;
-}
-
-.advanced-body { display: none; flex-direction: column; gap: 0; border-top: 1px solid var(--border); }
-.advanced-body.open { display: flex; }
-
-.adv-section {
-  padding: 16px 20px; display: flex; flex-direction: column; gap: 10px;
-  border-bottom: 1px solid var(--border);
-}
-.adv-section:last-child { border-bottom: none; }
-.adv-section-title {
-  font-size: 11px; font-weight: 500; color: var(--text3);
-  letter-spacing: 0.06em; text-transform: uppercase;
-}
-
-.faq-list { display: flex; flex-direction: column; gap: 8px; }
-.faq-item { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: start; }
-.faq-item input { font-size: 13px; padding: 7px 10px; }
-.faq-remove {
-  width: 28px; height: 28px; border-radius: 6px;
-  border: 1px solid var(--border2); background: none;
-  color: var(--text3); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-family: inherit; font-size: 16px; line-height: 1;
-  transition: all 0.15s; flex-shrink: 0; margin-top: 1px;
-}
-.faq-remove:hover { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-text); }
-
-.add-faq-btn {
-  align-self: flex-start; font-size: 12px; padding: 5px 12px;
-  border-radius: 7px; border: 1px dashed var(--border2);
-  background: none; color: var(--text2); cursor: pointer;
-  font-family: inherit; transition: all 0.15s;
-  display: flex; align-items: center; gap: 5px;
-}
-.add-faq-btn:hover { border-color: var(--accent); color: var(--accent-text); background: var(--accent-light); }
-
-.adv-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
 .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; }
 .toggle-label { font-size: 13px; color: var(--text2); }
@@ -437,28 +401,21 @@ footer {
 
   <div class="demo-intro">
     <h1>Vyzkoušejte Wise Agent</h1>
-    <p>Nastavte firmu, tón komunikace a FAQ — pak zadejte příchozí email a uvidíte, jak by agent odpověděl.</p>
+    <p>Nastavte firmu a styl komunikace — pak zadejte příchozí email a uvidíte, jak by agent odpověděl.</p>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <div class="card-header-icon">
-        <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-          <rect x="1" y="2" width="10" height="8" rx="1.5"/>
-          <path d="M1 4l5 3 5-3"/>
-        </svg>
-      </div>
-      <span class="card-title">Konfigurace firmy</span>
+  <div class="ob-card">
+    <h2>Nastavení agenta</h2>
+    <p class="ob-subtitle">Nastavte základní informace o firmě a preferovaný styl komunikace.</p>
+
+    <div class="ob-field">
+      <label class="ob-label" for="company-name">Název firmy</label>
+      <input type="text" id="company-name" value="Elektro Novák" />
     </div>
-    <div class="card-body">
-      <div class="grid2">
-        <div class="field">
-          <label>Název firmy</label>
-          <input type="text" id="company-name" value="Elektro Novák" />
-        </div>
-        <div class="field">
-          <label>Obor</label>
-          <select id="industry" onchange="toggleCustomIndustry('industry','custom-industry')">
+
+    <div class="ob-field">
+      <label class="ob-label" for="industry">Obor</label>
+      <select id="industry" onchange="toggleCustomIndustry('industry','custom-industry')">
             <optgroup label="E-commerce">
               <option>E-shop s elektronikou</option>
               <option>Módní e-shop</option>
@@ -526,124 +483,61 @@ footer {
             </optgroup>
           </select>
           <input type="text" id="custom-industry" placeholder="Název vašeho oboru..." style="display:none;margin-top:6px" />
-        </div>
+    </div>
+
+    <div class="ob-field">
+      <label class="ob-label" for="company-desc">Popis firmy</label>
+      <textarea id="company-desc" rows="2">Jsme rodinný e-shop s elektronikou. Prodáváme spotřebiče, mobily a příslušenství. Doručujeme do 2 pracovních dnů, vrácení zboží do 30 dnů.</textarea>
+    </div>
+
+    <div class="ob-field">
+      <div class="ob-label" style="margin-bottom:6px">Tón komunikace</div>
+      <div class="tone-row">
+        <button class="s-tone-btn active" data-tone="přátelský a profesionální">přátelský</button>
+        <button class="s-tone-btn" data-tone="formální a věcný">formální</button>
+        <button class="s-tone-btn" data-tone="neformální a lidský">neformální</button>
+        <button class="s-tone-btn" data-tone="stručný a přímočarý">stručný</button>
+        <button class="s-tone-btn" data-tone="empatický a trpělivý">empatický</button>
       </div>
-      <div class="field">
-        <label>Popis firmy</label>
-        <textarea id="company-desc" rows="2">Jsme rodinný e-shop s elektronikou. Prodáváme spotřebiče, mobily a příslušenství. Doručujeme do 2 pracovních dnů, vrácení zboží do 30 dnů.</textarea>
-      </div>
-      <div class="field">
-        <label>Tón komunikace</label>
-        <div class="tone-grid">
-          <button class="tone-btn active" data-tone="přátelský a profesionální">přátelský</button>
-          <button class="tone-btn" data-tone="formální a věcný">formální</button>
-          <button class="tone-btn" data-tone="neformální a lidský">neformální</button>
-          <button class="tone-btn" data-tone="stručný a přímočarý">stručný</button>
-        </div>
-      </div>
-      <div class="field">
-        <label>Podpis</label>
-        <input type="text" id="signature" value="Tým zákaznické podpory, Elektro Novák" />
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-label">
-          Automatický podpis
-          <small>Agent přidá podpis na konec každé odpovědi</small>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="use-signature" checked />
-          <span class="toggle-track"></span>
-        </label>
-      </div>
-      <div class="toggle-row">
-        <div class="toggle-label">
-          Mluvit za firmu v množném čísle
-          <small>„Děkujeme" místo „Děkuji", „Pomůžeme" místo „Pomohu"</small>
-        </div>
+    </div>
+
+    <div class="ob-field">
+      <label class="ob-label" for="salutation">Oslovení zákazníka</label>
+      <select id="salutation">
+        <option value="vykani">Vykání (Dobrý den, děkujeme Vám...)</option>
+        <option value="tykani">Tykání (Ahoj, díky...)</option>
+      </select>
+    </div>
+
+    <div class="ob-field">
+      <label class="ob-label" for="reply-length">Délka odpovědi</label>
+      <select id="reply-length">
+        <option value="stredni">Střední — výstižná a přehledná</option>
+        <option value="kratka">Krátká — jen to nejdůležitější</option>
+        <option value="dlouha">Podrobná — s vysvětlením a možnostmi</option>
+      </select>
+    </div>
+
+    <div class="ob-field" style="margin-bottom:0">
+      <div class="settings-row">
+        <div class="settings-label">Množné číslo<small>„Děkujeme" místo „Děkuji"</small></div>
         <label class="toggle-switch">
           <input type="checkbox" id="use-plural" checked />
           <span class="toggle-track"></span>
         </label>
       </div>
+      <div class="settings-row" style="border-bottom:none;padding-bottom:0">
+        <div class="settings-label">Automatický podpis<small>Agent přidá podpis na konec každé odpovědi</small></div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="use-signature" checked onchange="document.getElementById('sig-wrap').style.display=this.checked?'block':'none'" />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div id="sig-wrap" style="margin-top:8px">
+        <input type="text" id="signature" value="Tým zákaznické podpory, Elektro Novák" />
+      </div>
     </div>
 
-    <button class="advanced-toggle" id="adv-toggle" onclick="toggleAdvanced()">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M2 4l4 4 4-4"/>
-      </svg>
-      <span>Rozšířené nastavení</span>
-      <span class="adv-badge">znalostní báze</span>
-    </button>
-
-    <div class="advanced-body" id="adv-body">
-
-      <div class="adv-section">
-        <div class="adv-section-title">Časté dotazy (FAQ)</div>
-        <p style="font-size:12px;color:var(--text3);margin-top:-4px;">Agent použije tyto odpovědi pokud zákazník položí podobnou otázku.</p>
-        <div class="faq-list" id="faq-list">
-          <div class="faq-item">
-            <input type="text" placeholder="Dotaz zákazníka..." value="Jak dlouho trvá doručení?" />
-            <input type="text" placeholder="Odpověď agenta..." value="Doručujeme do 2 pracovních dnů po ČR." />
-            <button class="faq-remove" onclick="removeFaq(this)" title="Odebrat">×</button>
-          </div>
-          <div class="faq-item">
-            <input type="text" placeholder="Dotaz zákazníka..." value="Jak reklamovat zboží?" />
-            <input type="text" placeholder="Odpověď agenta..." value="Reklamaci vyřídíte přes náš web nebo osobně na prodejně. Zákonná záruka je 24 měsíců." />
-            <button class="faq-remove" onclick="removeFaq(this)" title="Odebrat">×</button>
-          </div>
-        </div>
-        <button class="add-faq-btn" onclick="addFaq()">
-          <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="5.5" y1="1" x2="5.5" y2="10"/><line x1="1" y1="5.5" x2="10" y2="5.5"/></svg>
-          Přidat dotaz
-        </button>
-      </div>
-
-      <div class="adv-section">
-        <div class="adv-section-title">Eskalace</div>
-        <div class="adv-row">
-          <div class="field">
-            <label>Eskalační kontakt</label>
-            <input type="text" id="escalation-contact" placeholder="podpora@firma.cz nebo +420 xxx xxx xxx" />
-          </div>
-          <div class="field">
-            <label>Kdy eskalovat</label>
-            <input type="text" id="escalation-when" placeholder="Složité reklamace, právní hrozby..." />
-          </div>
-        </div>
-        <p style="font-size:12px;color:var(--text3);">Agent zákazníka přesměruje na tento kontakt v situacích, kde nestačí automatická odpověď.</p>
-      </div>
-
-      <div class="adv-section">
-        <div class="adv-section-title">Zakázaná témata</div>
-        <div class="field">
-          <label>Agent nikdy nekomentuje</label>
-          <input type="text" id="forbidden-topics" placeholder="Ceny konkurence, interní procesy, probíhající soudní spory..." />
-        </div>
-      </div>
-
-      <div class="adv-section">
-        <div class="adv-section-title">Styl oslovení</div>
-        <div class="adv-row">
-          <div class="field">
-            <label>Oslovení zákazníka</label>
-            <select id="salutation">
-              <option value="vykani">Vykání (Dobrý den, děkujeme Vám...)</option>
-              <option value="tykani">Tykání (Ahoj, díky...)</option>
-              <option value="jmeno">Jménem pokud známo</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Délka odpovědi</label>
-            <select id="reply-length">
-              <option value="stredni">Střední — výstižná a přehledná</option>
-              <option value="kratka">Krátká — jen to nejdůležitější</option>
-              <option value="dlouha">Podrobná — s vysvětlením a možnostmi</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-    </div>
   </div>
 
   <div class="card">
@@ -736,9 +630,9 @@ function toggleTheme() {
 
 let selectedTone = 'přátelský a profesionální';
 
-document.querySelectorAll('.tone-btn').forEach(btn => {
+document.querySelectorAll('.s-tone-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.s-tone-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedTone = btn.dataset.tone;
   });
@@ -891,29 +785,6 @@ Pravidla odpovídání:
   btnText.textContent = 'Vygenerovat znovu';
 }
 
-function toggleAdvanced() {
-  const toggle = document.getElementById('adv-toggle');
-  const body = document.getElementById('adv-body');
-  toggle.classList.toggle('open');
-  body.classList.toggle('open');
-}
-
-function addFaq() {
-  const list = document.getElementById('faq-list');
-  const item = document.createElement('div');
-  item.className = 'faq-item';
-  item.innerHTML = `
-    <input type="text" placeholder="Dotaz zákazníka..." />
-    <input type="text" placeholder="Odpověď agenta..." />
-    <button class="faq-remove" onclick="removeFaq(this)" title="Odebrat">×</button>
-  `;
-  list.appendChild(item);
-  item.querySelector('input').focus();
-}
-
-function removeFaq(btn) {
-  btn.closest('.faq-item').remove();
-}
 
 function copyReply() {
   const text = document.getElementById('reply-text').textContent;
