@@ -348,6 +348,39 @@ textarea { resize: vertical; line-height: 1.6; }
 .toggle-switch input:checked + .toggle-track { background: var(--accent); border-color: var(--accent); }
 .toggle-switch input:checked + .toggle-track::after { transform: translateX(16px); background: #fff; }
 
+/* ── CTA ── */
+.cta-section {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #0a2540 0%, #0d3a2a 100%);
+  border: 1px solid rgba(255,255,255,0.08);
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+.cta-section.visible { display: flex; }
+.cta-title {
+  font-size: 1.2rem; font-weight: 600;
+  color: #e8f5ee; letter-spacing: -0.015em;
+}
+.cta-sub { font-size: 0.85rem; color: #7aaacf; }
+.cta-btn {
+  display: inline-block;
+  margin-top: 0.6rem;
+  padding: 11px 28px;
+  border-radius: 10px;
+  background: #1a7a4a;
+  color: #fff;
+  font-size: 14px; font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.cta-btn:hover { opacity: 0.88; }
+.cta-btn:active { transform: scale(0.98); }
+
 /* ── footer ── */
 footer {
   background: #071629;
@@ -673,6 +706,13 @@ footer {
     </div>
   </div>
 
+
+  <div class="cta-section" id="demo-cta">
+    <h2 class="cta-title">Líbí se vám to? Začněte zdarma.</h2>
+    <p class="cta-sub">První měsíc zdarma, bez kreditní karty. Zrušení kdykoliv.</p>
+    <a href="/objednat" class="cta-btn">Začít zdarma</a>
+  </div>
+
 </div>
 </main>
 
@@ -836,6 +876,9 @@ Pravidla odpovídání:
     localStorage.setItem('wa_demo_count', used);
     counter.style.display = 'flex';
     counterText.textContent = `Vygenerováno v této relaci: ${used}`;
+
+    document.getElementById('demo-cta').classList.add('visible');
+    document.getElementById('demo-cta').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   } catch (e) {
     replyText.textContent = 'Chyba: ' + e.message;
