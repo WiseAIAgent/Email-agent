@@ -769,10 +769,10 @@ Pravidla odpovídání:
     badge.textContent = 'hotovo';
     badge.className = 'badge ok';
 
-    const used = parseInt(localStorage.getItem('wa_demo_count') || '0') + 1;
-    localStorage.setItem('wa_demo_count', used);
+    const remaining = parseInt(response.headers.get('X-Daily-Remaining') ?? '');
+    const used = isNaN(remaining) ? '?' : (10 - remaining);
     counter.style.display = 'flex';
-    counterText.textContent = `Vygenerováno v této relaci: ${used}`;
+    counterText.textContent = `${used}/10 vygenerování dnes`;
 
     document.getElementById('demo-cta').classList.add('visible');
     document.getElementById('demo-cta').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
