@@ -699,39 +699,11 @@ async function generateReply() {
 
   card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-  const faqItems = document.querySelectorAll('#faq-list .faq-item');
-  const faqs = [];
-  faqItems.forEach(item => {
-    const inputs = item.querySelectorAll('input');
-    const q = inputs[0]?.value.trim();
-    const a = inputs[1]?.value.trim();
-    if (q && a) faqs.push({ q, a });
-  });
-
-  const escalationContact = document.getElementById('escalation-contact').value.trim();
-  const escalationWhen = document.getElementById('escalation-when').value.trim();
-  const forbiddenTopics = document.getElementById('forbidden-topics').value.trim();
   const salutation = document.querySelector('#salutation-row .s-tone-btn.active')?.dataset.value || 'vykani';
   const replyLength = document.querySelector('#reply-length-row .s-tone-btn.active')?.dataset.value || 'stredni';
 
   const salutationMap = { vykani: 'Vyká zákazníkům (Dobrý den, děkujeme Vám...)', tykani: 'Tyká zákazníkům (Ahoj, díky...)', jmeno: 'Oslovuje zákazníky jménem pokud je zná' };
   const lengthMap = { stredni: 'střední délka — výstižná a přehledná', kratka: 'krátká — jen nejdůležitější informace', dlouha: 'podrobná — s vysvětlením a možnostmi' };
-
-  let faqSection = '';
-  if (faqs.length > 0) {
-    faqSection = '\n\nČASTO KLADENÉ DOTAZY (použij tyto odpovědi pokud zákazník klade podobnou otázku):\n' +
-      faqs.map((f, i) => `Q${i+1}: ${f.q}\nA${i+1}: ${f.a}`).join('\n');
-  }
-
-  let escalationSection = '';
-  if (escalationContact) {
-    escalationSection = `\n\nESKALACE: Pokud ${escalationWhen || 'zákazník má složitý problém který nedokážeš vyřešit'}, přesměruj ho na: ${escalationContact}`;
-  }
-
-  let forbiddenSection = '';
-  if (forbiddenTopics) {
-    forbiddenSection = `\n\nZAKÁZANÁ TÉMATA — nikdy nekomentuj: ${forbiddenTopics}`;
-  }
 
   const systemPrompt = `Jsi AI asistent zákaznické podpory pro firmu "${companyName}" (${industry}).
 
@@ -746,7 +718,7 @@ Pravidla odpovídání:
 - Buď konkrétní a nápomocný
 - Pokud nevíš přesnou informaci, nabídni prověření nebo kontakt
 - ${useSignature ? `Ukončuj e-mail podpisem: "${signature}"` : 'Nepoužívej podpis'}
-- Piš pouze text odpovědi, bez předmětu a bez komentáře${faqSection}${escalationSection}${forbiddenSection}`;
+- Piš pouze text odpovědi, bez předmětu a bez komentáře`;
 
   const userPrompt = `Příchozí e-mail od zákazníka:\nPředmět: ${subject}\n\n${body}\n\nNapiš zdvořilou odpověď.`;
 
@@ -767,9 +739,33 @@ Pravidla odpovídání:
       throw new Error(err.error?.message || err.error || 'HTTP ' + response.status);
     }
 
-    const data = await response.json();
-    const text = data.content?.map(b => b.text || '').join('') || 'Prázdná odpověď.';
-    replyText.textContent = text;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullText = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6);
+        if (raw === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed.type === 'content_block_delta' && parsed.delta?.type === 'text_delta') {
+            fullText += parsed.delta.text;
+            replyText.textContent = fullText;
+          }
+        } catch {}
+      }
+    }
+
+    if (!fullText) fullText = 'Prázdná odpověď.';
+    replyText.textContent = fullText;
     badge.textContent = 'hotovo';
     badge.className = 'badge ok';
 
