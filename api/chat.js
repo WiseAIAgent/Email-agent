@@ -1,6 +1,6 @@
 const { redis } = require('./_auth');
 
-const DAILY_LIMIT = 25;
+const DAILY_LIMIT = 10;
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -8,14 +8,15 @@ module.exports = async function handler(req, res) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
+  const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
   const today = new Date().toISOString().split('T')[0];
-  const countKey = `demo_chat_count:${today}`;
+  const countKey = `demo_chat_ip:${ip}:${today}`;
 
   try {
     const count = (await redis.get(countKey)) || 0;
     if (count >= DAILY_LIMIT) {
       return res.status(429).json({
-        error: `Denní limit ${DAILY_LIMIT} vygenerování byl vyčerpán. Zkuste to zítra.`
+        error: `Denní limit ${DAILY_LIMIT} vygenerování byl vyčerpán. Zkuste to zítra nebo si Wise Agent vyzkoušejte naplno.`
       });
     }
 
