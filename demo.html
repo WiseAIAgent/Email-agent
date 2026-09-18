@@ -502,20 +502,20 @@ footer {
     </div>
 
     <div class="ob-field">
-      <label class="ob-label" for="salutation">Oslovení zákazníka</label>
-      <select id="salutation">
-        <option value="vykani">Vykání (Dobrý den, děkujeme Vám...)</option>
-        <option value="tykani">Tykání (Ahoj, díky...)</option>
-      </select>
+      <div class="ob-label" style="margin-bottom:6px">Oslovení zákazníka</div>
+      <div class="tone-row" id="salutation-row">
+        <button class="s-tone-btn active" data-value="vykani">vykání</button>
+        <button class="s-tone-btn" data-value="tykani">tykání</button>
+      </div>
     </div>
 
     <div class="ob-field">
-      <label class="ob-label" for="reply-length">Délka odpovědi</label>
-      <select id="reply-length">
-        <option value="stredni">Střední — výstižná a přehledná</option>
-        <option value="kratka">Krátká — jen to nejdůležitější</option>
-        <option value="dlouha">Podrobná — s vysvětlením a možnostmi</option>
-      </select>
+      <div class="ob-label" style="margin-bottom:6px">Délka odpovědi</div>
+      <div class="tone-row" id="reply-length-row">
+        <button class="s-tone-btn active" data-value="stredni">střední</button>
+        <button class="s-tone-btn" data-value="kratka">krátká</button>
+        <button class="s-tone-btn" data-value="dlouha">podrobná</button>
+      </div>
     </div>
 
     <div class="ob-field" style="margin-bottom:0">
@@ -630,9 +630,16 @@ function toggleTheme() {
 
 let selectedTone = 'přátelský a profesionální';
 
-document.querySelectorAll('.s-tone-btn').forEach(btn => {
+document.querySelectorAll('#salutation-row .s-tone-btn, #reply-length-row .s-tone-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.s-tone-btn').forEach(b => b.classList.remove('active'));
+    btn.closest('.tone-row').querySelectorAll('.s-tone-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+document.querySelectorAll('.tone-row:not(#salutation-row):not(#reply-length-row) .s-tone-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.closest('.tone-row').querySelectorAll('.s-tone-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     selectedTone = btn.dataset.tone;
   });
@@ -704,8 +711,8 @@ async function generateReply() {
   const escalationContact = document.getElementById('escalation-contact').value.trim();
   const escalationWhen = document.getElementById('escalation-when').value.trim();
   const forbiddenTopics = document.getElementById('forbidden-topics').value.trim();
-  const salutation = document.getElementById('salutation').value;
-  const replyLength = document.getElementById('reply-length').value;
+  const salutation = document.querySelector('#salutation-row .s-tone-btn.active')?.dataset.value || 'vykani';
+  const replyLength = document.querySelector('#reply-length-row .s-tone-btn.active')?.dataset.value || 'stredni';
 
   const salutationMap = { vykani: 'Vyká zákazníkům (Dobrý den, děkujeme Vám...)', tykani: 'Tyká zákazníkům (Ahoj, díky...)', jmeno: 'Oslovuje zákazníky jménem pokud je zná' };
   const lengthMap = { stredni: 'střední délka — výstižná a přehledná', kratka: 'krátká — jen nejdůležitější informace', dlouha: 'podrobná — s vysvětlením a možnostmi' };
