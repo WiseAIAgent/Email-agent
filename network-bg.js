@@ -1,12 +1,17 @@
 (function () {
   var canvas = document.createElement('canvas');
   canvas.id = 'network-bg';
-  canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;';
-  document.body.insertBefore(canvas, document.body.firstChild);
-
-  var style = document.createElement('style');
-  style.textContent = 'body>*:not(#network-bg){position:relative;z-index:1;}';
-  document.head.appendChild(style);
+  canvas.style.cssText = [
+    'position:fixed',
+    'top:0',
+    'left:0',
+    'width:100%',
+    'height:100%',
+    'pointer-events:none',
+    'z-index:9999',
+    'mix-blend-mode:screen'
+  ].join(';');
+  document.body.appendChild(canvas);
 
   var ctx = canvas.getContext('2d');
   var nodes = [], W, H, raf;
@@ -16,8 +21,8 @@
     maxDist:  145,
     speed:    0.28,
     nodeR:    1.6,
-    nodeA:    0.22,
-    lineAMax: 0.09,
+    nodeA:    0.28,
+    lineAMax: 0.12,
     color:    '255,255,255'
   };
 
@@ -39,7 +44,9 @@
   }
 
   function tick() {
-    ctx.clearRect(0, 0, W, H);
+    // Black fill is transparent under screen blend-mode
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, W, H);
 
     for (var i = 0; i < nodes.length; i++) {
       var n = nodes[i];
