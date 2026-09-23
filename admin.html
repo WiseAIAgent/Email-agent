@@ -187,8 +187,14 @@ textarea{resize:vertical;line-height:1.6}
     </div>
 
     <div id="page-tools" style="display:none">
-      <div class="page-header"><div><div class="page-title">Prodejní nástroje</div><div class="page-sub">Kalkulačka úspory pro zákazníky</div></div></div>
-      <iframe src="/kalkulacka.html" style="width:100%;height:calc(100vh - 120px);border:none;border-radius:12px;background:#0a1628;" title="Kalkulačka úspory"></iframe>
+      <div class="page-header">
+        <div><div class="page-title">Prodejní nástroje</div><div class="page-sub">Kalkulačka úspory pro zákazníky</div></div>
+        <button class="btn btn-secondary" onclick="toggleFullscreen()">
+          <svg id="fs-icon" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 5V1h4M8 1h4v4M12 8v4H8M5 12H1V8"/></svg>
+          Celá obrazovka
+        </button>
+      </div>
+      <iframe id="calc-iframe" src="/kalkulacka.html" style="width:100%;height:calc(100vh - 120px);border:none;border-radius:12px;background:#0a1628;" title="Kalkulačka úspory" allowfullscreen></iframe>
     </div>
 
     <div id="page-clients" style="display:none">
@@ -298,6 +304,8 @@ let adminSecret='', allStats=[], allClients=[], editingId=null, selectedTone='p�
 })();
 
 function toggleCustomIndustry(selectId,inputId){const input=document.getElementById(inputId);const isOther=document.getElementById(selectId).value==='Jiné';input.style.display=isOther?'block':'none';if(isOther)input.focus();}
+function toggleFullscreen(){const el=document.getElementById('calc-iframe');if(!document.fullscreenElement){el.requestFullscreen().catch(()=>{});document.getElementById('fs-icon').innerHTML='<path d="M5 1H1v4M1 8v4h4M8 12h4V8M12 5V1H8"/>';}else{document.exitFullscreen();document.getElementById('fs-icon').innerHTML='<path d="M1 5V1h4M8 1h4v4M12 8v4H8M5 12H1V8"/>';}}
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)document.getElementById('fs-icon').innerHTML='<path d="M1 5V1h4M8 1h4v4M12 8v4H8M5 12H1V8"/>';});
 function toggleTheme(){const d=document.documentElement.getAttribute('data-theme')==='dark';document.documentElement.setAttribute('data-theme',d?'light':'dark');document.getElementById('ti-l').style.display=d?'block':'none';document.getElementById('ti-d').style.display=d?'none':'block';document.getElementById('theme-label').textContent=d?'světlý':'tmavý';localStorage.setItem('ea_theme',d?'light':'dark');}
 function togglePw(id,btn){const inp=document.getElementById(id);const show=inp.type==='password';inp.type=show?'text':'password';btn.querySelector('.eye-on').style.display=show?'none':'';btn.querySelector('.eye-off').style.display=show?'':'none';}
 function login(){const pw=document.getElementById('login-pw').value;if(!pw)return;adminSecret=pw;document.getElementById('login-err').style.display='none';showApp();}
