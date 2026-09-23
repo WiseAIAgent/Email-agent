@@ -349,6 +349,15 @@
   .price-features li:last-child { border-bottom: none; }
   .chk { color: var(--sage); flex-shrink: 0; }
   .price-cta { display: block; text-align: center; width: 100%; }
+  .btn-outline {
+    background: transparent; color: var(--sage);
+    padding: 13px 26px; border-radius: 8px;
+    font-size: 0.975rem; font-weight: 600;
+    border: 1.5px solid var(--sage); cursor: pointer; text-decoration: none;
+    transition: background 0.15s, color 0.15s, transform 0.12s;
+    display: inline-block;
+  }
+  .btn-outline:hover { background: rgba(38,122,82,0.1); transform: translateY(-1px); }
 
   /* ── billing toggle ── */
   .billing-toggle {
@@ -646,7 +655,7 @@
           <li><svg class="chk" width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="7.5" fill="currentColor" opacity="0.15"/><path d="M4 7.5l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Podpora v češtině</li>
           <li><svg class="chk" width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="7.5" fill="currentColor" opacity="0.15"/><path d="M4 7.5l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Zrušení kdykoliv</li>
         </ul>
-        <a href="/objednat" class="btn-primary price-cta">Chci konzultaci zdarma</a>
+        <a href="/objednat?tarif=mesicni" class="btn-outline price-cta">Začít měsíčně</a>
       </div>
       <div class="price-card price-card--featured reveal" id="card-yearly">
         <div class="price-pill">Doporučujeme · Ušetříte 17 %</div>
@@ -661,7 +670,7 @@
           <li><svg class="chk" width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="7.5" fill="currentColor" opacity="0.15"/><path d="M4 7.5l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Podpora v češtině</li>
           <li><svg class="chk" width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="7.5" fill="currentColor" opacity="0.15"/><path d="M4 7.5l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Zrušení kdykoliv</li>
         </ul>
-        <a href="/objednat" class="btn-primary price-cta">Chci konzultaci zdarma</a>
+        <a href="/objednat?tarif=rocni" class="btn-primary price-cta">Začít ročně — ušetřím 17&nbsp;%</a>
       </div>
     </div>
   </div>
