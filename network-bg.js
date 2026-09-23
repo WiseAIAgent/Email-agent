@@ -4,7 +4,7 @@
     'position:fixed',
     'inset:0',
     'pointer-events:none',
-    'z-index:9999',
+    'z-index:49',
     'background-image:' + [
       // Spotlight from top-center
       'radial-gradient(ellipse 90% 55% at 50% -5%,rgba(255,255,255,0.07) 0%,transparent 65%)',
