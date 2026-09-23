@@ -148,6 +148,11 @@ textarea{resize:vertical;line-height:1.6}
       <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7.5" cy="5" r="3"/><path d="M1 14c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6"/></svg>
       Klienti
     </button>
+    <div class="nav-section">Nástroje</div>
+    <button class="nav-item" id="nav-tools" onclick="showPage('tools')">
+      <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2l4 4-7 7-4-1-1-4 8-6z"/><line x1="6" y1="9" x2="10" y2="5"/></svg>
+      Prodejní nástroje
+    </button>
     <div class="sidebar-bottom">
       <div class="theme-row">
         <span class="theme-label" id="theme-label">světlý</span>
@@ -179,6 +184,11 @@ textarea{resize:vertical;line-height:1.6}
         <div class="stat"><div class="stat-val green" id="s-sent">—</div><div class="stat-label" id="s-sent-label">Odesláno dnes</div></div>
       </div>
       <div id="overview-list" class="client-grid"><div class="loading">Načítám...</div></div>
+    </div>
+
+    <div id="page-tools" style="display:none">
+      <div class="page-header"><div><div class="page-title">Prodejní nástroje</div><div class="page-sub">Kalkulačka úspory pro zákazníky</div></div></div>
+      <iframe src="/kalkulacka.html" style="width:100%;height:calc(100vh - 120px);border:none;border-radius:12px;background:#0a1628;" title="Kalkulačka úspory"></iframe>
     </div>
 
     <div id="page-clients" style="display:none">
@@ -293,7 +303,7 @@ function togglePw(id,btn){const inp=document.getElementById(id);const show=inp.t
 function login(){const pw=document.getElementById('login-pw').value;if(!pw)return;adminSecret=pw;document.getElementById('login-err').style.display='none';showApp();}
 function logout(){adminSecret='';document.getElementById('app').style.display='none';document.getElementById('login-screen').style.display='flex';document.getElementById('login-pw').value='';}
 function showApp(){document.getElementById('login-screen').style.display='none';document.getElementById('app').style.display='flex';loadStats();loadClients();}
-function showPage(p){['overview','clients'].forEach(x=>{document.getElementById('page-'+x).style.display=p===x?'block':'none';document.getElementById('nav-'+x).classList.toggle('active',p===x);});}
+function showPage(p){['overview','clients','tools'].forEach(x=>{document.getElementById('page-'+x).style.display=p===x?'block':'none';document.getElementById('nav-'+x).classList.toggle('active',p===x);});}
 
 function setPeriod(btn){
   document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));

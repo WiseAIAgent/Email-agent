@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wise Agent — Kalkulačka úspory</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a1628;
+    --surface: #111d30;
+    --surface2: #172338;
+    --accent: #2ecc71;
+    --accent-dim: #1a7a45;
+    --blue: #4ab8d4;
+    --text: #e8edf5;
+    --text-muted: #7a8fa8;
+    --border: #1e2e45;
+    --radius: 12px;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 48px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .logo span { color: var(--blue); }
+  .logo em { color: var(--accent); font-style: normal; }
+
+  header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    width: 100%;
+    max-width: 640px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .input-group {
+    margin-bottom: 22px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 0 4px rgba(46,204,113,0.15);
+    transition: box-shadow 0.2s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 6px rgba(46,204,113,0.25);
+  }
+
+  .value-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 64px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .results {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .result-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .result-item.highlight {
+    border-color: var(--accent);
+    background: rgba(46,204,113,0.06);
+  }
+  .result-item.negative {
+    border-color: #e74c3c;
+    background: rgba(231,76,60,0.05);
+  }
+
+  .result-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .result-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .result-value.green { color: var(--accent); }
+  .result-value.red { color: #e74c3c; }
+  .result-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  .roi-banner {
+    background: linear-gradient(135deg, rgba(46,204,113,0.12), rgba(74,184,212,0.08));
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 640px;
+  }
+  .roi-banner .roi-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .roi-banner .roi-value {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .roi-banner .roi-sub {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  .chart-wrap {
+    width: 100%;
+    max-width: 640px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .chart-title {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+
+  .cta-wrap {
+    width: 100%;
+    max-width: 640px;
+    text-align: center;
+  }
+  .cta-btn {
+    display: inline-block;
+    background: var(--accent);
+    color: #0a1628;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 14px 36px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .cta-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .cta-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 10px;
+  }
+
+  @media (max-width: 520px) {
+    .results { grid-template-columns: 1fr; }
+    .card { padding: 20px; }
+    .roi-banner .roi-value { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Wise<span>Agent</span><em>.</em></div>
+  <p>Kolik vás stojí emailová komunikace? Zadejte svou situaci a uvidíte reálné číslo.</p>
+</header>
+
+<div class="card">
+  <div class="card-title">Vaše situace</div>
+
+  <div class="input-group">
+    <label>Kolik hodin týdně strávíte odpovídáním na emaily zákazníků?</label>
+    <div class="slider-row">
+      <input type="range" id="hoursPerDay" min="1" max="40" step="0.5" value="10">
+      <div class="value-badge" id="hoursLabel">10 hod</div>
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label>Kolik stojí vaše hodina práce (nebo hodina zaměstnance)?</label>
+    <div class="slider-row">
+      <input type="range" id="hourlyRate" min="100" max="1000" step="50" value="250">
+      <div class="value-badge" id="rateLabel">250 Kč</div>
+    </div>
+  </div>
+</div>
+
+<div class="roi-banner">
+  <div class="roi-label">Měsíčně přijdete o</div>
+  <div class="roi-value" id="totalCost">—</div>
+  <div class="roi-sub">jen kvůli emailové komunikaci</div>
+</div>
+
+<div class="card">
+  <div class="card-title">Srovnání — bez agenta vs. s Wise Agentem</div>
+  <div class="results">
+    <div class="result-item negative">
+      <div class="result-label">Náklady na emaily bez agenta (měsíčně)</div>
+      <div class="result-value red" id="costWithout">—</div>
+      <div class="result-sub" id="costWithoutSub">—</div>
+    </div>
+    <div class="result-item highlight">
+      <div class="result-label">Náklady s Wise Agentem (měsíčně)</div>
+      <div class="result-value green" id="costWith">—</div>
+      <div class="result-sub">990 Kč/měs + 10 % zbývajícího času</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">Úspora měsíčně</div>
+      <div class="result-value green" id="saving">—</div>
+      <div class="result-sub" id="savingSub">—</div>
+    </div>
+    <div class="result-item highlight">
+      <div class="result-label">Návratnost investice (ROI)</div>
+      <div class="result-value green" id="roi">—</div>
+      <div class="result-sub">za každou 1 Kč zaplatíte za Wise Agent</div>
+    </div>
+  </div>
+</div>
+
+<div class="chart-wrap">
+  <div class="chart-title">Kumulativní úspora v čase (Kč)</div>
+  <canvas id="roiChart" height="200"></canvas>
+</div>
+
+<div class="cta-wrap">
+  <a href="https://wiseagent.cz/demo" class="cta-btn">Vyzkoušet demo zdarma</a>
+  <div class="cta-sub">První měsíc zdarma · Žádná kreditní karta · Zrušení kdykoliv</div>
+</div>
+
+<script>
+const AGENT_COST = 990;
+const AGENT_TIME_REDUCTION = 0.90;
+
+let chart = null;
+
+function fmt(n) {
+  return Math.round(n).toLocaleString('cs-CZ') + ' Kč';
+}
+
+function update() {
+  const hoursPerWeek = parseFloat(document.getElementById('hoursPerDay').value);
+  const rate = parseFloat(document.getElementById('hourlyRate').value);
+
+  document.getElementById('hoursLabel').textContent = hoursPerWeek + ' hod';
+  document.getElementById('rateLabel').textContent = rate + ' Kč';
+
+  const monthlyHours = (hoursPerWeek / 7) * 30;
+  const costWithout = monthlyHours * rate;
+  const residualTime = monthlyHours * (1 - AGENT_TIME_REDUCTION);
+  const costWith = (residualTime * rate) + AGENT_COST;
+  const saving = costWithout - costWith;
+  const roi = costWithout / AGENT_COST;
+
+  document.getElementById('totalCost').textContent = fmt(costWithout);
+  document.getElementById('costWithout').textContent = fmt(costWithout);
+  document.getElementById('costWithoutSub').textContent = Math.round(monthlyHours) + ' hodin/měs × ' + rate + ' Kč';
+  document.getElementById('costWith').textContent = fmt(costWith);
+  document.getElementById('saving').textContent = fmt(saving);
+  document.getElementById('savingSub').textContent = 'ušetříte ~' + Math.round(monthlyHours * AGENT_TIME_REDUCTION) + ' hodin měsíčně';
+  document.getElementById('roi').textContent = roi.toFixed(1) + '×';
+
+  const labels = ['Nyní', '3 měs', '6 měs', '9 měs', '12 měs'];
+  const months = [0, 3, 6, 9, 12];
+  const withoutData = months.map(m => m * costWithout);
+  const withData = months.map(m => m * costWith);
+  const savingData = months.map(m => m * saving);
+
+  if (chart) chart.destroy();
+  const ctx = document.getElementById('roiChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Bez agenta',
+          data: withoutData,
+          borderColor: '#e74c3c',
+          backgroundColor: 'rgba(231,76,60,0.08)',
+          borderWidth: 2,
+          pointRadius: 4,
+          fill: true,
+          tension: 0.3
+        },
+        {
+          label: 'S Wise Agentem',
+          data: withData,
+          borderColor: '#4ab8d4',
+          backgroundColor: 'rgba(74,184,212,0.08)',
+          borderWidth: 2,
+          pointRadius: 4,
+          fill: true,
+          tension: 0.3
+        },
+        {
+          label: 'Kumulativní úspora',
+          data: savingData,
+          borderColor: '#2ecc71',
+          backgroundColor: 'rgba(46,204,113,0.12)',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          fill: true,
+          tension: 0.3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: { color: '#7a8fa8', font: { family: 'Inter', size: 11 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + Math.round(ctx.raw).toLocaleString('cs-CZ') + ' Kč'
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#7a8fa8', font: { family: 'Inter', size: 11 } },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        },
+        y: {
+          ticks: {
+            color: '#7a8fa8',
+            font: { family: 'Inter', size: 11 },
+            callback: v => Math.round(v).toLocaleString('cs-CZ') + ' Kč'
+          },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        }
+      }
+    }
+  });
+}
+
+document.getElementById('hoursPerDay').addEventListener('input', update);
+document.getElementById('hourlyRate').addEventListener('input', update);
+
+update();
+</script>
+</body>
+</html>
