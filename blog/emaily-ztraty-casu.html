@@ -191,5 +191,6 @@ footer { background: #071629; border-top: 1px solid rgba(255,255,255,0.05); padd
 function toggleMenu(){const btn=document.getElementById('nav-hamburger');const drop=document.getElementById('nav-dropdown');const open=drop.classList.toggle('open');btn.setAttribute('aria-expanded',open);}
 document.addEventListener('click',e=>{if(!e.target.closest('nav')){document.getElementById('nav-dropdown').classList.remove('open');document.getElementById('nav-hamburger').setAttribute('aria-expanded',false);}});
 </script>
+<script src="/network-bg.js"></script>
 </body>
 </html>
