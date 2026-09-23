@@ -276,6 +276,7 @@
           <textarea id="f-note" placeholder="Co řešíte nebo co vás zajímá?"></textarea>
         </div>
 
+        <input type="hidden" name="tarif" id="tarif">
         <button type="submit" class="btn-submit">Odeslat žádost o konzultaci →</button>
         <p class="form-note">Bez závazku · Zdarma · Odpovíme do 24 hodin</p>
       </form>
@@ -304,6 +305,11 @@
 </footer>
 
 <script>
+  (function () {
+    const p = new URLSearchParams(window.location.search).get('tarif');
+    if (p) document.getElementById('tarif').value = p;
+  })();
+
   async function submitForm(e) {
     e.preventDefault();
     const btn = e.target.querySelector('.btn-submit');
@@ -315,6 +321,7 @@
       email: document.getElementById('f-email').value.trim(),
       phone: document.getElementById('f-phone').value.trim(),
       note: document.getElementById('f-note').value.trim(),
+      tarif: document.getElementById('tarif').value || '',
     };
 
     try {

@@ -3,13 +3,14 @@ const nodemailer = require('nodemailer');
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { name, email, phone, note } = req.body || {};
+  const { name, email, phone, note, tarif } = req.body || {};
   if (!name || !email) return res.status(400).json({ error: 'Chybí jméno nebo email' });
 
   const lines = [
     `Jméno: ${name}`,
     `Email: ${email}`,
     phone ? `Telefon: ${phone}` : null,
+    tarif ? `Zvolený tarif: ${tarif}` : null,
     note ? `\nPoznámka:\n${note}` : null,
   ].filter(Boolean).join('\n');
 
