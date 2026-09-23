@@ -210,10 +210,10 @@
     <div>
       <div class="info-badge">
         <svg width="7" height="7" viewBox="0 0 7 7" fill="currentColor"><circle cx="3.5" cy="3.5" r="3.5"/></svg>
-        Začněte hned
+        Zdarma · Bez závazku
       </div>
-      <h1 class="info-h">Objednejte<br>Wise Agent.<br><em>Bez rizika.</em></h1>
-      <p class="info-sub">Vyplňte formulář a do 24 hodin vás kontaktujeme. Nastavíme vše společně — žádná technická znalost není potřeba.</p>
+      <h1 class="info-h">Domluvte si<br>konzultaci.<br><em>Zdarma.</em></h1>
+      <p class="info-sub">Ozveme se vám do 24 hodin a domluvíme termín. Nastavíme vše společně — žádná technická znalost není potřeba.</p>
       <ul class="perks">
         <li>
           <span class="perk-icon">
@@ -256,16 +256,12 @@
 
     <div class="form-card">
       <form id="order-form" onsubmit="submitForm(event)">
-        <div class="form-title">Objednávkový formulář</div>
-        <p class="form-sub">Ozveme se do 24 hodin a vše nastavíme společně.</p>
+        <div class="form-title">Domluvte si konzultaci zdarma</div>
+        <p class="form-sub">Ozveme se vám do 24 hodin a domluvíme termín.</p>
 
         <div class="field">
-          <label for="f-name">Jméno a příjmení *</label>
+          <label for="f-name">Jméno *</label>
           <input type="text" id="f-name" placeholder="Jana Nováková" required />
-        </div>
-        <div class="field">
-          <label for="f-company">Název firmy <span class="opt">(nepovinné)</span></label>
-          <input type="text" id="f-company" placeholder="Vaše s.r.o." />
         </div>
         <div class="field">
           <label for="f-email">Email *</label>
@@ -274,35 +270,14 @@
         <div class="field">
           <label for="f-phone">Telefon <span class="opt">(nepovinné)</span></label>
           <input type="tel" id="f-phone" placeholder="+420 600 000 000" />
-          <div class="field-hint">📞 Doporučujeme vyplnit — pomůže nám vás rychle kontaktovat při nastavení.</div>
         </div>
-        <div class="field">
-          <label>Způsob platby</label>
-          <div class="plan-options">
-            <label class="plan-opt">
-              <input type="radio" name="plan" id="plan-monthly" value="Měsíčně — 990 Kč/měsíc" checked>
-              <span class="plan-text">
-                <span class="plan-name">Měsíčně</span>
-                <span class="plan-price">990 Kč / měsíc</span>
-              </span>
-            </label>
-            <label class="plan-opt">
-              <input type="radio" name="plan" id="plan-yearly" value="Ročně — 9 900 Kč/rok">
-              <span class="plan-text">
-                <span class="plan-name">Ročně <span class="plan-badge">Ušetříte 17 %</span></span>
-                <span class="plan-price">9 900 Kč / rok</span>
-              </span>
-            </label>
-          </div>
-        </div>
-
         <div class="field">
           <label for="f-note">Poznámka <span class="opt">(nepovinné)</span></label>
-          <textarea id="f-note" placeholder="Počet emailů týdně, typ dotazů, emailový klient…"></textarea>
+          <textarea id="f-note" placeholder="Co řešíte nebo co vás zajímá?"></textarea>
         </div>
 
-        <button type="submit" class="btn-submit">Odeslat objednávku →</button>
-        <p class="form-note">Odesláním souhlasíte se zpracováním osobních údajů za účelem kontaktování.</p>
+        <button type="submit" class="btn-submit">Odeslat žádost o konzultaci →</button>
+        <p class="form-note">Bez závazku · Zdarma · Odpovíme do 24 hodin</p>
       </form>
 
       <div class="success" id="success">
@@ -311,8 +286,8 @@
             <path d="M20 6L9 17l-5-5"/>
           </svg>
         </div>
-        <div class="success-h">Objednávka odeslána!</div>
-        <p class="success-p">Ozveme se na zadaný email do 24 hodin. Těšíme se na spolupráci.</p>
+        <div class="success-h">Žádost odeslána!</div>
+        <p class="success-p">Ozveme se na zadaný email do 24 hodin a domluvíme termín konzultace.</p>
       </div>
     </div>
 
@@ -329,10 +304,6 @@
 </footer>
 
 <script>
-  const tarif = new URLSearchParams(location.search).get('tarif');
-  if (tarif === 'rocni') document.getElementById('plan-yearly').checked = true;
-  if (tarif === 'mesicni') document.getElementById('plan-monthly').checked = true;
-
   async function submitForm(e) {
     e.preventDefault();
     const btn = e.target.querySelector('.btn-submit');
@@ -341,11 +312,9 @@
 
     const data = {
       name: document.getElementById('f-name').value.trim(),
-      company: document.getElementById('f-company').value.trim(),
       email: document.getElementById('f-email').value.trim(),
       phone: document.getElementById('f-phone').value.trim(),
       note: document.getElementById('f-note').value.trim(),
-      plan: document.querySelector('input[name="plan"]:checked')?.value || '',
     };
 
     try {
@@ -360,7 +329,7 @@
       document.getElementById('success').classList.add('show');
     } catch {
       btn.disabled = false;
-      btn.textContent = 'Odeslat objednávku →';
+      btn.textContent = 'Odeslat žádost o konzultaci →';
       alert('Něco se pokazilo, napište nám přímo na info@wiseagent.cz');
     }
   }
