@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "name": "Wise Agent",
+  "description": "AI agenti a automatizace na míru pro české a slovenské živnostníky a malé firmy. Řešíme komunikaci se zákazníky, zpracování objednávek a opakující se úkoly — bez nutnosti programování.",
+  "url": "https://wiseagent.cz",
+  "contact": {
+    "email": "vojtech.mou@gmail.com"
+  },
+  "language": ["cs", "sk"],
+  "audience": "Živnostníci a malé firmy v České republice a na Slovensku",
+  "services": [
+    {
+      "name": "AI e-mailový agent",
+      "description": "Automatické odpovídání na zákaznické dotazy, třídění e-mailů a follow-upy bez manuální práce."
+    },
+    {
+      "name": "Automatizace procesů",
+      "description": "Propojení nástrojů a automatizace opakujících se úkolů — objednávky, faktury, notifikace."
+    },
+    {
+      "name": "Managed AI služba",
+      "description": "Kompletní správa a provoz AI agenta včetně nastavení, údržby a podpory."
+    }
+  ],
+  "keywords": ["AI agent", "automatizace", "malé firmy", "živnostníci", "e-shop", "česká republika", "slovensko"]
+}
