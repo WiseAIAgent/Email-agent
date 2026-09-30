@@ -19,6 +19,7 @@
     { "source": "/favicon.png", "destination": "/favicon.png" },
     { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
     { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/ai-catalog.json", "destination": "/ai-catalog.json" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
