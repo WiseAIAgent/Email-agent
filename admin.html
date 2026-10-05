@@ -532,7 +532,7 @@ async function deleteClient(id){const c=allClients.find(c=>c.id===id);if(!confir
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 // --- Knowledge base (admin) ---
-async function aCompressImage(file){return new Promise(resolve=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const MAX=900;let w=img.width,h=img.height;if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);resolve({data:c.toDataURL('image/jpeg',0.72),name:file.name});};img.src=e.target.result;};r.readAsDataURL(file);});}
+async function aCompressImage(file){return new Promise(resolve=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const MAX=400;let w=img.width,h=img.height;if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);resolve({data:c.toDataURL('image/jpeg',0.60),name:file.name});};img.src=e.target.result;};r.readAsDataURL(file);});}
 function aKbDragOver(e){e.preventDefault();document.getElementById('a-kb-upload').classList.add('drag-over');}
 function aKbDragLeave(e){document.getElementById('a-kb-upload').classList.remove('drag-over');}
 async function aKbDrop(e){e.preventDefault();document.getElementById('a-kb-upload').classList.remove('drag-over');const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));await aKbFilesSelected(files);}

@@ -67,7 +67,7 @@ function fetchEmailsForClient(client) {
   });
 }
 
-function buildSystemPrompt(client) {
+function buildSystemPrompt(client, knowledgeUrls) {
   const name = client.companyName || 'naše firma';
   const signature = client.signature || `Tým zákaznické podpory, ${name}`;
   const tone = client.tone || 'přátelský a profesionální';
@@ -77,7 +77,7 @@ function buildSystemPrompt(client) {
   const useSignature = client.useSignature !== false;
 
   let prompt = `Jsi AI asistent zákaznické podpory pro firmu "${name}"${client.industry ? ` (${client.industry})` : ''}.
-${client.companyDesc ? `\nO firmě: ${client.companyDesc}` : ''}
+${client.companyDescription ? `\nO firmě: ${client.companyDescription}` : ''}
 Pravidla:
 - Tón: ${tone}
 - Oslovení: ${salutationMap[client.salutation] || salutationMap.vykani}
@@ -87,12 +87,18 @@ Pravidla:
 ${useSignature ? `- Ukončuj podpisem: "${signature}"` : '- Nepřidávej podpis'}
 - Piš pouze text odpovědi bez předmětu`;
 
-  if (client.faqs?.length > 0)
-    prompt += '\n\nFAQ:\n' + client.faqs.map((f, i) => `Q${i+1}: ${f.q}\nA${i+1}: ${f.a}`).join('\n');
+  if (client.faq?.length > 0)
+    prompt += '\n\nFAQ:\n' + client.faq.map((f, i) => `Q${i+1}: ${f.q}\nA${i+1}: ${f.a}`).join('\n');
   if (client.escalationContact)
     prompt += `\n\nEskalace: Pokud ${client.escalationWhen || 'problém nelze vyřešit'}, přesměruj na: ${client.escalationContact}`;
   if (client.forbiddenTopics)
     prompt += `\n\nNIKDY nekomentuj: ${client.forbiddenTopics}`;
+
+  const urls = (knowledgeUrls || []).filter(Boolean);
+  if (urls.length > 0) {
+    prompt += `\n\nWeb klienta: ${urls.join(', ')}`;
+    prompt += '\nPři relevantní příležitosti zákazníkovi doporuč navštívit tyto stránky pro více informací.';
+  }
 
   return prompt;
 }
@@ -152,7 +158,30 @@ function isIgnored(email, client) {
   return false;
 }
 
-async function generateReply(email, client) {
+async function generateReply(email, client, knowledge) {
+  const kb = knowledge || { urls: [], screenshots: [] };
+  const emailText = `Od: ${email.from}\nPředmět: ${email.subject}\n\n${email.text}\n\nNapiš odpověď.`;
+
+  // Build user content — include screenshots as vision images (max 5 to control token cost)
+  let userContent;
+  const shots = (kb.screenshots || []).slice(0, 5);
+  if (shots.length > 0) {
+    userContent = [
+      { type: 'text', text: `Kontext — screenshoty webu a materiálů klienta (${shots.length}):` },
+      ...shots.map(s => ({
+        type: 'image',
+        source: {
+          type: 'base64',
+          media_type: 'image/jpeg',
+          data: s.data.replace(/^data:image\/\w+;base64,/, ''),
+        },
+      })),
+      { type: 'text', text: emailText },
+    ];
+  } else {
+    userContent = emailText;
+  }
+
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -163,8 +192,8 @@ async function generateReply(email, client) {
     body: JSON.stringify({
       model: 'claude-sonnet-4-5',
       max_tokens: 1000,
-      system: buildSystemPrompt(client),
-      messages: [{ role: 'user', content: `Od: ${email.from}\nPředmět: ${email.subject}\n\n${email.text}\n\nNapiš odpověď.` }]
+      system: buildSystemPrompt(client, kb.urls),
+      messages: [{ role: 'user', content: userContent }]
     })
   });
   if (!response.ok) {
@@ -203,6 +232,7 @@ module.exports = async function handler(req, res) {
       let processed = 0;
       try {
         const emails = await fetchEmailsForClient(client);
+        const knowledge = (await redis.get(`knowledge:${clientId}`)) || { urls: [], screenshots: [] };
 
         for (const email of emails) {
           const currentCount = (await redis.get(countKey)) || 0;
@@ -234,7 +264,7 @@ module.exports = async function handler(req, res) {
             continue; // skip reply generation, don't count toward daily limit
           }
 
-          const reply = await generateReply(email, client);
+          const reply = await generateReply(email, client, knowledge);
           const record = {
             id, clientId,
             uid: email.uid,
