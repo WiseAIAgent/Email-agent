@@ -67,7 +67,7 @@ function fetchEmailsForClient(client) {
   });
 }
 
-function buildSystemPrompt(client, knowledgeUrls) {
+function buildSystemPrompt(client, knowledgeUrls, urlContent) {
   const name = client.companyName || 'naše firma';
   const signature = client.signature || `Tým zákaznické podpory, ${name}`;
   const tone = client.tone || 'přátelský a profesionální';
@@ -94,10 +94,15 @@ ${useSignature ? `- Ukončuj podpisem: "${signature}"` : '- Nepřidávej podpis'
   if (client.forbiddenTopics)
     prompt += `\n\nNIKDY nekomentuj: ${client.forbiddenTopics}`;
 
-  const urls = (knowledgeUrls || []).filter(Boolean);
-  if (urls.length > 0) {
-    prompt += `\n\nWeb klienta: ${urls.join(', ')}`;
-    prompt += '\nPři relevantní příležitosti zákazníkovi doporuč navštívit tyto stránky pro více informací.';
+  if (urlContent) {
+    prompt += `\n\nObsah webu klienta (přečteno automaticky):\n${urlContent}`;
+    prompt += '\nPokud se zákazníkova otázka týká informací z webu, odpověz konkrétně na základě výše uvedeného obsahu.';
+  } else {
+    const urls = (knowledgeUrls || []).filter(Boolean);
+    if (urls.length > 0) {
+      prompt += `\n\nWeb klienta: ${urls.join(', ')}`;
+      prompt += '\nPři relevantní příležitosti zákazníkovi doporuč navštívit tyto stránky.';
+    }
   }
 
   return prompt;
@@ -158,7 +163,49 @@ function isIgnored(email, client) {
   return false;
 }
 
-async function generateReply(email, client, knowledge) {
+async function fetchUrlContent(url) {
+  const res = await fetch(url, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WiseAgent/1.0; +https://wiseagent.cz)' },
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) return '';
+  const html = await res.text();
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 3000);
+}
+
+async function getKnowledgeUrlContent(clientId, urls) {
+  const validUrls = (urls || []).filter(Boolean).slice(0, 3);
+  if (validUrls.length === 0) return '';
+
+  const cacheKey = `url_cache:${clientId}`;
+  const cached = await redis.get(cacheKey);
+  if (cached) return cached;
+
+  const parts = [];
+  for (const url of validUrls) {
+    try {
+      const text = await fetchUrlContent(url);
+      if (text) parts.push(`--- ${url} ---\n${text}`);
+    } catch {}
+  }
+
+  const combined = parts.join('\n\n');
+  if (combined) {
+    await redis.set(cacheKey, combined);
+    await redis.expire(cacheKey, 86400);
+  }
+  return combined;
+}
+
+async function generateReply(email, client, knowledge, urlContent) {
   const kb = knowledge || { urls: [], screenshots: [] };
   const emailText = `Od: ${email.from}\nPředmět: ${email.subject}\n\n${email.text}\n\nNapiš odpověď.`;
 
@@ -192,7 +239,7 @@ async function generateReply(email, client, knowledge) {
     body: JSON.stringify({
       model: 'claude-sonnet-4-5',
       max_tokens: 1000,
-      system: buildSystemPrompt(client, kb.urls),
+      system: buildSystemPrompt(client, kb.urls, urlContent),
       messages: [{ role: 'user', content: userContent }]
     })
   });
@@ -233,6 +280,7 @@ module.exports = async function handler(req, res) {
       try {
         const emails = await fetchEmailsForClient(client);
         const knowledge = (await redis.get(`knowledge:${clientId}`)) || { urls: [], screenshots: [] };
+        const urlContent = await getKnowledgeUrlContent(clientId, knowledge.urls).catch(() => '');
 
         for (const email of emails) {
           const currentCount = (await redis.get(countKey)) || 0;
@@ -264,7 +312,7 @@ module.exports = async function handler(req, res) {
             continue; // skip reply generation, don't count toward daily limit
           }
 
-          const reply = await generateReply(email, client, knowledge);
+          const reply = await generateReply(email, client, knowledge, urlContent);
           const record = {
             id, clientId,
             uid: email.uid,
