@@ -92,6 +92,19 @@ input[type=password]:focus,input[type=email]:focus,input[type=text]:focus{border
 
 @media(max-width:500px){.stats-row{grid-template-columns:1fr 1fr}.main{padding:1rem .75rem 3rem}}
 
+/* Knowledge base */
+.kb-upload-area{border:2px dashed var(--border2);border-radius:10px;padding:1rem;text-align:center;cursor:pointer;transition:all .2s;color:var(--text3);font-size:13px}
+.kb-upload-area:hover,.kb-upload-area.drag-over{border-color:var(--accent);color:var(--accent-text);background:var(--accent-light)}
+.kb-shots-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.kb-shot{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;background:var(--surface3);flex-shrink:0}
+.kb-shot img{width:100%;height:100%;object-fit:cover}
+.kb-shot-del{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.6);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;opacity:0;transition:opacity .15s;line-height:1}
+.kb-shot:hover .kb-shot-del{opacity:1}
+.kb-url-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+.kb-url-row input{flex:1}
+.kb-url-del{width:26px;height:26px;flex-shrink:0;background:none;border:1px solid var(--border2);border-radius:6px;color:var(--text3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.kb-url-del:hover{color:var(--danger);border-color:var(--danger)}
+
 /* Onboarding */
 .ob-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1.5rem 1rem 4rem}
 .ob-header{width:100%;max-width:600px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem}
@@ -193,6 +206,8 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
       <div class="ob-step-item" id="ob-si-2"><div class="ob-step-num">2</div><div class="ob-step-label">Připojení emailu</div></div>
       <div class="ob-step-line"></div>
       <div class="ob-step-item" id="ob-si-3"><div class="ob-step-num">3</div><div class="ob-step-label">Časté dotazy</div></div>
+      <div class="ob-step-line"></div>
+      <div class="ob-step-item" id="ob-si-4"><div class="ob-step-num">4</div><div class="ob-step-label">Znalostní báze</div></div>
     </div>
 
     <!-- Krok 1 -->
@@ -296,6 +311,32 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
       <button class="ob-add-btn" onclick="obAddFaq()">+ Přidat dotaz</button>
       <div class="ob-nav">
         <button class="btn btn-secondary" onclick="obBack(3)">← Zpět</button>
+        <button class="btn btn-primary" onclick="obNext(3)">Pokračovat →</button>
+      </div>
+    </div>
+
+    <!-- Krok 4 -->
+    <div class="ob-card" id="ob-panel-4" style="display:none">
+      <h2>Znalostní báze agenta</h2>
+      <p class="ob-subtitle">Nepovinné — nahrajte screenshoty a přidejte URL adresy, odkud agent čerpá informace o vaší firmě.</p>
+      <div class="ob-field">
+        <label class="ob-label">Screenshoty <span style="color:var(--text3);font-size:11px;font-weight:400">(max 10)</span></label>
+        <div class="kb-upload-area" id="ob-kb-upload" onclick="document.getElementById('ob-kb-file').click()" ondragover="kbDragOver(event,'ob-kb-upload')" ondragleave="kbDragLeave(event,'ob-kb-upload')" ondrop="kbDrop(event,'ob-kb-shots',true)">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:6px;opacity:.5"><rect x="2" y="2" width="18" height="18" rx="2"/><circle cx="7.5" cy="7.5" r="1.5"/><path d="M20 14l-5-5L2 20"/></svg>
+          <div>Přetáhněte obrázky nebo klikněte pro výběr</div>
+          <div style="font-size:11px;margin-top:3px;opacity:.65">Screenshoty webu, produktů, ceníků, procesů…</div>
+        </div>
+        <input type="file" id="ob-kb-file" accept="image/*" multiple style="display:none" onchange="kbFilesSelected(this.files,'ob-kb-shots',true)">
+        <div class="kb-shots-grid" id="ob-kb-shots"></div>
+      </div>
+      <div class="ob-field">
+        <label class="ob-label">URL adresy webu</label>
+        <div class="ob-hint" style="margin-bottom:8px">Agent bude znát obsah těchto stránek pro lepší odpovědi zákazníkům.</div>
+        <div id="ob-kb-urls"></div>
+        <button class="ob-add-btn" onclick="kbAddUrl('ob-kb-urls',true)">+ Přidat URL</button>
+      </div>
+      <div class="ob-nav">
+        <button class="btn btn-secondary" onclick="obBack(4)">← Zpět</button>
         <div>
           <button class="btn btn-primary" id="ob-finish-btn" onclick="finishOnboarding()">Dokončit nastavení ✓</button>
           <div class="ob-error" id="ob-error"></div>
@@ -463,6 +504,28 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
         <button class="ob-add-btn" onclick="sAddFaq()">+ Přidat dotaz</button>
       </div>
 
+      <!-- Znalostní báze -->
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+        <div class="settings-section-title">Znalostní báze <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(volitelné)</span></div>
+        <div style="margin-bottom:10px">
+          <div class="settings-label" style="margin-bottom:6px">Screenshoty <span style="color:var(--text3);font-size:11px">max 10</span></div>
+          <div class="kb-upload-area" id="s-kb-upload" onclick="document.getElementById('s-kb-file').click()" ondragover="kbDragOver(event,'s-kb-upload')" ondragleave="kbDragLeave(event,'s-kb-upload')" ondrop="kbDrop(event,'s-kb-shots',false)" style="padding:.75rem;font-size:12px">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:middle;margin-right:5px;opacity:.5"><rect x="1" y="1" width="12" height="12" rx="1.5"/><circle cx="4" cy="4" r="1"/><path d="M13 9l-3.5-3.5L1 13"/></svg>
+            Klikněte nebo přetáhněte obrázky
+          </div>
+          <input type="file" id="s-kb-file" accept="image/*" multiple style="display:none" onchange="kbFilesSelected(this.files,'s-kb-shots',false)">
+          <div class="kb-shots-grid" id="s-kb-shots"></div>
+        </div>
+        <div>
+          <div class="settings-label" style="margin-bottom:6px">URL adresy webu</div>
+          <div id="s-kb-urls"></div>
+          <button class="ob-add-btn" style="margin-top:4px" onclick="kbAddUrl('s-kb-urls',false)">+ Přidat URL</button>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:10px">
+          <button class="btn btn-secondary" style="font-size:12px;padding:6px 14px" onclick="saveKnowledge(this)">Uložit znalostní bázi</button>
+        </div>
+      </div>
+
       <div class="settings-save-row">
         <span class="save-status" id="settings-status"></span>
         <button class="btn btn-primary btn-sm" onclick="saveSettings()">Uložit nastavení</button>
@@ -478,6 +541,8 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
 let clerk;
 let allEmails = [], currentFilter = 'all';
 let obData = {}, obCurrentStep = 1;
+let clientKnowledge = { urls: [], screenshots: [] };
+let obKnowledge = { urls: [], screenshots: [] };
 
 const PROVIDERS = {
   gmail:   { imapHost:'imap.gmail.com',         imapPort:'993', smtpHost:'smtp.gmail.com',          smtpPort:'465', link:'https://myaccount.google.com/apppasswords' },
@@ -580,6 +645,7 @@ function showApp() {
   document.getElementById('app').style.display = 'block';
   renderSettings();
   loadEmails();
+  loadKnowledgeBase();
 }
 
 async function fetchClientData() {
@@ -642,7 +708,7 @@ function showOnboarding(data) {
 
 function obGoToStep(step) {
   obCurrentStep = step;
-  [1, 2, 3].forEach(i => {
+  [1, 2, 3, 4].forEach(i => {
     document.getElementById(`ob-panel-${i}`).style.display = i === step ? 'block' : 'none';
     const si = document.getElementById(`ob-si-${i}`);
     si.className = 'ob-step-item' + (i === step ? ' active' : i < step ? ' done' : '');
@@ -660,6 +726,9 @@ function obNext(step) {
     obData.useSignature = document.getElementById('ob-use-sig').checked;
     obData.signature = document.getElementById('ob-sig').value.trim();
     obGoToStep(2);
+  } else if (step === 3) {
+    obData.faq = (obData.faq || []).filter(f => f.q.trim() || f.a.trim());
+    obGoToStep(4);
   } else if (step === 2) {
     const email = document.getElementById('ob-email').value.trim();
     const pass = document.getElementById('ob-pass').value;
@@ -679,7 +748,10 @@ function obNext(step) {
   }
 }
 
-function obBack(step) { obGoToStep(step - 1); }
+function obBack(step) {
+  if (step === 4) { obGoToStep(3); return; }
+  obGoToStep(step - 1);
+}
 
 function obSelectTone(btn) {
   document.querySelectorAll('#ob-panel-1 .s-tone-btn').forEach(b => b.classList.remove('active'));
@@ -727,16 +799,27 @@ function renderObFaq() {
 
 async function finishOnboarding() {
   obData.faq = (obData.faq || []).filter(f => f.q.trim() || f.a.trim());
+  // Collect current URL inputs
+  const urlInputs = document.getElementById('ob-kb-urls').querySelectorAll('input');
+  obKnowledge.urls = Array.from(urlInputs).map(i => i.value.trim()).filter(Boolean);
   const btn = document.getElementById('ob-finish-btn');
   const errEl = document.getElementById('ob-error');
   btn.disabled = true; btn.textContent = 'Ukládám…'; errEl.style.display = 'none';
   try {
+    const token = await getToken();
     const res = await fetch('/api/clients', {
       method: 'PATCH',
-      headers: { ...(await getToken()), 'Content-Type': 'application/json' },
+      headers: { ...token, 'Content-Type': 'application/json' },
       body: JSON.stringify(obData),
     });
     if (!res.ok) throw new Error((await res.json()).error || 'Chyba ukládání');
+    if (obKnowledge.urls.length > 0 || obKnowledge.screenshots.length > 0) {
+      await fetch('/api/knowledge', {
+        method: 'PATCH',
+        headers: { ...token, 'Content-Type': 'application/json' },
+        body: JSON.stringify(obKnowledge),
+      });
+    }
     Object.assign(clientSettings, {
       tone: obData.tone || clientSettings.tone,
       replyLength: obData.replyLength || clientSettings.replyLength,
@@ -1069,6 +1152,137 @@ function initials(f) { const n = String(f || '').split('<')[0].trim(); return n.
 function fmtDate(iso) { const d = new Date(iso); const diff = Date.now() - d; if (diff < 3600000) return `před ${Math.floor(diff / 60000)} min`; if (diff < 86400000) return `před ${Math.floor(diff / 3600000)} hod`; return d.toLocaleDateString('cs', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
 function statusLabel(s) { return { pending: 'čeká', sent: 'odesláno', ignored: 'ignorováno' }[s] || s; }
 function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+// --- Knowledge base ---
+
+async function compressImage(file) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 900;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve({ data: c.toDataURL('image/jpeg', 0.72), name: file.name });
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function kbDragOver(e, areaId) {
+  e.preventDefault();
+  document.getElementById(areaId).classList.add('drag-over');
+}
+function kbDragLeave(e, areaId) {
+  document.getElementById(areaId).classList.remove('drag-over');
+}
+function kbDrop(e, shotsId, isOb) {
+  e.preventDefault();
+  const areaId = isOb ? 'ob-kb-upload' : 's-kb-upload';
+  document.getElementById(areaId).classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  kbFilesSelected(files, shotsId, isOb);
+}
+
+async function kbFilesSelected(files, shotsId, isOb) {
+  const store = isOb ? obKnowledge : clientKnowledge;
+  const toProcess = Array.from(files).slice(0, Math.max(0, 10 - store.screenshots.length));
+  for (const file of toProcess) {
+    const { data, name } = await compressImage(file);
+    store.screenshots.push({ id: Date.now() + '_' + Math.random().toString(36).slice(2), name, data });
+  }
+  renderKbShots(shotsId, store.screenshots, isOb);
+  const fileInputId = isOb ? 'ob-kb-file' : 's-kb-file';
+  document.getElementById(fileInputId).value = '';
+}
+
+function kbDeleteShot(idx, shotsId, isOb) {
+  const store = isOb ? obKnowledge : clientKnowledge;
+  store.screenshots.splice(idx, 1);
+  renderKbShots(shotsId, store.screenshots, isOb);
+}
+
+function renderKbShots(shotsId, shots, isOb) {
+  const el = document.getElementById(shotsId);
+  if (!shots || shots.length === 0) { el.innerHTML = ''; return; }
+  el.innerHTML = shots.map((s, i) => `
+    <div class="kb-shot">
+      <img src="${s.data}" alt="${esc(s.name)}" title="${esc(s.name)}" loading="lazy" />
+      <button class="kb-shot-del" onclick="kbDeleteShot(${i},'${shotsId}',${isOb})" title="Odstranit">×</button>
+    </div>
+  `).join('');
+}
+
+function kbAddUrl(urlsId, isOb) {
+  const store = isOb ? obKnowledge : clientKnowledge;
+  store.urls.push('');
+  renderKbUrls(urlsId, store.urls, isOb);
+  const inputs = document.getElementById(urlsId).querySelectorAll('input');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+}
+
+function kbRemoveUrl(idx, urlsId, isOb) {
+  const store = isOb ? obKnowledge : clientKnowledge;
+  store.urls.splice(idx, 1);
+  renderKbUrls(urlsId, store.urls, isOb);
+}
+
+function renderKbUrls(urlsId, urls, isOb) {
+  const el = document.getElementById(urlsId);
+  if (!urls || urls.length === 0) { el.innerHTML = ''; return; }
+  const storeRef = isOb ? 'obKnowledge' : 'clientKnowledge';
+  el.innerHTML = urls.map((u, i) => `
+    <div class="kb-url-row">
+      <input type="url" value="${esc(u)}" placeholder="https://vasefirma.cz" oninput="${storeRef}.urls[${i}]=this.value" />
+      <button class="kb-url-del" onclick="kbRemoveUrl(${i},'${urlsId}',${isOb})" title="Odebrat">×</button>
+    </div>
+  `).join('');
+}
+
+async function loadKnowledgeBase() {
+  try {
+    const res = await fetch('/api/knowledge', { headers: await getToken() });
+    if (!res.ok) return;
+    const data = await res.json();
+    clientKnowledge = {
+      urls: Array.isArray(data.urls) ? data.urls : [],
+      screenshots: Array.isArray(data.screenshots) ? data.screenshots : [],
+    };
+    renderKbShots('s-kb-shots', clientKnowledge.screenshots, false);
+    renderKbUrls('s-kb-urls', clientKnowledge.urls, false);
+  } catch {}
+}
+
+async function saveKnowledge(btn) {
+  const urlInputs = document.getElementById('s-kb-urls').querySelectorAll('input');
+  clientKnowledge.urls = Array.from(urlInputs).map(i => i.value.trim()).filter(Boolean);
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Ukládám…';
+  try {
+    const res = await fetch('/api/knowledge', {
+      method: 'PATCH',
+      headers: { ...(await getToken()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(clientKnowledge),
+    });
+    if (!res.ok) throw new Error();
+    btn.textContent = 'Uloženo ✓';
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+  } catch {
+    btn.textContent = 'Chyba';
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+  }
+}
+
+// --- end knowledge base ---
 
 setInterval(() => { if (clerk?.user) loadEmails(); }, 60000);
 
