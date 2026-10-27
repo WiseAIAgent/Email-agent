@@ -367,8 +367,10 @@ footer {
   .adv-row { grid-template-columns: 1fr; }
 }
 </style>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
+<script>fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:'demo'})}).catch(()=>{});</script>
 
 <nav>
   <a class="nav-logo" href="/">

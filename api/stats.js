@@ -53,7 +53,10 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    return res.status(200).json(stats);
+    const demoVisits = (await redis.get('page_views:demo')) || 0;
+    const demoRequests = (await redis.get('demo_requests_total')) || 0;
+
+    return res.status(200).json({ clients: stats, demoVisits, demoRequests });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }

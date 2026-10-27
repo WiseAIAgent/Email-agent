@@ -50,6 +50,7 @@ module.exports = async function handler(req, res) {
 
     await redis.set(countKey, count + 1);
     await redis.expire(countKey, 86400);
+    await redis.incr('demo_requests_total');
     res.end();
 
   } catch (error) {
