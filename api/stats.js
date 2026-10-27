@@ -1,6 +1,13 @@
 const { redis } = require('./_auth');
 
 module.exports = async function handler(req, res) {
+  if (req.method === 'POST') {
+    const { page } = req.body || {};
+    if (!page) return res.status(400).end();
+    await redis.incr(`page_views:${page}`).catch(() => {});
+    return res.status(204).end();
+  }
+
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
   if (req.headers['x-admin-secret'] !== process.env.ADMIN_SECRET) return res.status(401).json({ error: 'Unauthorized' });
 
