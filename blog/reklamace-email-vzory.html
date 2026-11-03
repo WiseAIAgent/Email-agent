@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jak odpovídat na reklamace emailem: vzory pro e-shopy — Wise Agent</title>
+<meta name="description" content="Reklamace nemusí znamenat ztrátu zákazníka. Ukážeme vám, jak na ni odpovědět emailem správně — včetně konkrétních vzorů, které si zkopírujete.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.wiseagent.cz/blog/reklamace-email-vzory">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Jak odpovídat na reklamace emailem: vzory pro e-shopy">
+<meta property="og:description" content="Reklamace nemusí znamenat ztrátu zákazníka. Konkrétní vzory emailových odpovědí, které si zkopírujete.">
+<meta property="og:url" content="https://www.wiseagent.cz/blog/reklamace-email-vzory">
+<meta property="og:image" content="https://www.wiseagent.cz/images/og.png">
+<meta property="og:locale" content="cs_CZ">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jak odpovídat na reklamace emailem: vzory pro e-shopy">
+<meta name="twitter:description" content="Reklamace nemusí znamenat ztrátu zákazníka. Konkrétní vzory emailových odpovědí.">
+<meta name="twitter:image" content="https://www.wiseagent.cz/images/og.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"Jak odpovídat na reklamace emailem: vzory pro e-shopy","datePublished":"2026-11-03","author":{"@type":"Organization","name":"Wise Agent"},"publisher":{"@type":"Organization","name":"Wise Agent","url":"https://www.wiseagent.cz"},"url":"https://www.wiseagent.cz/blog/reklamace-email-vzory"}
+</script>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #091725;
+  --surface: #0d1f33;
+  --border: rgba(255,255,255,0.08);
+  --text1: #E4EDF7;
+  --text2: #94A3B8;
+  --text3: #5A7A99;
+  --green: #3DC87A;
+  --green-dark: #267A52;
+  --sage-bg: rgba(61,200,122,0.1);
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text1);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── nav ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(1.5rem, 5vw, 4rem);
+  height: 60px;
+  background: rgba(7, 22, 41, 0.9);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.nav-logo { display: flex; align-items: center; text-decoration: none; }
+.nav-logo img { height: 36px; display: block; }
+.nav-right { display: flex; align-items: center; gap: 0.75rem; position: relative; }
+.nav-cta {
+  background: #267A52; color: #fff;
+  border: none; padding: 7px 18px;
+  border-radius: 6px; font-size: 0.85rem; font-weight: 500;
+  cursor: pointer; text-decoration: none; transition: background 0.15s;
+}
+.nav-cta:hover { background: #34A26B; }
+.nav-order {
+  color: #E4EDF7; border: 1px solid rgba(255,255,255,0.28);
+  background: none; padding: 6px 16px;
+  border-radius: 6px; font-size: 0.85rem; font-weight: 500;
+  cursor: pointer; text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+.nav-order:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.5); }
+.nav-blog {
+  color: #94A3B8; font-size: 0.85rem; font-weight: 500;
+  text-decoration: none; padding: 6px 16px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.22); margin-right: 0.25rem;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.nav-blog:hover { color: #E4EDF7; border-color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.06); }
+@media (min-width: 768px) { .mobile-only { display: none !important; } }
+.nav-hamburger {
+  background: none; border: none; cursor: pointer; color: #E4EDF7;
+  padding: 6px; display: flex; align-items: center;
+  border-radius: 6px; transition: background 0.15s;
+}
+.nav-hamburger:hover { background: rgba(255,255,255,0.08); }
+.nav-dropdown {
+  position: absolute; top: calc(100% + 12px); right: 0;
+  background: rgba(7,22,41,0.98);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px; min-width: 210px; overflow: hidden;
+  opacity: 0; transform: translateY(-6px); pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+}
+.nav-dropdown.open { opacity: 1; transform: none; pointer-events: auto; }
+.nav-dropdown a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 16px; color: #E4EDF7; text-decoration: none;
+  font-size: 0.875rem; transition: background 0.15s;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.nav-dropdown a:last-child { border-bottom: none; }
+.nav-dropdown a:hover { background: rgba(255,255,255,0.07); }
+.nav-dropdown svg { flex-shrink: 0; opacity: 0.6; }
+.dropdown-order { color: #3DC87A !important; }
+.dropdown-order svg { stroke: #3DC87A; }
+
+/* ── article ── */
+main { padding-top: 60px; }
+
+.article-header {
+  max-width: 740px; margin: 0 auto;
+  padding: clamp(3rem, 7vw, 5rem) clamp(1.5rem, 5vw, 2rem) 2.5rem;
+}
+.article-tag {
+  display: inline-block;
+  background: var(--sage-bg); color: var(--green);
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 4px 10px; border-radius: 8px;
+  margin-bottom: 1.25rem;
+}
+.article-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700; line-height: 1.25;
+  color: var(--text1); margin-bottom: 1rem;
+}
+.article-meta {
+  font-size: 0.82rem; color: var(--text3);
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.article-meta span { display: flex; align-items: center; gap: 0.35rem; }
+
+.article-divider {
+  max-width: 740px; margin: 0 auto;
+  border: none; border-top: 1px solid var(--border);
+}
+
+.article-body {
+  max-width: 740px; margin: 0 auto;
+  padding: 2.5rem clamp(1.5rem, 5vw, 2rem);
+  font-size: 1.05rem; line-height: 1.8; color: var(--text2);
+}
+.article-body p { margin-bottom: 1.4rem; }
+.article-body h2 {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.4rem; font-weight: 700;
+  color: var(--text1); margin: 2.5rem 0 1rem;
+  padding-top: 0.5rem;
+}
+.article-body strong { color: var(--text1); font-weight: 600; }
+.article-body ul, .article-body ol {
+  margin: 1rem 0 1.4rem 1.5rem;
+}
+.article-body li { margin-bottom: 0.5rem; }
+.article-body hr {
+  border: none; border-top: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+.article-body .stat-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+}
+.article-body .stat-row p { margin-bottom: 0; }
+
+.email-example {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  margin: 1.75rem 0;
+  font-size: 0.97rem;
+  line-height: 1.75;
+}
+.email-example .email-label {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--green);
+  margin-bottom: 0.85rem;
+}
+.email-example p { margin-bottom: 0.75rem; color: var(--text2); }
+.email-example p:last-child { margin-bottom: 0; }
+
+/* ── sources ── */
+.article-sources {
+  max-width: 740px; margin: 0 auto;
+  padding: 0 clamp(1.5rem, 5vw, 2rem) 3rem;
+}
+.sources-title {
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text3); margin-bottom: 0.75rem;
+}
+.sources-list {
+  list-style: none; padding: 0;
+  font-size: 0.8rem; color: var(--text3); line-height: 1.6;
+}
+.sources-list li { margin-bottom: 0.35rem; }
+.sources-list li::before { content: "— "; }
+
+/* ── cta band ── */
+.cta-band {
+  background: #071629; text-align: center;
+  padding: clamp(3.5rem, 7vw, 5rem) clamp(1.5rem, 5vw, 4rem);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.cta-band .eyebrow {
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #3DC87A; margin-bottom: 0.75rem;
+}
+.cta-band h2 {
+  font-family: Georgia, serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: #E4EDF7; margin-bottom: 0.75rem;
+}
+.cta-band p { color: #7A9DC0; margin-bottom: 2rem; max-width: 520px; margin-left: auto; margin-right: auto; }
+.btn-primary {
+  background: #267A52; color: #fff;
+  padding: 13px 28px; border-radius: 8px;
+  font-size: 1rem; font-weight: 600;
+  border: none; cursor: pointer; text-decoration: none;
+  display: inline-block; transition: background 0.15s, box-shadow 0.3s;
+}
+.btn-primary:hover { background: #34A26B; box-shadow: 0 0 20px rgba(46,204,113,0.5); }
+.btn-order {
+  color: #E4EDF7; border: 1px solid rgba(255,255,255,0.3); background: none;
+  padding: 13px 28px; border-radius: 8px; font-size: 1rem; font-weight: 600;
+  text-decoration: none; display: inline-block;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-order:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.55); }
+
+/* ── footer ── */
+footer {
+  background: #071629;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding: 1.75rem clamp(1.5rem, 5vw, 4rem);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem;
+}
+.footer-brand { font-size: 0.82rem; color: #cccccc; display: flex; align-items: center; gap: 0.6rem; }
+.footer-brand span { color: #cccccc; }
+.footer-links { display: flex; gap: 1.5rem; }
+.footer-links a { font-size: 0.82rem; color: #cccccc; text-decoration: none; transition: color 0.15s; }
+.footer-links a:hover { color: #E4EDF7; }
+
+@media (max-width: 767px) {
+  .nav-right > .nav-cta { display: none; }
+  .nav-right > .nav-order { display: none; }
+}
+</style>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/images/logo.svg" alt="Wise Agent" width="164" height="36" loading="eager" />
+  </a>
+  <div class="nav-right">
+    <a href="/blog" class="nav-blog">Blog</a>
+    <a href="/demo" class="nav-order">Vyzkoušet DEMO</a>
+    <a href="/objednat" class="nav-cta">Objednat</a>
+    <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMenu()" aria-label="Menu" aria-expanded="false">
+      <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
+        <rect y="0" width="22" height="2" rx="1" fill="white"/>
+        <rect y="7" width="22" height="2" rx="1" fill="white"/>
+        <rect y="14" width="22" height="2" rx="1" fill="white"/>
+      </svg>
+    </button>
+    <div class="nav-dropdown" id="nav-dropdown" role="menu">
+      <a href="/objednat" role="menuitem" class="dropdown-order mobile-only">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="1.5" width="10" height="12" rx="1.5"/><path d="M5 5h5M5 7.5h5M5 10h3"/></svg>
+        Objednat
+      </a>
+      <a href="/demo" role="menuitem" class="mobile-only">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="7.5" r="6.5"/><path d="M6 5.5v4l4.5-2L6 5.5z" fill="currentColor" stroke="none"/></svg>
+        Vyzkoušet DEMO
+      </a>
+      <a href="/klient" role="menuitem">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="2" width="13" height="10" rx="1.5"/><path d="M1 5.5l6.5 4 6.5-4"/></svg>
+        Klientský portál
+      </a>
+      <a href="/admin" role="menuitem">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="7.5" r="6.5"/><path d="M7.5 4v3.5l2.5 1.5"/></svg>
+        Admin portál
+      </a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="article-header">
+    <span class="article-tag">Blog</span>
+    <h1 class="article-title">Jak odpovídat na reklamace emailem: vzory pro e-shopy</h1>
+    <div class="article-meta">
+      <span>Listopad 2026</span>
+      <span>·</span>
+      <span>6 minut čtení</span>
+    </div>
+  </div>
+
+  <hr class="article-divider">
+
+  <article class="article-body">
+    <p>Reklamace je jeden z nejdůležitějších emailů, které váš e-shop dostane. Ne proto, že by šlo o příjemnou situaci — ale proto, že způsob, jakým na ni odpovíte, rozhodne, jestli zákazníka navždy ztratíte, nebo z něj uděláte loajálního kupujícího.</p>
+    <p>Data jsou jednoznačná: <strong>zákazník, jehož reklamaci vyřešíte rychle a vstřícně, nakupuje u vás s vyšší pravděpodobností než ten, který reklamaci nikdy nepodal.</strong> Problém je, že většina e-shopů s reklamacemi zachází jako s byrokratickou nutností — a zákazník to okamžitě pozná.</p>
+
+    <h2>Proč jsou odpovědi na reklamace tak důležité</h2>
+    <p>Zákazník, který vám pošle reklamaci, vám dává šanci. Mohl by jednoduše odejít, napsat negativní recenzi a nekoupit u vás nikdy víc. Místo toho se obrátil přímo na vás — s očekáváním, že věc vyřešíte.</p>
+    <div class="stat-row">
+      <ul>
+        <li><strong>96 % nespokojených zákazníků si nestěžuje</strong> — prostě odejdou ke konkurenci</li>
+        <li>Ze zákazníků, jejichž stížnost byla vyřešena, se <strong>jich 70 % vrátí</strong> k dalšímu nákupu</li>
+        <li>Rychle vyřešená reklamace zvyšuje loajalitu <strong>více než bezproblémový nákup</strong></li>
+      </ul>
+    </div>
+    <p>Jinými slovy: zákazník, který si stěžuje a dostane dobrou odpověď, je hodnotnější než ten, u koho vše proběhlo hladce. Reklamace je příležitost.</p>
+
+    <h2>Co zákazník v emailu s reklamací čeká</h2>
+    <p>Než se pustíme do vzorů, je důležité pochopit, co zákazník v tu chvíli prožívá. Je rozčarovaný — produkt nesplnil jeho očekávání, nebo se poškodil. Možná se cítí podvedený. Určitě se cítí ztracený — neví, co ho čeká, jak dlouho to potrvá, jestli mu vůbec někdo odpoví.</p>
+    <p>Dobrá odpověď na reklamaci řeší čtyři věci najednou:</p>
+    <ol>
+      <li><strong>Potvrdí, že email dorazil</strong> a někdo se mu věnuje</li>
+      <li><strong>Projeví pochopení</strong> — ne omluvu za každou cenu, ale lidský tón</li>
+      <li><strong>Jasně vysvětlí další postup</strong> — co se stane, kdo co udělá, do kdy</li>
+      <li><strong>Nastaví realistická očekávání</strong> ohledně termínů</li>
+    </ol>
+
+    <h2>Vzor 1: Přijetí reklamace — první odpověď</h2>
+    <p>Toto je nejdůležitější email. Zákazník čeká na potvrzení, že se věcí někdo zabývá. Čím rychleji přijde, tím lépe.</p>
+
+    <div class="email-example">
+      <div class="email-label">Vzor emailu — přijetí reklamace</div>
+      <p>Dobrý den, [jméno zákazníka],</p>
+      <p>děkujeme za vaši zprávu. Vaši reklamaci jsme přijali a budeme se jí co nejdříve věnovat.</p>
+      <p>Pro urychlení vyřízení prosím zašlete fotografii závady a číslo objednávky, pokud jste je neuvedl/a. Jakmile vše zkontrolujeme, ozveme se s dalším postupem — nejpozději do 3 pracovních dnů.</p>
+      <p>S pozdravem,<br>[podpis]</p>
+    </div>
+
+    <p>Klíčové prvky tohoto vzoru: poděkování (ne omluva hned v první větě), konkrétní výzva k akci (fotografie + číslo objednávky) a jasný termín (3 pracovní dny). Zákazník ví, co se od něj čeká a kdy se dozví víc.</p>
+
+    <h2>Vzor 2: Schválení reklamace — výměna nebo vrácení peněz</h2>
+    <p>Reklamace je oprávněná, zboží vyměníte nebo vrátíte peníze. Toto je příležitost zanechat dobrý dojem — zákazník dostane víc, než čekal.</p>
+
+    <div class="email-example">
+      <div class="email-label">Vzor emailu — schválení reklamace, výměna</div>
+      <p>Dobrý den, [jméno zákazníka],</p>
+      <p>na základě vámi zaslaných fotografií jsme vaši reklamaci schválili. Omlouváme se za způsobené potíže.</p>
+      <p>Zašleme vám nový kus na adresu, kterou jste uvedl/a při objednávce. Zásilka by měla dorazit do 3–5 pracovních dnů. Poškozené zboží nemusíte vracet — zbavte se ho prosím dle vlastního uvážení.</p>
+      <p>Jako omluvu za nepříjemnosti přikládáme ke vaší příští objednávce slevový kód: <strong>OMLUVA10</strong> (10 % sleva, platnost 60 dní).</p>
+      <p>Přejeme hezký den,<br>[podpis]</p>
+    </div>
+
+    <p>Všimněte si věty „zboží nemusíte vracet" — u nízkohodnotového zboží zákazníka příjemně překvapí a ušetří vám logistické náklady na přepravu zpět. Slevový kód navíc otevírá cestu k dalšímu nákupu.</p>
+
+    <h2>Vzor 3: Zamítnutí reklamace</h2>
+    <p>Nejobtížnější situace. Zákazník očekává uznání, vy musíte sdělit opak. Tón je klíčový — zákazník musí cítit, že jste věc prověřili poctivě, ne že ho odbýváte.</p>
+
+    <div class="email-example">
+      <div class="email-label">Vzor emailu — zamítnutí reklamace</div>
+      <p>Dobrý den, [jméno zákazníka],</p>
+      <p>děkujeme za vaši trpělivost při vyřizování reklamace. Vaše podněty jsme pečlivě prověřili.</p>
+      <p>Na základě posouzení závady jsme dospěli k závěru, že poškození vzniklo mechanickým nárazem, který nespadá do záruční vady. Z tohoto důvodu vaši reklamaci bohužel nemůžeme uznat.</p>
+      <p>Pokud byste měl/a zájem o placené opravení zboží, rádi vám připravíme cenovou nabídku. Případně vám mohu doporučit nejbližší autorizovaný servis.</p>
+      <p>Pokud s naším rozhodnutím nesouhlasíte, máte právo obrátit se na Českou obchodní inspekci.</p>
+      <p>S pozdravem,<br>[podpis]</p>
+    </div>
+
+    <p>Dvě věci, které tento vzor odlišují od špatných odpovědí: <strong>konkrétní důvod zamítnutí</strong> (ne jen „nespadá do záruky") a <strong>nabídka alternativy</strong>. Zákazník může nesouhlasit, ale cítí, že byl vyslyšen.</p>
+
+    <h2>Vzor 4: Zákazník reklamuje zboží po záruční době</h2>
+    <p>Zákazník má pocit křivdy, ale právo není na jeho straně. Jak to říct tak, aby nešel rovnou na Heureku napsat jednu hvězdičku?</p>
+
+    <div class="email-example">
+      <div class="email-label">Vzor emailu — reklamace po záruční době</div>
+      <p>Dobrý den, [jméno zákazníka],</p>
+      <p>děkujeme za vaši zprávu. Mrzí nás, že produkt přestal fungovat správně.</p>
+      <p>Produkt byl zakoupen [datum], záruční doba 24 měsíců uplynula [datum]. Na závadu se proto záruka bohužel nevztahuje.</p>
+      <p>Rádi bychom vám ale pomohli jinak — jako stálému zákazníkovi vám nabízíme [výměnu za preferenční cenu / slevu X % na nový nákup / kontakt na servis]. Dejte nám vědět, co by vám nejvíc vyhovovalo.</p>
+      <p>S pozdravem,<br>[podpis]</p>
+    </div>
+
+    <p>Klíčové je konkrétní datum — zákazník nemůže pochybovat, že to jen odmáváváte. A nabídka alternativy i po záruční době ukazuje, že vám na zákazníkovi záleží i nad rámec povinností.</p>
+
+    <h2>Pět chyb, které e-shopy při reklamacích dělají nejčastěji</h2>
+    <p>Vzory jsou základ, ale stejně důležité je vědět, čemu se vyhnout:</p>
+    <ol>
+      <li><strong>Odpovědět za více než 24 hodin.</strong> Zákazník v reklamačním řízení je nervózní — každá hodina čekání jeho frustraci prohlubuje.</li>
+      <li><strong>Kopírovat zákonný text místo lidské odpovědi.</strong> „V souladu se zákonem č. 89/2012 Sb..." zákazníkovi nic neříká a působí chladně.</li>
+      <li><strong>Ptát se na věci, které jsou v emailu.</strong> Zákazník popsal problém, vy se zeptáte na to samé — to říká „nečetli jsme to".</li>
+      <li><strong>Neuvést termín vyřízení.</strong> „Ozveme se co nejdříve" je horší než žádná informace. Uveďte konkrétní datum.</li>
+      <li><strong>Zapomenout na follow-up.</strong> Pokud slíbíte odpověď do tří dnů a nemáte ji, napište zákazníkovi proaktivně — neztrácejte ho mlčením.</li>
+    </ol>
+
+    <h2>Jak reklamace zvládnout rychleji bez ztráty kvality</h2>
+    <p>Každá reklamace vyžaduje individuální přístup — zákazník, produkt a problém jsou pokaždé jiné. Přesto je zhruba <strong>70 % reklamačních emailů strukturálně podobných</strong>: zákazník popisuje závadu, přikládá fotografii, ptá se na postup.</p>
+    <p>Právě proto dává smysl mít připravené vzory a šablony, které přizpůsobíte konkrétní situaci — ušetříte čas na psaní a soustředíte se na obsah. Průměrný e-shop stráví odpovídáním na zákaznické emaily 2–4 hodiny denně. Při 30 reklamacích měsíčně je to zhruba 5 hodin jen na reklamace.</p>
+    <p>Chytrý přístup: mít připravený základ odpovědi, který jen doplníte o konkrétní detaily. Výsledek — zákazník dostane rychlou, personalizovanou odpověď, vy nestrávíte půl hodiny psaním od nuly.</p>
+  </article>
+
+  <hr class="article-divider">
+
+  <div class="article-sources">
+    <p class="sources-title">Zdroje</p>
+    <ul class="sources-list">
+      <li>Lee Resources International — data o procentu zákazníků, kteří se stěžují vs. odejdou bez slova</li>
+      <li>Harvard Business Review — návratnost zákazníků po vyřešené reklamaci</li>
+      <li>Zendesk, <em>CX Trends 2026</em> — vliv zákaznické podpory na loajalitu</li>
+      <li>Zákon č. 89/2012 Sb. (občanský zákoník) — záruční lhůty a reklamační řízení v ČR</li>
+      <li>Česká obchodní inspekce — pravidla pro mimosoudní řešení spotřebitelských sporů</li>
+    </ul>
+  </div>
+
+  <section class="cta-band">
+    <p class="eyebrow">AI email agent pro váš e-shop</p>
+    <h2>Reklamace vyřízena dřív, než zákazník začne být nervózní.</h2>
+    <p>Wise Agent přečte příchozí email, připraví návrh odpovědi ve stylu vaší firmy — a vy ho jedním klikem schválíte a odešlete. Žádné psaní od nuly, žádné čekání.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="/objednat" class="btn-primary">Objednat</a>
+      <a href="/demo" class="btn-order">Vyzkoušet DEMO</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-brand"><img src="/images/logo.svg" alt="Wise Agent" width="127" height="28" style="height:28px;display:block"><span>AI asistent pro emailovou komunikaci</span></div>
+  <div class="footer-links">
+    <a href="mailto:info@wiseagent.cz">info@wiseagent.cz</a>
+    <a href="/klient">Klientský panel</a>
+    <a href="/admin">Admin</a>
+  </div>
+</footer>
+
+<script>
+function toggleMenu() {
+  const btn = document.getElementById('nav-hamburger');
+  const drop = document.getElementById('nav-dropdown');
+  const open = drop.classList.toggle('open');
+  btn.setAttribute('aria-expanded', open);
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('nav')) {
+    document.getElementById('nav-dropdown').classList.remove('open');
+    document.getElementById('nav-hamburger').setAttribute('aria-expanded', false);
+  }
+});
+</script>
+<script src="/network-bg.js"></script>
+</body>
+</html>
