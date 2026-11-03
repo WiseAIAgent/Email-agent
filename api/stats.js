@@ -3,12 +3,12 @@ const { redis } = require('./_auth');
 function getDatesInRange(from, to) {
   const dates = [];
   const cur = new Date(from);
-  cur.setHours(0, 0, 0, 0);
+  cur.setUTCHours(0, 0, 0, 0);
   const end = new Date(to);
-  end.setHours(0, 0, 0, 0);
+  end.setUTCHours(0, 0, 0, 0);
   while (cur <= end) {
     dates.push(cur.toISOString().split('T')[0]);
-    cur.setDate(cur.getDate() + 1);
+    cur.setUTCDate(cur.getUTCDate() + 1);
   }
   return dates;
 }
@@ -41,10 +41,10 @@ module.exports = async function handler(req, res) {
     const period = req.query?.period || 'all';
     const now = new Date();
     const cutoffs = {
-      today: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-      week:  new Date(now - 7 * 24 * 60 * 60 * 1000),
-      month: new Date(now.getFullYear(), now.getMonth(), 1),
-      year:  new Date(now.getFullYear(), 0, 1),
+      today: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())),
+      week:  new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+      month: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)),
+      year:  new Date(Date.UTC(now.getUTCFullYear(), 0, 1)),
     };
     const cutoff = cutoffs[period] || null;
 
