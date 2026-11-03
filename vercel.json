@@ -14,6 +14,7 @@
     { "source": "/blog/proc-eshopy-ztraceji-zakazniky", "destination": "/blog/proc-eshopy-ztraceji-zakazniky.html" },
     { "source": "/blog/ai-zakaznicka-podpora", "destination": "/blog/ai-zakaznicka-podpora.html" },
     { "source": "/blog/emaily-ztraty-casu", "destination": "/blog/emaily-ztraty-casu.html" },
+    { "source": "/blog/reklamace-email-vzory", "destination": "/blog/reklamace-email-vzory.html" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/favicon.ico", "destination": "/favicon.png" },
     { "source": "/favicon.png", "destination": "/favicon.png" },
