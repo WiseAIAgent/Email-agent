@@ -37,6 +37,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; al
 .nav-right { display: flex; align-items: center; gap: 0.75rem; position: relative; }
 .nav-cta { background: #267A52; color: #fff; border: none; padding: 7px 18px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.15s; }
 .nav-cta:hover { background: #34A26B; }
+.cta-short { display: none; }
 .nav-order { color: #E4EDF7; border: 1px solid rgba(255,255,255,0.28); background: none; padding: 6px 16px; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; text-decoration: none; transition: background 0.15s,border-color 0.15s; }
 .nav-order:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.5); }
 .nav-blog { color: #94A3B8; font-size: 0.85rem; font-weight: 500; text-decoration: none; padding: 6px 16px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.22); margin-right: 0.25rem; transition: color 0.15s,border-color 0.15s,background 0.15s; }
@@ -52,7 +53,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; al
 .dropdown-order { color: #3DC87A !important; }
 .dropdown-order svg { stroke: #3DC87A; }
 @media (min-width: 768px) { .mobile-only { display: none !important; } }
-@media (max-width: 767px) { .nav-right > .nav-order,.nav-right > .nav-blog { display: none; } .nav-right > .nav-cta { padding: 3px 10px; font-size: 0.78rem; } }
+@media (max-width: 767px) { .nav-right > .nav-order,.nav-right > .nav-blog { display: none; } .nav-right > .nav-cta { padding: 3px 10px; font-size: 0.78rem; } .cta-full { display: none; } .cta-short { display: inline; } }
 main { padding-top: 60px; }
 .article-header { max-width: 740px; margin: 0 auto; padding: clamp(3rem,7vw,5rem) clamp(1.5rem,5vw,2rem) 2.5rem; }
 .article-tag { display: inline-block; background: var(--sage-bg); color: var(--green); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 8px; margin-bottom: 1.25rem; }
@@ -96,7 +97,7 @@ footer { background: #071629; border-top: 1px solid rgba(255,255,255,0.05); padd
   <div class="nav-right">
     <a href="/blog" class="nav-blog">Blog</a>
     <a href="/demo" class="nav-order">Vyzkoušet DEMO</a>
-    <a href="/objednat" class="nav-cta">Objednat</a>
+    <a href="/objednat" class="nav-cta"><span class="cta-full">Objednat</span><span class="cta-short">Začít zdarma</span></a>
     <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMenu()" aria-label="Menu" aria-expanded="false">
       <svg width="22" height="16" viewBox="0 0 22 16" fill="none"><rect y="0" width="22" height="2" rx="1" fill="white"/><rect y="7" width="22" height="2" rx="1" fill="white"/><rect y="14" width="22" height="2" rx="1" fill="white"/></svg>
     </button>

@@ -105,6 +105,7 @@
     transition: background 0.15s;
   }
   .nav-cta:hover { background: #34A26B; box-shadow: 0 0 16px rgba(46,204,113,0.55), 0 0 32px rgba(46,204,113,0.25); }
+  .cta-short { display: none; }
   .nav-order {
     color: #E4EDF7;
     border: 1px solid rgba(255,255,255,0.28);
@@ -483,6 +484,8 @@
     .nav-right > .nav-order { display: none; }
     .nav-right > .nav-blog { display: none; }
     .nav-right > .nav-cta { padding: 3px 10px; font-size: 0.78rem; }
+    .cta-full { display: none; }
+    .cta-short { display: inline; }
     .hero-actions { flex-direction: column; align-items: center; }
     .hero-actions .nav-order { display: block; width: 100%; text-align: center; box-sizing: border-box; }
   }
@@ -503,7 +506,7 @@
   <div class="nav-right">
     <a href="/blog" class="nav-blog">Blog</a>
     <a href="/demo" class="nav-order">Vyzkoušet DEMO</a>
-    <a href="/objednat" class="nav-cta">Začít</a>
+    <a href="/objednat" class="nav-cta"><span class="cta-full">Chci konzultaci zdarma</span><span class="cta-short">Začít zdarma</span></a>
     <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMenu()" aria-label="Menu" aria-expanded="false">
       <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
         <rect y="0" width="22" height="2" rx="1" fill="white"/>
