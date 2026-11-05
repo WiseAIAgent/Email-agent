@@ -193,8 +193,8 @@ textarea{resize:vertical;line-height:1.6}
         <div class="stat"><div class="stat-val" id="s-clients">—</div><div class="stat-label">Aktivní klienti</div></div>
         <div class="stat"><div class="stat-val warn" id="s-pending">—</div><div class="stat-label">Čeká na schválení</div></div>
         <div class="stat"><div class="stat-val green" id="s-sent">—</div><div class="stat-label" id="s-sent-label">Odesláno dnes</div></div>
-        <div class="stat"><div class="stat-val" id="s-demo-visits">—</div><div class="stat-label">Návštěvy dema (celkem)</div></div>
-        <div class="stat"><div class="stat-val" id="s-demo-requests">—</div><div class="stat-label">Demo emailů vygenerováno</div></div>
+        <div class="stat"><div class="stat-val" id="s-demo-visits">—</div><div class="stat-label" id="s-demo-visits-label">Návštěvy dema dnes</div></div>
+        <div class="stat"><div class="stat-val" id="s-demo-requests">—</div><div class="stat-label" id="s-demo-requests-label">Demo emailů vygenerováno dnes</div></div>
       </div>
       <div id="overview-list" class="client-grid"><div class="loading">Načítám...</div></div>
     </div>
@@ -366,8 +366,11 @@ async function loadStats(){
     document.getElementById('s-pending').textContent=pending;
     document.getElementById('s-sent').textContent=sent;
     document.getElementById('s-sent-label').textContent='Odesláno '+( periodLabels[currentPeriod]||'celkem');
+    const pl=periodLabels[currentPeriod]||'celkem';
     document.getElementById('s-demo-visits').textContent=data.demoVisits??'—';
+    document.getElementById('s-demo-visits-label').textContent='Návštěvy dema — '+pl;
     document.getElementById('s-demo-requests').textContent=data.demoRequests??'—';
+    document.getElementById('s-demo-requests-label').textContent='Demo emailů — '+pl;
     if(allStats.length===0){list.innerHTML='<div class="empty">Zatím žádní klienti.</div>';return;}
     list.innerHTML=allStats.map(s=>`
       <div class="client-card">

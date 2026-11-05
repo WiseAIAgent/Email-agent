@@ -51,7 +51,7 @@ module.exports = async function handler(req, res) {
     await redis.set(countKey, count + 1);
     await redis.expire(countKey, 86400);
     await Promise.all([
-      redis.incr('demo_requests_total'),
+      redis.incr('demo_requests'),
       redis.incr(`demo_requests:${today}`),
     ]);
     res.end();
