@@ -72,7 +72,7 @@
     --step-line: #1A3352;
   }
 
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: auto; }
   body {
     font-family: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
     background: var(--bg);
@@ -718,11 +718,6 @@
     }
   });
 
-  const io = new IntersectionObserver(
-    (entries) => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }),
-    { threshold: 0.1 }
-  );
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
   // billing toggle
   const billToggle = document.getElementById('billing-toggle');
@@ -775,5 +770,56 @@
   })();
 </script>
 <script src="/network-bg.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+  gsap.ticker.lagSmoothing(0);
+
+  // Individual reveal elements (eyebrows, headings, paragraphs, billing toggle)
+  document.querySelectorAll('.reveal:not(.step):not(.benefit-card):not(.price-card)').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 90%', toggleActions: 'play none none none' }
+      }
+    );
+  });
+
+  // How-it-works steps — stagger
+  if (document.querySelector('.step.reveal')) {
+    gsap.fromTo('.step.reveal',
+      { opacity: 0, y: 32 },
+      { opacity: 1, y: 0, duration: 0.65, ease: 'power2.out', stagger: 0.14,
+        scrollTrigger: { trigger: '.steps', start: 'top 82%', toggleActions: 'play none none none' }
+      }
+    );
+  }
+
+  // Benefit cards — stagger
+  if (document.querySelector('.benefit-card.reveal')) {
+    gsap.fromTo('.benefit-card.reveal',
+      { opacity: 0, y: 24 },
+      { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out', stagger: 0.1,
+        scrollTrigger: { trigger: '.benefits-grid', start: 'top 82%', toggleActions: 'play none none none' }
+      }
+    );
+  }
+
+  // Price cards — stagger
+  if (document.querySelector('.price-card.reveal')) {
+    gsap.fromTo('.price-card.reveal',
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out', stagger: 0.14,
+        scrollTrigger: { trigger: '.price-grid', start: 'top 82%', toggleActions: 'play none none none' }
+      }
+    );
+  }
+</script>
 </body>
 </html>
