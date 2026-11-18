@@ -16,7 +16,6 @@ function fetchEmailsForClient(client) {
       host: client.imapHost,
       port: parseInt(client.imapPort || '993'),
       tls: true,
-      tlsOptions: { rejectUnauthorized: false },
       connTimeout: 15000,
     });
 
