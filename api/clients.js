@@ -1,5 +1,15 @@
 const { redis, getAuthContext, FORBIDDEN } = require('./_auth');
 
+// Delete every key matching a glob pattern, one SCAN batch at a time
+async function scanDel(match) {
+  let cursor = '0';
+  do {
+    const [next, keys] = await redis.scan(cursor, { match, count: 1000 });
+    if (keys.length > 0) await redis.del(...keys);
+    cursor = String(next);
+  } while (cursor !== '0');
+}
+
 module.exports = async function handler(req, res) {
   // GET - admin: list all clients; client: return own data
   if (req.method === 'GET') {
@@ -121,21 +131,21 @@ module.exports = async function handler(req, res) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
     try {
-      const { id } = req.body;
-      // Clean up all email records for this client
-      const emailIndex = (await redis.get(`email_index:${id}`)) || [];
-      if (emailIndex.length > 0) {
-        await Promise.all(emailIndex.map(eid => redis.del(`email:${eid}`)));
-        await redis.del(`email_index:${id}`);
-        // Remove client's emails from the global index too
-        const globalIndex = (await redis.get('email_index')) || [];
-        const clientEmailSet = new Set(emailIndex);
-        await redis.set('email_index', globalIndex.filter(eid => !clientEmailSet.has(eid)));
+      const { id } = req.body || {};
+      // id goes into SCAN patterns below, so it must not contain glob characters
+      if (typeof id !== 'string' || !/^[\w-]+$/.test(id)) {
+        return res.status(400).json({ error: 'Neplatné id' });
       }
-      // Delete client record and remove from index
-      await redis.del(`client:${id}`);
+      // Remove from client index first so the cron stops picking the client up
       const ids = (await redis.get('client_index')) || [];
       await redis.set('client_index', ids.filter(i => i !== id));
+      await redis.del(`client:${id}`, `email_index:${id}`, `knowledge:${id}`, `url_cache:${id}`);
+      // Email IDs are email_<clientId>_<uid>_<ts>, so this also finds records
+      // that already fell off the capped indexes
+      await scanDel(`email:email_${id}_*`);
+      await scanDel(`daily_count:${id}:*`);
+      const globalIndex = (await redis.get('email_index')) || [];
+      await redis.set('email_index', globalIndex.filter(eid => !eid.startsWith(`email_${id}_`)));
       return res.status(200).json({ success: true });
     } catch (e) {
       return res.status(500).json({ error: e.message });
