@@ -32,6 +32,8 @@
     --sage-bright: #34A26B;
     --sage-bg: #E6F4EE;
     --step-line: #CBD8E8;
+    --section-light: #FFFFFF;
+    --section-dark: #F4F7FB;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -45,6 +47,8 @@
       --sage-bright: #3DC87A;
       --sage-bg: #0C2A1A;
       --step-line: #1A3352;
+      --section-light: #0D2038;
+      --section-dark: #071629;
     }
   }
   :root[data-theme="light"] {
@@ -58,6 +62,8 @@
     --sage-bright: #34A26B;
     --sage-bg: #E6F4EE;
     --step-line: #CBD8E8;
+    --section-light: #FFFFFF;
+    --section-dark: #F4F7FB;
   }
   :root[data-theme="dark"] {
     --bg: #091725;
@@ -70,6 +76,8 @@
     --sage-bright: #3DC87A;
     --sage-bg: #0C2A1A;
     --step-line: #1A3352;
+    --section-light: #0D2038;
+    --section-dark: #071629;
   }
 
   html { scroll-behavior: auto; }
@@ -126,7 +134,7 @@
   .nav-right { display: flex; align-items: center; gap: 0.75rem; position: relative; }
   .nav-hamburger {
     background: none; border: none; cursor: pointer; color: #E4EDF7;
-    padding: 6px; display: flex; flex-direction: column; gap: 5px;
+    padding: 10px; display: flex; flex-direction: column; gap: 5px;
     border-radius: 6px; transition: background 0.15s;
   }
   .nav-hamburger:hover { background: rgba(255,255,255,0.08); }
@@ -254,7 +262,7 @@
   }
 
   /* ── how ── */
-  .how { background: var(--surface); }
+  .how { background: var(--section-light); }
   .how .inner { text-align: center; }
   .how .section-p { margin-left: auto; margin-right: auto; }
 
@@ -282,12 +290,12 @@
   .step-desc { font-size: 0.875rem; color: var(--text2); line-height: 1.65; }
 
   /* ── benefits ── */
-  .benefits { background: var(--bg); }
+  .benefits { background: var(--section-light); }
   .benefits-grid {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem;
   }
   .benefit-card {
-    background: var(--surface);
+    background: var(--section-dark);
     border: 1px solid var(--border);
     border-radius: 12px; padding: 1.75rem;
     display: flex; align-items: flex-start; gap: 1.25rem;
@@ -308,13 +316,13 @@
   .benefit-desc { font-size: 0.875rem; color: var(--text2); line-height: 1.65; }
 
   /* ── pricing ── */
-  .pricing { background: var(--surface); }
+  .pricing { background: var(--section-dark); }
   .pricing .inner { text-align: center; }
   .pricing .section-p { margin-left: auto; margin-right: auto; }
 
   .price-card {
     max-width: 420px; margin: 0 auto;
-    background: var(--bg);
+    background: var(--surface);
     border: 2px solid var(--sage);
     border-radius: 16px; padding: 2.25rem 2.5rem;
     position: relative; text-align: left;
@@ -428,7 +436,7 @@
   /* ── cta band ── */
   /* ── roi calculator ── */
   .roi {
-    background: #071629; text-align: center;
+    background: #0d2038; text-align: center;
     padding: clamp(4rem, 8vw, 6rem) clamp(1.5rem, 5vw, 4rem);
     scroll-margin-top: 60px;
   }
@@ -445,7 +453,7 @@
   @media (max-width: 640px) { .roi-frame { height: 720px; } }
 
   .cta-band {
-    background: #0d2038; text-align: center;
+    background: #071629; text-align: center;
     padding: clamp(4.5rem, 9vw, 7rem) clamp(1.5rem, 5vw, 4rem);
     scroll-margin-top: 60px;
   }
@@ -459,7 +467,7 @@
 
   /* ── footer ── */
   footer {
-    background: #071629;
+    background: #0d2038;
     border-top: 1px solid rgba(255,255,255,0.05);
     padding: 1.75rem clamp(1.5rem, 5vw, 4rem);
     display: flex; align-items: center; justify-content: space-between;
@@ -475,7 +483,7 @@
   .footer-links a:hover { color: #E4EDF7; }
 
   /* ── bezpečnost a data ── */
-  .trust { background: var(--surface); scroll-margin-top: 60px; }
+  .trust { background: var(--section-dark); scroll-margin-top: 60px; }
   .trust .section-h { margin-bottom: 2.25rem; }
   .trust-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 3rem; }
   .trust-item { padding: 1.5rem 0; border-top: 1px solid var(--border); }
@@ -483,7 +491,7 @@
   .trust-desc { font-size: 0.9rem; color: var(--text2); line-height: 1.7; }
 
   /* ── faq ── */
-  .faq { background: var(--bg); }
+  .faq { background: var(--section-light); }
   .faq .inner { max-width: 760px; }
   .faq .section-h { margin-bottom: 2rem; }
   .faq-list { border-top: 1px solid var(--border); }
@@ -505,10 +513,7 @@
   .faq-item p { padding: 0 0.25rem 1.25rem; font-size: 0.925rem; color: var(--text2); line-height: 1.7; max-width: 65ch; }
 
   /* ── první partneři ── */
-  .partners {
-    background: #071629; text-align: center; scroll-margin-top: 60px;
-    border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
+  .partners { background: #071629; text-align: center; scroll-margin-top: 60px; }
   .partners .section-h { color: #E4EDF7; }
   .partners .section-p { color: #7A9DC0; margin: 0 auto 2rem; max-width: 600px; }
   .partners-cta { display: flex; flex-direction: column; align-items: center; gap: 1.25rem; }
@@ -536,12 +541,25 @@
     .cta-short { display: inline; }
     .hero-actions { flex-direction: column; align-items: center; }
     .hero-actions .nav-order { display: block; width: 100%; text-align: center; box-sizing: border-box; }
+    .btn-ghost { display: inline-block; padding: 10px 8px; }
+    .footer-links a { display: inline-block; padding-block: 8px; }
   }
   @media (max-width: 640px) {
+    section, .roi, .cta-band { padding: 3.5rem 1.25rem; }
+    .hero { min-height: auto; padding: 104px 1.25rem 56px; }
+    .hero h1 { font-size: 2.3rem; }
+    .hero-badge { margin-bottom: 1.5rem; font-size: 0.7rem; }
+    .hero-sub { margin-bottom: 2rem; }
+    .hero-actions { margin-bottom: 0; }
+    .section-p { margin-bottom: 2.25rem; }
     .steps { grid-template-columns: 1fr; gap: 2.5rem; }
     .steps::before { display: none; }
     .benefits-grid { grid-template-columns: 1fr; }
+    .benefit-card { padding: 1.25rem; gap: 1rem; }
     .trust-grid { grid-template-columns: 1fr; }
+    .price-card { padding: 1.75rem 1.25rem; }
+    .price-amount { font-size: 3.1rem; }
+    footer { padding: 1.5rem 1.25rem; }
   }
 </style>
 <script defer src="/_vercel/insights/script.js"></script>
