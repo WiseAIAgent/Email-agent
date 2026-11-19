@@ -127,7 +127,7 @@ select:focus{border-color:var(--accent)}
 textarea{font-family:inherit;font-size:14px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:8px 11px;width:100%;resize:vertical;min-height:80px;outline:none;transition:border-color .15s}
 textarea:focus{border-color:var(--accent);background:var(--surface)}
 .ob-nav{display:flex;align-items:flex-start;justify-content:space-between;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border)}
-.ob-provider-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ob-provider-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .ob-provider-btn{font-family:inherit;font-size:13px;font-weight:500;padding:12px 6px;border-radius:10px;border:2px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;text-align:center;transition:all .15s}
 .ob-provider-btn:hover{border-color:var(--accent);background:var(--accent-light);color:var(--accent-text)}
 .ob-provider-btn.active{border-color:var(--accent);background:var(--accent-light);color:var(--accent-text)}
@@ -274,7 +274,6 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
         <div class="ob-provider-grid">
           <button class="ob-provider-btn" data-provider="gmail" onclick="obSelectProvider(this)">Gmail</button>
           <button class="ob-provider-btn" data-provider="seznam" onclick="obSelectProvider(this)">Seznam</button>
-          <button class="ob-provider-btn" data-provider="outlook" onclick="obSelectProvider(this)">Outlook</button>
           <button class="ob-provider-btn" data-provider="other" onclick="obSelectProvider(this)">Jiné</button>
         </div>
       </div>
@@ -283,10 +282,10 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
         <input type="email" id="ob-email" placeholder="vas@email.cz" />
       </div>
       <div class="ob-field">
-        <label class="ob-label" for="ob-pass">App Password *</label>
+        <label class="ob-label" for="ob-pass">Heslo pro aplikace *</label>
         <input type="password" id="ob-pass" placeholder="••••••••••••••••" />
-        <div class="ob-hint">Zadejte heslo pro aplikace, ne hlavní heslo ke schránce. Když ho v nastavení schránky zrušíte, agent okamžitě ztratí přístup.<br>
-          <a id="ob-pass-link" href="#" target="_blank" rel="noopener" style="color:var(--accent-text);display:none">Jak vygenerovat App Password →</a>
+        <div class="ob-hint">U Gmailu zadejte heslo pro aplikace (vyžaduje zapnuté dvoufázové ověření). U Seznamu heslo pro aplikace funguje se zapnutým dvoufázovým ověřením, bez něj zadejte běžné heslo ke schránce. Heslo ukládáme zašifrované. Když heslo pro aplikace zrušíte nebo změníte, agent ztratí přístup ke schránce.<br>
+          <a id="ob-pass-link" href="#" target="_blank" rel="noopener" style="color:var(--accent-text);display:none">Jak vytvořit heslo pro aplikace →</a>
         </div>
       </div>
       <div id="ob-imap-manual" style="display:none;margin-bottom:1rem">
@@ -547,7 +546,6 @@ let obKnowledge = { urls: [], screenshots: [] };
 const PROVIDERS = {
   gmail:   { imapHost:'imap.gmail.com',         imapPort:'993', smtpHost:'smtp.gmail.com',          smtpPort:'465', link:'https://myaccount.google.com/apppasswords' },
   seznam:  { imapHost:'imap.seznam.cz',          imapPort:'993', smtpHost:'smtp.seznam.cz',           smtpPort:'465', link:'https://login.szn.cz/profile' },
-  outlook: { imapHost:'imap-mail.outlook.com',   imapPort:'993', smtpHost:'smtp-mail.outlook.com',   smtpPort:'587', link:'https://account.live.com/proofs/AppPassword' },
   other:   { imapHost:'', imapPort:'993', smtpHost:'', smtpPort:'465', link:'' },
 };
 
@@ -733,7 +731,7 @@ function obNext(step) {
     const email = document.getElementById('ob-email').value.trim();
     const pass = document.getElementById('ob-pass').value;
     if (!email) { alert('Zadejte prosím emailovou adresu.'); return; }
-    if (!pass) { alert('Zadejte prosím App Password.'); return; }
+    if (!pass) { alert('Zadejte prosím heslo ke schránce.'); return; }
     const manual = document.getElementById('ob-imap-manual').style.display !== 'none';
     if (manual) {
       obData.imapHost = document.getElementById('ob-imap-host').value.trim();
