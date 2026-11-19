@@ -109,6 +109,11 @@
   }
   .form-title { font-size: 1.05rem; font-weight: 600; color: var(--text1); margin-bottom: 0.35rem; }
   .form-sub { font-size: 0.82rem; color: var(--text3); margin-bottom: 1.75rem; }
+  .form-plan {
+    margin: -0.75rem 0 1.5rem; padding: 8px 13px;
+    background: var(--sage-bg); color: var(--sage);
+    border-radius: 8px; font-size: 0.85rem; font-weight: 500;
+  }
 
   .field { margin-bottom: 1.1rem; }
   label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--text2); margin-bottom: 0.4rem; }
@@ -259,6 +264,7 @@
       <form id="order-form" onsubmit="submitForm(event)">
         <div class="form-title">Domluvte si konzultaci zdarma</div>
         <p class="form-sub">Ozveme se vám do 24 hodin a domluvíme termín.</p>
+        <p class="form-plan" id="form-plan" hidden></p>
 
         <div class="field">
           <label for="f-name">Jméno *</label>
@@ -307,7 +313,14 @@
 <script>
   (function () {
     const p = new URLSearchParams(window.location.search).get('tarif');
-    if (p) document.getElementById('tarif').value = p;
+    if (!p) return;
+    const labels = { pilot: 'Pilotní partner' };
+    document.getElementById('tarif').value = labels[p] || p;
+    if (labels[p]) {
+      const plan = document.getElementById('form-plan');
+      plan.textContent = 'Zvolená varianta: ' + labels[p];
+      plan.hidden = false;
+    }
   })();
 
   async function submitForm(e) {
