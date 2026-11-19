@@ -1,16 +1,38 @@
-const { redis } = require('./_auth');
+const { redis, clientIp } = require('./_auth');
 
 const DAILY_LIMIT = 10;
+const MODEL = 'claude-sonnet-4-5';
+const MAX_TOKENS = 1000;
+const MAX_SYSTEM_CHARS = 5000;
+const MAX_MESSAGE_CHARS = 6000;
+
+// The demo may only send one system prompt and one user message; model and limits are fixed here
+function buildDemoRequest(body) {
+  const { system, messages } = body || {};
+  if (typeof system !== 'string' || system.length > MAX_SYSTEM_CHARS) return null;
+  if (!Array.isArray(messages) || messages.length !== 1) return null;
+  const [msg] = messages;
+  if (msg?.role !== 'user' || typeof msg.content !== 'string' || !msg.content.trim() || msg.content.length > MAX_MESSAGE_CHARS) return null;
+  return {
+    model: MODEL,
+    max_tokens: MAX_TOKENS,
+    system,
+    messages: [{ role: 'user', content: msg.content }],
+    stream: true,
+  };
+}
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
+  if (!apiKey) return res.status(500).json({ error: 'Služba není dostupná.' });
 
-  const ip = req.headers['x-forwarded-for']?.split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
+  const payload = buildDemoRequest(req.body);
+  if (!payload) return res.status(400).json({ error: 'Neplatný požadavek. Zkraťte prosím text emailu.' });
+
   const today = new Date().toISOString().split('T')[0];
-  const countKey = `demo_chat_ip:${ip}:${today}`;
+  const countKey = `demo_chat_ip:${clientIp(req)}:${today}`;
 
   try {
     const count = (await redis.get(countKey)) || 0;
@@ -27,12 +49,13 @@ module.exports = async function handler(req, res) {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
-      body: JSON.stringify({ ...req.body, stream: true })
+      body: JSON.stringify(payload)
     });
 
     if (!upstream.ok) {
-      const data = await upstream.json();
-      return res.status(upstream.status).json(data);
+      const detail = await upstream.text().catch(() => '');
+      console.error('Anthropic error', upstream.status, detail.slice(0, 500));
+      return res.status(502).json({ error: 'Generování se nepodařilo. Zkuste to prosím za chvíli.' });
     }
 
     res.setHeader('Content-Type', 'text/event-stream');
@@ -57,7 +80,8 @@ module.exports = async function handler(req, res) {
     res.end();
 
   } catch (error) {
-    if (!res.headersSent) return res.status(500).json({ error: error.message });
+    console.error('chat error:', error);
+    if (!res.headersSent) return res.status(500).json({ error: 'Generování se nepodařilo. Zkuste to prosím za chvíli.' });
     res.end();
   }
 };

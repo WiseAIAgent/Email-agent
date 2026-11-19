@@ -1,4 +1,6 @@
-const { redis } = require('./_auth');
+const { redis, getAuthContext, sendAuthError } = require('./_auth');
+
+const TRACKED_PAGES = new Set(['demo']);
 
 function getDatesInRange(from, to) {
   const dates = [];
@@ -25,7 +27,7 @@ async function sumDailyCounter(prefix, period, cutoffs) {
 module.exports = async function handler(req, res) {
   if (req.method === 'POST') {
     const { page } = req.body || {};
-    if (!page) return res.status(400).end();
+    if (!TRACKED_PAGES.has(page)) return res.status(400).end();
     const today = new Date().toISOString().split('T')[0];
     await Promise.all([
       redis.incr(`page_views:${page}`),
@@ -35,9 +37,10 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
-  if (req.headers['x-admin-secret'] !== process.env.ADMIN_SECRET) return res.status(401).json({ error: 'Unauthorized' });
-
   try {
+    const auth = await getAuthContext(req);
+    if (auth?.type !== 'admin') return sendAuthError(res, auth);
+
     const period = req.query?.period || 'all';
     const now = new Date();
     const cutoffs = {
@@ -93,6 +96,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({ clients: stats, demoVisits, demoRequests });
   } catch (e) {
-    return res.status(500).json({ error: e.message });
+    console.error('stats error:', e);
+    return res.status(500).json({ error: 'Chyba serveru.' });
   }
 }

@@ -355,7 +355,7 @@ async function loadStats(){
   list.innerHTML='<div class="loading">Načítám...</div>';
   try{
     const res=await fetch(`/api/stats?period=${currentPeriod}`,{headers:{'x-admin-secret':adminSecret}});
-    if(res.status===401){document.getElementById('login-err').style.display='block';logout();return;}
+    if(res.status===401||res.status===429){const err=document.getElementById('login-err');err.textContent=res.status===429?'Příliš mnoho neúspěšných pokusů. Zkuste to za 15 minut.':'Nesprávné heslo';err.style.display='block';logout();return;}
     const data=await res.json();
     allStats=data.clients||data;
     const active=allStats.filter(s=>s.active).length;
@@ -375,7 +375,7 @@ async function loadStats(){
     list.innerHTML=allStats.map(s=>`
       <div class="client-card">
         <div class="client-top">
-          <div class="client-avatar">${(s.companyName||'?')[0].toUpperCase()}</div>
+          <div class="client-avatar">${esc((s.companyName||'?')[0].toUpperCase())}</div>
           <div class="client-info">
             <div class="client-name">${esc(s.companyName)}</div>
             <div class="client-email">${esc(s.email||'—')}</div>
@@ -393,7 +393,7 @@ async function loadStats(){
         </div>
       </div>
     `).join('');
-  }catch(e){list.innerHTML=`<div class="loading">Chyba: ${e.message}</div>`;}
+  }catch(e){list.innerHTML=`<div class="loading">Chyba: ${esc(e.message)}</div>`;}
 }
 
 async function loadClients(){
@@ -406,7 +406,7 @@ async function loadClients(){
     list.innerHTML=allClients.map(c=>`
       <div class="client-card">
         <div class="client-top">
-          <div class="client-avatar">${(c.companyName||'?')[0].toUpperCase()}</div>
+          <div class="client-avatar">${esc((c.companyName||'?')[0].toUpperCase())}</div>
           <div class="client-info">
             <div class="client-name">${esc(c.companyName)}</div>
             <div class="client-email">${esc(c.industry||'—')}</div>
@@ -423,7 +423,7 @@ async function loadClients(){
         </div>
       </div>
     `).join('');
-  }catch(e){list.innerHTML=`<div class="loading">Chyba: ${e.message}</div>`;}
+  }catch(e){list.innerHTML=`<div class="loading">Chyba: ${esc(e.message)}</div>`;}
 }
 
 function openModal(){editingId=null;adminKnowledge={urls:[],screenshots:[]};document.getElementById('modal-title').textContent='Nový klient';document.getElementById('modal-save-btn').textContent='Uložit klienta';clearForm();renderAdminKbShots();renderAdminKbUrls();document.getElementById('modal').classList.add('open');}
@@ -546,7 +546,7 @@ function aKbDragLeave(e){document.getElementById('a-kb-upload').classList.remove
 async function aKbDrop(e){e.preventDefault();document.getElementById('a-kb-upload').classList.remove('drag-over');const files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));await aKbFilesSelected(files);}
 async function aKbFilesSelected(files){const toProcess=Array.from(files).slice(0,Math.max(0,10-adminKnowledge.screenshots.length));for(const f of toProcess){const{data,name}=await aCompressImage(f);adminKnowledge.screenshots.push({id:Date.now()+'_'+Math.random().toString(36).slice(2),name,data});}renderAdminKbShots();document.getElementById('a-kb-file').value='';}
 function aKbDeleteShot(idx){adminKnowledge.screenshots.splice(idx,1);renderAdminKbShots();}
-function renderAdminKbShots(){const el=document.getElementById('a-kb-shots');if(!adminKnowledge.screenshots.length){el.innerHTML='';return;}el.innerHTML=adminKnowledge.screenshots.map((s,i)=>`<div class="kb-shot"><img src="${s.data}" alt="${esc(s.name)}" title="${esc(s.name)}" loading="lazy"/><button class="kb-shot-del" onclick="aKbDeleteShot(${i})" title="Odstranit">×</button></div>`).join('');}
+function renderAdminKbShots(){const el=document.getElementById('a-kb-shots');if(!adminKnowledge.screenshots.length){el.innerHTML='';return;}el.innerHTML=adminKnowledge.screenshots.map((s,i)=>`<div class="kb-shot"><img src="${String(s.data).startsWith('data:image/')?esc(s.data):''}" alt="${esc(s.name)}" title="${esc(s.name)}" loading="lazy"/><button class="kb-shot-del" onclick="aKbDeleteShot(${i})" title="Odstranit">×</button></div>`).join('');}
 function aKbAddUrl(){adminKnowledge.urls.push('');renderAdminKbUrls();const inputs=document.getElementById('a-kb-urls').querySelectorAll('input');if(inputs.length)inputs[inputs.length-1].focus();}
 function aKbRemoveUrl(idx){adminKnowledge.urls.splice(idx,1);renderAdminKbUrls();}
 function renderAdminKbUrls(){const el=document.getElementById('a-kb-urls');if(!adminKnowledge.urls.length){el.innerHTML='';return;}el.innerHTML=adminKnowledge.urls.map((u,i)=>`<div class="kb-url-row"><input type="url" value="${esc(u)}" placeholder="https://firma.cz" oninput="adminKnowledge.urls[${i}]=this.value"/><button class="kb-url-del" onclick="aKbRemoveUrl(${i})" title="Odebrat">×</button></div>`).join('');}

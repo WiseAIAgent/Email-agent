@@ -1058,7 +1058,7 @@ async function loadEmails() {
     updateStats();
     renderEmails();
   } catch (e) {
-    list.innerHTML = `<div class="loading">Chyba: ${e.message}</div>`;
+    list.innerHTML = `<div class="loading">Chyba: ${esc(e.message)}</div>`;
   }
 }
 
@@ -1080,15 +1080,15 @@ function renderEmails() {
   const filtered = currentFilter === 'all' ? allEmails : allEmails.filter(e => e.status === currentFilter);
   if (filtered.length === 0) { list.innerHTML = '<div class="empty">Žádné e-maily v této kategorii.</div>'; return; }
   list.innerHTML = filtered.map(email => `
-    <div class="email-card ${email.status}" id="ecard-${email.id}">
-      <div class="email-header" onclick="toggleEmail('${email.id}')">
-        <div class="email-avatar">${initials(email.from)}</div>
+    <div class="email-card ${esc(email.status)}" id="ecard-${esc(email.id)}">
+      <div class="email-header" onclick="toggleEmail('${esc(email.id)}')">
+        <div class="email-avatar">${esc(initials(email.from))}</div>
         <div class="email-meta">
           <div class="email-from">${esc(email.from)}</div>
           <div class="email-subject">${esc(email.subject)}</div>
           <div class="email-date">${fmtDate(email.date)}</div>
         </div>
-        <span class="status-badge ${email.status}">${statusLabel(email.status)}</span>
+        <span class="status-badge ${esc(email.status)}">${esc(statusLabel(email.status))}</span>
       </div>
       <div class="email-body" id="ebody-${email.id}">
         <div class="email-section">
@@ -1216,7 +1216,7 @@ function renderKbShots(shotsId, shots, isOb) {
   if (!shots || shots.length === 0) { el.innerHTML = ''; return; }
   el.innerHTML = shots.map((s, i) => `
     <div class="kb-shot">
-      <img src="${s.data}" alt="${esc(s.name)}" title="${esc(s.name)}" loading="lazy" />
+      <img src="${String(s.data).startsWith('data:image/') ? esc(s.data) : ''}" alt="${esc(s.name)}" title="${esc(s.name)}" loading="lazy" />
       <button class="kb-shot-del" onclick="kbDeleteShot(${i},'${shotsId}',${isOb})" title="Odstranit">×</button>
     </div>
   `).join('');

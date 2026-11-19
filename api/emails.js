@@ -1,10 +1,12 @@
-const { getAuthContext, redis, FORBIDDEN } = require('./_auth');
+const { getAuthContext, sendAuthError, redis } = require('./_auth');
+
+// 'sent' is set only by /api/send after the email really goes out
+const SETTABLE_STATUSES = new Set(['pending', 'ignored']);
 
 module.exports = async function handler(req, res) {
   try {
     const auth = await getAuthContext(req);
-    if (!auth) return res.status(401).json({ error: 'Unauthorized' });
-    if (auth === FORBIDDEN) return res.status(403).json({ error: 'Forbidden' });
+    if (auth?.type !== 'admin' && auth?.type !== 'client') return sendAuthError(res, auth);
 
     const authId = auth.clientId;
 
@@ -32,7 +34,10 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'PATCH') {
-      const { emailId, status } = req.body;
+      const { emailId, status } = req.body || {};
+      if (typeof emailId !== 'string' || !SETTABLE_STATUSES.has(status)) {
+        return res.status(400).json({ error: 'Neplatný požadavek' });
+      }
       const record = await redis.get(`email:${emailId}`);
       if (!record) return res.status(404).json({ error: 'Nenalezeno' });
       if (authId !== 'all' && record.clientId !== authId) {
@@ -45,6 +50,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (e) {
-    return res.status(500).json({ error: e.message });
+    console.error('emails error:', e);
+    return res.status(500).json({ error: 'Chyba serveru.' });
   }
 };

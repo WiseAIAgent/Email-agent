@@ -1,18 +1,13 @@
 const Imap = require('imap');
 const { simpleParser } = require('mailparser');
 const nodemailer = require('nodemailer');
-const { Redis } = require('@upstash/redis');
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+const { redis, decryptSecret, encryptSecret, isEncrypted } = require('./_auth');
 
 function fetchEmailsForClient(client) {
   return new Promise((resolve, reject) => {
     const imap = new Imap({
       user: client.email,
-      password: client.emailPassword,
+      password: decryptSecret(client.emailPassword),
       host: client.imapHost,
       port: parseInt(client.imapPort || '993'),
       tls: true,
@@ -128,7 +123,7 @@ async function sendNotification(client, processed) {
     host: client.smtpHost,
     port: parseInt(client.smtpPort || '465'),
     secure: parseInt(client.smtpPort || '465') !== 587,
-    auth: { user: client.email, pass: client.emailPassword },
+    auth: { user: client.email, pass: decryptSecret(client.emailPassword) },
   });
   await transporter.sendMail({
     from: client.email,
@@ -251,7 +246,8 @@ async function generateReply(email, client, knowledge, urlContent) {
 }
 
 module.exports = async function handler(req, res) {
-  if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret || req.headers.authorization !== `Bearer ${cronSecret}`) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
@@ -277,6 +273,9 @@ module.exports = async function handler(req, res) {
 
       let processed = 0;
       try {
+        if (client.emailPassword && !isEncrypted(client.emailPassword) && process.env.ENCRYPTION_KEY) {
+          await redis.set(`client:${clientId}`, { ...client, emailPassword: encryptSecret(client.emailPassword) });
+        }
         const emails = await fetchEmailsForClient(client);
         const knowledge = (await redis.get(`knowledge:${clientId}`)) || { urls: [], screenshots: [] };
         const urlContent = await getKnowledgeUrlContent(clientId, knowledge.urls).catch(() => '');
