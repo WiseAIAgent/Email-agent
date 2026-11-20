@@ -14,6 +14,7 @@ function fetchEmailsForClient(client) {
       // node-imap does not send SNI by default; without it Gmail serves a self-signed certificate
       tlsOptions: { servername: client.imapHost },
       connTimeout: 15000,
+      authTimeout: 20000,
     });
 
     const emails = [];
