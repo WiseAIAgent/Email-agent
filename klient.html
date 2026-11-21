@@ -626,6 +626,8 @@ async function initClerk() {
       }
       checkOnboarding();
     } else {
+      // Mark the tab before sign-in, so a reload triggered by Clerk right after sign-in is not treated as a fresh tab
+      sessionStorage.setItem('ea_tab', '1');
       document.getElementById('clerk-signin').style.display = 'flex';
       const clerkAppearance = { elements: { footerAction: { display: 'none' } } };
       mountSignInWithObserver(clerkAppearance);
