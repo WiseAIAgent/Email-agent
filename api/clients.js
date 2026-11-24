@@ -9,6 +9,7 @@ const TEXT_LIMITS = {
   ignoreKeywords: 2000, ignoreSenders: 2000, ignoreDomains: 2000,
 };
 const BOOL_FIELDS = ['usePlural', 'useSignature'];
+const PROCESS_MODES = new Set(['unread', 'all']);
 const HOST_RE = /^(?=.{1,253}$)[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i;
 const PRIVATE_HOST_RE = /^(127\.|10\.|0\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.)/;
 
@@ -59,6 +60,11 @@ function pickClientUpdates(body) {
     const url = String(body.websiteUrl).trim();
     if (url && !isHttpUrl(url)) return { error: 'Adresa webu musí začínat https:// nebo http://.' };
     updates.websiteUrl = url;
+  }
+
+  if (body.processMode != null) {
+    if (!PROCESS_MODES.has(body.processMode)) return { error: 'Neplatná volba zpracování emailů.' };
+    updates.processMode = body.processMode;
   }
 
   if (body.faq != null) {
@@ -156,7 +162,7 @@ async function handleAdminDelete(req, res) {
   // Remove from client index first so the cron stops picking the client up
   const ids = (await redis.get('client_index')) || [];
   await redis.set('client_index', ids.filter(i => i !== id));
-  await redis.del(`client:${id}`, `email_index:${id}`, `knowledge:${id}`, `url_cache:${id}`);
+  await redis.del(`client:${id}`, `email_index:${id}`, `knowledge:${id}`, `url_cache:${id}`, `imap_state:${id}`);
   // Email IDs are email_<clientId>_<uid>_<ts>, so this also finds records
   // that already fell off the capped indexes
   await scanDel(`email:email_${id}_*`);

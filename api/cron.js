@@ -3,7 +3,11 @@ const { simpleParser } = require('mailparser');
 const nodemailer = require('nodemailer');
 const { redis, decryptSecret, encryptSecret, isEncrypted } = require('./_auth');
 
-function fetchEmailsForClient(client) {
+const BATCH_SIZE = 10;
+
+// Returns new emails after state.lastUid, oldest first, plus the mailbox UID info.
+// Without a known state, 'unread' mode takes all unseen emails and 'all' mode takes none (baseline).
+function fetchEmailsForClient(client, state) {
   return new Promise((resolve, reject) => {
     const imap = new Imap({
       user: client.email,
@@ -19,16 +23,29 @@ function fetchEmailsForClient(client) {
 
     const emails = [];
     const parserPromises = []; // track async parsers so we wait for all before resolving
+    let mailbox = null;
 
     imap.once('ready', () => {
-      imap.openBox('INBOX', false, (err) => {
+      // Read-only, so the agent never changes flags such as "read" in the client's mailbox
+      imap.openBox('INBOX', true, (err, box) => {
         if (err) return reject(err);
-        imap.search(['UNSEEN'], (err, results) => {
-          if (err) return reject(err);
-          if (!results || results.length === 0) { imap.end(); return resolve([]); }
+        mailbox = { uidValidity: box.uidvalidity, uidNext: box.uidnext };
+        const known = !!state && state.uidValidity === box.uidvalidity;
+        const onlyUnread = client.processMode !== 'all';
+        if (!known && !onlyUnread) { imap.end(); return; }
 
-          const toFetch = results.slice(0, 10);
-          const fetch = imap.fetch(toFetch, { bodies: '', markSeen: true });
+        const criteria = [onlyUnread ? 'UNSEEN' : 'ALL'];
+        if (known) criteria.push(['UID', `${state.lastUid + 1}:*`]);
+        imap.search(criteria, (err, results) => {
+          if (err) return reject(err);
+          // "n:*" also matches the newest message when n is past the end, so filter again
+          const uids = (results || [])
+            .filter(uid => !known || uid > state.lastUid)
+            .sort((a, b) => a - b)
+            .slice(0, BATCH_SIZE);
+          if (uids.length === 0) { imap.end(); return; }
+
+          const fetch = imap.fetch(uids, { bodies: '', markSeen: false });
 
           fetch.on('message', (msg) => {
             let uid;
@@ -58,7 +75,9 @@ function fetchEmailsForClient(client) {
 
     // Wait for all simpleParser callbacks before resolving — fixes race condition
     // where imap.end() fired before async parsers completed
-    imap.once('end', () => Promise.all(parserPromises).then(() => resolve(emails)).catch(reject));
+    imap.once('end', () => Promise.all(parserPromises)
+      .then(() => resolve({ emails: emails.sort((a, b) => Number(a.uid) - Number(b.uid)), mailbox }))
+      .catch(reject));
     imap.once('error', reject);
     imap.connect();
   });
@@ -279,13 +298,25 @@ module.exports = async function handler(req, res) {
         if (client.emailPassword && !isEncrypted(client.emailPassword) && process.env.ENCRYPTION_KEY) {
           await redis.set(`client:${clientId}`, { ...client, emailPassword: encryptSecret(client.emailPassword) });
         }
-        const emails = await fetchEmailsForClient(client);
-        const knowledge = (await redis.get(`knowledge:${clientId}`)) || { urls: [], screenshots: [] };
-        const urlContent = await getKnowledgeUrlContent(clientId, knowledge.urls).catch(() => '');
+        // Remembers the last processed UID per mailbox, so no email is handled twice
+        const stateKey = `imap_state:${clientId}`;
+        const mailboxId = `${client.email}|${client.imapHost}`;
+        const saved = await redis.get(stateKey);
+        const state = saved?.mailbox === mailboxId ? saved : null;
 
+        const { emails, mailbox } = await fetchEmailsForClient(client, state);
+        const known = !!state && state.uidValidity === mailbox.uidValidity;
+        let lastUid = known ? state.lastUid : (emails.length > 0 ? 0 : mailbox.uidNext - 1);
+        const saveState = () => redis.set(stateKey, { mailbox: mailboxId, uidValidity: mailbox.uidValidity, lastUid });
+        if (!known && emails.length === 0) await saveState();
+
+        const knowledge = (await redis.get(`knowledge:${clientId}`)) || { urls: [], screenshots: [] };
+        const urlContent = emails.length > 0 ? await getKnowledgeUrlContent(clientId, knowledge.urls).catch(() => '') : '';
+
+        let completed = true;
         for (const email of emails) {
           const currentCount = (await redis.get(countKey)) || 0;
-          if (currentCount >= limit) break;
+          if (currentCount >= limit) { completed = false; break; }
 
           const id = `email_${clientId}_${email.uid}_${Date.now()}`;
 
@@ -310,6 +341,8 @@ module.exports = async function handler(req, res) {
             const ci = (await redis.get(`email_index:${clientId}`)) || [];
             ci.unshift(id); if (ci.length > 200) ci.pop();
             await redis.set(`email_index:${clientId}`, ci);
+            lastUid = Number(email.uid);
+            await saveState();
             continue; // skip reply generation, don't count toward daily limit
           }
 
@@ -341,7 +374,15 @@ module.exports = async function handler(req, res) {
 
           await redis.set(countKey, currentCount + 1);
           await redis.expire(countKey, 86400);
+          lastUid = Number(email.uid);
+          await saveState();
           processed++;
+        }
+
+        // Nothing newer is waiting, so skip ahead past emails this mode ignores (e.g. already read ones)
+        if (completed && emails.length < BATCH_SIZE && mailbox.uidNext - 1 > lastUid) {
+          lastUid = mailbox.uidNext - 1;
+          await saveState();
         }
 
         if (processed > 0) {

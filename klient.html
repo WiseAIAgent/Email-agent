@@ -158,8 +158,8 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
 .settings-label{font-size:13px;color:var(--text2)}
 .settings-label small{display:block;font-size:11px;color:var(--text3);margin-top:1px}
 .tone-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.s-tone-btn,.s-sal-btn{font-family:inherit;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
-.s-tone-btn.active,.s-sal-btn.active{background:var(--accent-light);color:var(--accent-text);border-color:var(--accent);font-weight:500}
+.s-tone-btn,.s-sal-btn,.s-mode-btn{font-family:inherit;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
+.s-tone-btn.active,.s-sal-btn.active,.s-mode-btn.active{background:var(--accent-light);color:var(--accent-text);border-color:var(--accent);font-weight:500}
 .s-length-btn{font-family:inherit;font-size:12px;padding:4px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;transition:all .15s}
 .s-length-btn.active{background:var(--accent-light);color:var(--accent-text);border-color:var(--accent);font-weight:500}
 .settings-save-row{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:16px}
@@ -477,6 +477,14 @@ textarea:focus{border-color:var(--accent);background:var(--surface)}
         <div class="settings-section-title">Filtrování e-mailů</div>
         <div style="display:flex;flex-direction:column;gap:10px">
           <div>
+            <div class="settings-label" style="margin-bottom:8px">Na které e-maily připravovat odpovědi</div>
+            <div class="tone-row">
+              <button class="s-mode-btn" data-mode="unread" onclick="selectProcessMode(this)">jen nepřečtené</button>
+              <button class="s-mode-btn" data-mode="all" onclick="selectProcessMode(this)">všechny nové</button>
+            </div>
+            <div class="field-hint">„Jen nepřečtené“ přeskočí e-maily, které si otevřete dřív než agent. Agent e-maily nikdy neoznačuje jako přečtené.</div>
+          </div>
+          <div>
             <div class="settings-label" style="margin-bottom:5px">Zakázaná témata</div>
             <input type="text" id="s-forbidden" placeholder="Ceny konkurence, interní procesy…" />
             <div class="field-hint">Agent se těmto tématům vyhne nebo přesměruje zákazníka</div>
@@ -674,6 +682,7 @@ async function checkOnboarding() {
       ignoreKeywords: data.ignoreKeywords || '',
       ignoreSenders: data.ignoreSenders || '',
       ignoreDomains: data.ignoreDomains || '',
+      processMode: data.processMode || 'unread',
       faq: Array.isArray(data.faq) ? data.faq : [],
     });
   }
@@ -912,6 +921,8 @@ function renderSettings() {
   document.getElementById('s-ignore-keywords').value = clientSettings.ignoreKeywords || '';
   document.getElementById('s-ignore-senders').value = clientSettings.ignoreSenders || '';
   document.getElementById('s-ignore-domains').value = clientSettings.ignoreDomains || '';
+  document.querySelectorAll('.s-mode-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.mode === (clientSettings.processMode || 'unread')));
   renderSettingsFaq();
 }
 
@@ -947,6 +958,12 @@ function selectTone(btn) {
   document.querySelectorAll('.s-tone-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   clientSettings.tone = btn.dataset.tone;
+}
+
+function selectProcessMode(btn) {
+  document.querySelectorAll('.s-mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  clientSettings.processMode = btn.dataset.mode;
 }
 
 function selectSalutation(btn) {
