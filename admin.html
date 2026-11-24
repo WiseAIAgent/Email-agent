@@ -295,6 +295,18 @@ textarea{resize:vertical;line-height:1.6}
         <div class="field"><label>Zakázaná témata</label><input type="text" id="f-forbidden" placeholder="Ceny konkurence, interní procesy…" /></div>
         <div class="field"><label>URL webu klienta</label><input type="text" id="f-website" placeholder="https://firma.cz" /></div>
 
+        <div class="section-div" style="margin-top:16px">Filtrování e-mailů</div>
+        <div class="field" style="margin-bottom:12px">
+          <label>Na které e-maily připravovat odpovědi</label>
+          <div class="pill-row">
+            <button type="button" class="pill-btn" data-mode="unread" onclick="aSelMode(this)">jen nepřečtené</button>
+            <button type="button" class="pill-btn" data-mode="all" onclick="aSelMode(this)">všechny nové</button>
+          </div>
+        </div>
+        <div class="field"><label>Ignorovat klíčová slova v předmětu</label><input type="text" id="f-ignore-keywords" placeholder="newsletter, noreply, automatická zpráva" /></div>
+        <div class="field"><label>Ignorovat odesílatele</label><input type="text" id="f-ignore-senders" placeholder="noreply@firma.cz, automat@firma.cz" /></div>
+        <div class="field"><label>Ignorovat domény</label><input type="text" id="f-ignore-domains" placeholder="mailchimp.com, sendgrid.net" /></div>
+
         <div class="section-div" style="margin-top:16px">Časté dotazy</div>
         <div id="f-faq-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
         <button type="button" onclick="aFaqAdd()" style="font-family:inherit;font-size:12px;padding:6px 12px;border-radius:8px;border:1px dashed var(--border2);background:none;color:var(--text3);cursor:pointer;width:100%;text-align:left">+ Přidat dotaz</button>
@@ -442,9 +454,10 @@ function toggleAgentSection(){
 function aSelTone(btn){document.querySelectorAll('[data-tone]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 function aSelLength(btn){document.querySelectorAll('[data-length]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 function aSelSal(btn){document.querySelectorAll('[data-sal]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function aSelMode(btn){document.querySelectorAll('[data-mode]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 
 function clearForm(){
-  ['f-name','f-email','f-esc-contact','f-esc-when','f-forbidden','f-website','f-signature'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['f-name','f-email','f-esc-contact','f-esc-when','f-forbidden','f-website','f-signature','f-ignore-keywords','f-ignore-senders','f-ignore-domains'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('f-limit').value='25';
   document.getElementById('f-active').checked=true;
   document.getElementById('f-expand-btn').style.display='none';
@@ -475,6 +488,11 @@ function fillForm(c){
   document.getElementById('f-esc-when').value=c.escalationWhen||'';
   document.getElementById('f-forbidden').value=c.forbiddenTopics||'';
   document.getElementById('f-website').value=c.websiteUrl||'';
+  const mode=c.processMode||'unread';
+  document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  document.getElementById('f-ignore-keywords').value=c.ignoreKeywords||'';
+  document.getElementById('f-ignore-senders').value=c.ignoreSenders||'';
+  document.getElementById('f-ignore-domains').value=c.ignoreDomains||'';
   adminFaq=Array.isArray(c.faq)?c.faq.map(f=>({...f})):[];
   renderAdminFaq();
   // Show toggle button, keep section collapsed
@@ -518,6 +536,10 @@ async function saveClient(){
       escalationWhen:document.getElementById('f-esc-when').value.trim(),
       forbiddenTopics:document.getElementById('f-forbidden').value.trim(),
       websiteUrl:document.getElementById('f-website').value.trim(),
+      processMode:document.querySelector('[data-mode].active')?.dataset.mode||'unread',
+      ignoreKeywords:document.getElementById('f-ignore-keywords').value.trim(),
+      ignoreSenders:document.getElementById('f-ignore-senders').value.trim(),
+      ignoreDomains:document.getElementById('f-ignore-domains').value.trim(),
       faq:adminFaq.filter(f=>f.q.trim()||f.a.trim()),
     }),
   };
